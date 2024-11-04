@@ -1,0 +1,20 @@
+{
+  "coauthors": {
+    "jb": {
+      "name": "Joel Barton",
+      "email": "joelbarton-io@users.noreply.github.com"
+    },
+    "jk": {
+      "name": "Jesse Kercheval",
+      "email": "jessekerch@users.noreply.github.com"
+    },
+    "sz": {
+      "name": "Shane Ziegler",
+      "email": "shaneziegler@users.noreply.github.com"
+    },
+    "wk": {
+      "name": "Wook Kim",
+      "email": "wook2000@users.noreply.github.com"
+    }
+  }
+}
