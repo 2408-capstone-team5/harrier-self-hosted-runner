@@ -6,4 +6,5 @@ export const configHarrier: configHarrierType = {
   cidrBlockVPC: "10.0.0.0/16",
   cidrBlockSubnet: "10.0.0.0/24",
   vpcId: "",
+  subnetId: "",
 };

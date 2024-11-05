@@ -3,4 +3,5 @@ export interface configHarrierType {
   cidrBlockVPC: string;
   cidrBlockSubnet: string;
   vpcId: string;
+  subnetId: string;
 }
