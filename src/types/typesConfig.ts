@@ -4,4 +4,6 @@ export interface configHarrierType {
   cidrBlockSubnet: string;
   vpcId: string;
   subnetId: string;
+  region: string;
+  awsAccountId: string;
 }

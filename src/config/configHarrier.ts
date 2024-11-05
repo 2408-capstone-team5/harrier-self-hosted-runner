@@ -7,4 +7,6 @@ export const configHarrier: configHarrierType = {
   cidrBlockSubnet: "10.0.0.0/24",
   vpcId: "",
   subnetId: "",
+  region: "",
+  awsAccountId: "",
 };
