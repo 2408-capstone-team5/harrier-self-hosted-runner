@@ -1,10 +1,10 @@
+import { config } from "../../../config/client";
 import {
   GetResourcesCommand,
   APIGatewayClient,
   CreateResourceCommand,
 } from "@aws-sdk/client-api-gateway";
 
-import { config } from "../../../config";
 const client = new APIGatewayClient(config);
 
 export default async function createResource(restApiId: string) {

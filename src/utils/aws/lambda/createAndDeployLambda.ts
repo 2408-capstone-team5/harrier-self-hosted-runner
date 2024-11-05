@@ -1,4 +1,4 @@
-import { config } from "../../../config";
+import { config } from "../../../config/client";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { LambdaClient, CreateFunctionCommand } from "@aws-sdk/client-lambda";

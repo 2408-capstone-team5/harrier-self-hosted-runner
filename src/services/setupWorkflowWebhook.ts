@@ -12,18 +12,19 @@
   */
 
 import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
-import restAPI from "../utils/aws/api/RestAPI.1";
-// import connectLambdaToRestAPI from "../utils/aws/api/connectLambdaToRestAPI";
-// import setupWebhook from "../utils/github/setupWebhook";
+import setupRestApi from "../utils/aws/api/setupRestApi";
+import setupLambdaIntegration from "../utils/aws/api/setupLambdaIntegration";
+import setupWebhook from "../utils/github/setupWebhook";
 
 export const setupWorkflowWebhook = async function () {
   try {
     await createAndDeployLambda("test_lambda");
-    await restAPI();
-
-    // await connectLambdaToRestAPI();
-    // await setupWebhook();
+    await setupRestApi();
+    await setupLambdaIntegration();
+    await setupWebhook("payload_url");
   } catch (error: unknown) {
     console.error("Error executing setupWorkflowWebhook: ", error);
   }
 };
+
+void setupWorkflowWebhook();

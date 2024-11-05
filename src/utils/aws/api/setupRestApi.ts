@@ -8,7 +8,7 @@ export default async function setupRestApi() {
     const resourceId = await createResource(restApiId);
     await createMethod(restApiId, resourceId);
 
-    console.log("'done'");
+    console.log("'*done'");
 
     // create integrations
     // create resource policy
@@ -19,3 +19,5 @@ export default async function setupRestApi() {
     console.error("Error executing setupRestApi: ", error);
   }
 }
+
+void setupRestApi();
