@@ -1,14 +1,16 @@
 import { config } from "../../../config/client";
+import { installationHash } from "../../../config/installationHash";
 import {
   APIGatewayClient,
   CreateRestApiCommand,
 } from "@aws-sdk/client-api-gateway";
+
 const client = new APIGatewayClient(config);
 
-export default async function createdAPI() {
+export default async function createAPI() {
   const { id } = await client.send(
     new CreateRestApiCommand({
-      name: "test_api",
+      name: "test-rest-api",
       description: "test rest and vest",
       version: "1.0",
       binaryMediaTypes: ["application/json"],
@@ -18,14 +20,14 @@ export default async function createdAPI() {
         types: ["REGIONAL"],
       },
       tags: {
-        name: "harrier_api_XXXXXXXXs",
+        name: `Harrier-${installationHash}-restApi`,
       },
     })
   );
 
   if (!id) {
-    throw new Error("No id found in createApiResponse.");
+    throw new Error("No id found in CreateApiResponse.");
   }
-  console.log("REST API created with id: ", id);
+
   return id;
 }

@@ -11,4 +11,5 @@ import { fromEnv } from "@aws-sdk/credential-providers";
 export const config = {
   credentials: fromEnv(), // Load credentials from environment variables
   region: process.env.AWS_REGION,
+  awsAccountId: process.env.AWS_ACCOUNT_ID,
 };
