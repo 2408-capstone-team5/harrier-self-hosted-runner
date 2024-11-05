@@ -15,6 +15,9 @@ import { configAWS } from "../utils/aws/vpc/configAWS";
 const ec2Client = new EC2Client(configAWS);
 
 const setupVPC = async () => {
+  console.log("Starting setupVPC...");
+  console.log(configHarrier);
+
   const vpcId = await createVpc(configHarrier);
   console.log(`VPC ID: ${vpcId}`);
   configHarrier.vpcId = vpcId;
