@@ -24,6 +24,7 @@ const setupVPC = async () => {
   await enableDNSSettings(vpcId);
 
   const subnetId = await createSubnet(configHarrier, vpcId);
+  configHarrier.subnetId = subnetId;
   await autoAssignPublicIp(subnetId);
 
   const gatewayId = await createInternetGateway();
