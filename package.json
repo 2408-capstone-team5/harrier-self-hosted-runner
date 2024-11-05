@@ -24,6 +24,13 @@
     "typescript-eslint": "^8.13.0"
   },
   "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@aws-sdk/client-ec2": "^3.683.0",
+    "@aws-sdk/client-lambda": "^3.682.0",
+    "@aws-sdk/credential-provider-env": "^3.679.0",
+    "@octokit/rest": "^21.0.2"
+  },
+  "dependencies": {
     "@aws-sdk/client-s3": "^3.685.0",
     "@aws-sdk/client-ec2": "^3.683.0"
   }

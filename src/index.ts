@@ -6,6 +6,8 @@ import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupWorkflowWebhook } from "./services/setupWorkflowWebhook";
 import { setupCacheEviction } from "./services/setupCacheEviction";
 
+export const config = setupCredentials();
+
 const main = () => {
   setupCredentials(); // pull github user's secrets from .env into centralized `config` object
   /* 
