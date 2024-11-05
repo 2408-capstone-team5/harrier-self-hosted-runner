@@ -17,7 +17,8 @@ export const createEC2 = async (
   subnetId: string,
   iamInstanceProfile: IamInstanceProfileSpecification,
   tagSpecifications: TagSpecification[],
-  userData: string
+  userData: string,
+  keyName?: string
 ) => {
   // const isInstanceType = (value: string): value is _InstanceType {
   //   return validInstanceTypes.has(value as _InstanceType);
@@ -26,6 +27,7 @@ export const createEC2 = async (
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI ID for the instance
     InstanceType: instanceType, // EC2 instance type
+    KeyName: keyName,
     MinCount: minCount, // Minimum instances to launch
     MaxCount: maxCount, // Maximum instances to launch
     SecurityGroupIds: securityGroupIds, // Security group IDs
