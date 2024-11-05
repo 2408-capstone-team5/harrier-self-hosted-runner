@@ -7,7 +7,7 @@ export default async function createAndDeploy(
   lambdaName: "test_lambda" | "workflow_lambda" | "cleanup_lambda"
 ) {
   try {
-    const client = new LambdaClient(config)
+    const client = new LambdaClient(config);
 
     const command = new CreateFunctionCommand({
       Description: "...description",
