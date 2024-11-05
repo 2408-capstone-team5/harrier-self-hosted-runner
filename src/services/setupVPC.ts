@@ -44,6 +44,7 @@ const setupVPC = async () => {
   await createRoute(routeTableId, gatewayId);
 
   console.log("*** VPC Setup Complete ***");
+  console.log(configHarrier);
 };
 
 setupVPC();
