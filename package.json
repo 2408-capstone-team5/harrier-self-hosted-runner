@@ -25,9 +25,10 @@
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
+    "@aws-sdk/client-api-gateway": "^3.682.0",
     "@aws-sdk/client-ec2": "^3.683.0",
     "@aws-sdk/client-lambda": "^3.682.0",
-    "@aws-sdk/credential-provider-env": "^3.679.0",
+    "@aws-sdk/credential-provider-ini": "^3.679.0",
     "@octokit/rest": "^21.0.2"
   },
   "dependencies": {

@@ -11,15 +11,15 @@
     - setup github webhook with rest api's url as the webhook payload_url
   */
 
-import createAndDeploy from "../utils/aws/lambda/createAndDeploy";
-// import createRestAPI from "../utils/aws/api/createRestAPI";
+import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
+import restAPI from "../utils/aws/api/RestAPI.1";
 // import connectLambdaToRestAPI from "../utils/aws/api/connectLambdaToRestAPI";
 // import setupWebhook from "../utils/github/setupWebhook";
 
 export const setupWorkflowWebhook = async function () {
   try {
-    await createAndDeploy("workflow_lambda");
-    // await createRestAPI(); // return payload_url?
+    await createAndDeployLambda("test_lambda");
+    await restAPI();
 
     // await connectLambdaToRestAPI();
     // await setupWebhook();

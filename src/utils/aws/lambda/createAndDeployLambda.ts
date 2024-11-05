@@ -1,18 +1,13 @@
-// import { config } from "../../../index";
+import { config } from "../../../config";
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { LambdaClient, CreateFunctionCommand } from "@aws-sdk/client-lambda";
-import { fromEnv } from "@aws-sdk/credential-provider-env";
 
 export default async function createAndDeploy(
   lambdaName: "test_lambda" | "workflow_lambda" | "cleanup_lambda"
 ) {
   try {
-    const client = new LambdaClient({
-      region: process.env.AWS_REGION,
-      credentials: fromEnv(),
-    });
-    console.log(client);
+    const client = new LambdaClient(config);
 
     const command = new CreateFunctionCommand({
       Description: "...description",
@@ -31,13 +26,10 @@ export default async function createAndDeploy(
         ),
       },
     });
-    console.log(command);
-    await Promise.resolve("done");
-    // const response = await client.send(command);
-    // console.log("Lambda function created:", response);
+
+    const response = await client.send(command);
+    console.log("Lambda function created:", response);
   } catch (error: unknown) {
-    console.error("Error creating Lambda function:", error);
+    console.error("Error creating and deploying a Lambda function:", error);
   }
 }
-
-void createAndDeploy("test_lambda");
