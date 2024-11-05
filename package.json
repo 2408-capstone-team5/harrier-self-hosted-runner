@@ -24,8 +24,7 @@
     "typescript-eslint": "^8.13.0"
   },
   "dependencies": {
-    "@aws-sdk/client-ec2": "^3.683.0",
-    "@types/aria-query": "^5.0.4",
-    "@types/json5": "^0.0.30"
+    "@aws-sdk/client-s3": "^3.685.0",
+    "@aws-sdk/client-ec2": "^3.683.0"
   }
 }
