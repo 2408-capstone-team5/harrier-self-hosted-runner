@@ -1,18 +1,9 @@
-// import {
-//   EC2Client,
-//   ModifySubnetAttributeCommandInput,
-//   ModifySubnetAttributeCommand,
-// } from "@aws-sdk/client-ec2";
-
-// Configure the EC2 client
-// import { configAWS } from "./setupCredentials";
-// import { configAWS } from "../utils/aws/vpc/configAWS";
 import { configHarrier } from "./config";
 import { createVpc } from "../utils/aws/vpc/createVPC";
 import { createSubnet } from "../utils/aws/vpc/createSubnet";
 import { autoAssignPublicIp } from "../utils/aws/vpc/autoAssignPublicIP";
-
-// const ec2Client = new EC2Client(configAWS);
+import { createInternetGateway } from "../utils/aws/vpc/createInternetGateway";
+import { attachInternetGateway } from "../utils/aws/vpc/attachInternetGateway";
 
 const setupVPC = async () => {
   const vpcId = await createVpc(configHarrier);
@@ -21,6 +12,10 @@ const setupVPC = async () => {
   const subnetId = await createSubnet(configHarrier, vpcId);
 
   await autoAssignPublicIp(subnetId);
+
+  const gatewayId = await createInternetGateway();
+
+  await attachInternetGateway(gatewayId, vpcId);
 };
 
 setupVPC();

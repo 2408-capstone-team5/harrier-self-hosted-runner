@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-ec2";
 
 import { configAWS } from "./configAWS";
-import { configHarrierType } from "../../../types/typesVPC";
+import { configHarrierType } from "../../../types/typesConfig";
 
 const ec2Client = new EC2Client(configAWS);
 

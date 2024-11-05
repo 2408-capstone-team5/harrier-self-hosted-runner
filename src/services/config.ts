@@ -1,4 +1,4 @@
-import { configHarrierType } from "../types/typesVPC";
+import { configHarrierType } from "../types/typesConfig";
 
 export const configHarrier: configHarrierType = {
   tagValue: "Harrier-1234567890",
