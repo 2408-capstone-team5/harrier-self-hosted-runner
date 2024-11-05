@@ -1,6 +1,6 @@
 import { EC2Client, CreateTagsCommand } from "@aws-sdk/client-ec2";
 
-import { configHarrier } from "./config";
+import { configHarrier } from "../config/configHarrier";
 import { createVpc } from "../utils/aws/vpc/createVPC";
 import { createSubnet } from "../utils/aws/vpc/createSubnet";
 import { autoAssignPublicIp } from "../utils/aws/vpc/autoAssignPublicIP";
@@ -8,6 +8,7 @@ import { createInternetGateway } from "../utils/aws/vpc/createInternetGateway";
 import { attachInternetGateway } from "../utils/aws/vpc/attachInternetGateway";
 import { findRouteTableId } from "../utils/aws/vpc/findRouteTable";
 import { createRoute } from "../utils/aws/vpc/createRoute";
+import { enableDNSSettings } from "../utils/aws/vpc/enableDNSSettings";
 
 import { configAWS } from "../utils/aws/vpc/configAWS";
 
@@ -16,9 +17,10 @@ const ec2Client = new EC2Client(configAWS);
 const setupVPC = async () => {
   const vpcId = await createVpc(configHarrier);
   console.log(`VPC ID: ${vpcId}`);
+  configHarrier.vpcId = vpcId;
+  await enableDNSSettings(vpcId);
 
   const subnetId = await createSubnet(configHarrier, vpcId);
-
   await autoAssignPublicIp(subnetId);
 
   const gatewayId = await createInternetGateway();

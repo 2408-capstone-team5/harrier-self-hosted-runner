@@ -6,7 +6,7 @@ import {
 } from "@aws-sdk/client-ec2";
 
 import { configAWS } from "./configAWS";
-import { configHarrier } from "../../../services/config";
+import { configHarrier } from "../../../config/configHarrier";
 
 const ec2Client = new EC2Client(configAWS);
 
@@ -33,8 +33,7 @@ export const createInternetGateway = async (): Promise<string> => {
     }
 
     console.log(
-      "Internet Gateway Created:",
-      response.InternetGateway.InternetGatewayId,
+      `Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier.vpcId}`,
     );
     return response.InternetGateway.InternetGatewayId;
   } catch (error) {
