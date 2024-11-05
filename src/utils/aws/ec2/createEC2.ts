@@ -2,28 +2,52 @@ import {
   EC2Client,
   RunInstancesCommand,
   RunInstancesCommandInput,
-  _InstanceType,
-  IamInstanceProfileSpecification,
+  // _InstanceType,
+  // IamInstanceProfileSpecification,
   TagSpecification,
 } from "@aws-sdk/client-ec2";
+import { config } from "../../../config/client";
+// import { configHarrier } from "../config/configHarrier";
+// import { validInstanceTypes } from "../../../types/ec2InstancesType";
+import { getStartScript } from "../../../scripts/setup";
+import { fromIni } from "@aws-sdk/credential-provider-ini"; // For loading credentials from ~/.aws/credentials
 
-export const createEC2 = async (
-  client: EC2Client,
-  amiId: string,
-  instanceType: _InstanceType,
-  minCount: number,
-  maxCount: number,
-  securityGroupIds: string[],
-  subnetId: string,
-  iamInstanceProfile: IamInstanceProfileSpecification,
-  tagSpecifications: TagSpecification[],
-  userData: string,
-  keyName?: string
-) => {
-  // const isInstanceType = (value: string): value is _InstanceType {
-  //   return validInstanceTypes.has(value as _InstanceType);
-  // }
+const REGION = "us-east-1"; // Change to your desired region
 
+// Initialize the EC2 client
+const client = new EC2Client({
+  region: REGION,
+  credentials: fromIni({ profile: "default" }), // Load credentials from the default profile
+});
+
+export const createEC2 = async () => {
+  // const client = new EC2Client(config);
+  const url = "https://github.com/2408-capstone-team5";
+
+  // const instanceType = "t2.micro";
+  // use configHarrier to assign config values to RunInstancesCommand params
+  const amiId = "ami-0866a3c8686eaeeba";
+  const instanceType = "t2.micro";
+  const keyName = "test-1-ubuntu-64x86-241022";
+  const minCount = 1;
+  const maxCount = 1;
+  const securityGroupIds = ["sg-0f690732e685b371b"];
+  const subnetId = "subnet-0a0ad1280d9d29dd0";
+  const iamInstanceProfile = { Name: "EC2-access-S3" };
+  const tagSpecifications: TagSpecification[] = [
+    {
+      ResourceType: "instance",
+      Tags: [{ Key: "Name", Value: "NewInstanceUsingSDK-test-Wook" }], // Tagging your instance
+    },
+  ];
+
+  // const userDataScript = startScript;
+  const userDataScript = getStartScript(url);
+  console.log(userDataScript);
+
+  // Encode the script in base64 as required by AWS
+  const userData = Buffer.from(userDataScript).toString("base64");
+  
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI ID for the instance
     InstanceType: instanceType, // EC2 instance type
