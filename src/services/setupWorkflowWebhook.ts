@@ -23,20 +23,27 @@ import grantInvokePermission from "../utils/aws/iam/grantInvokePermission";
 // import setupWebhook from "../utils/github/setupWebhook";
 
 export const setupWorkflowWebhook = async function () {
-  // TODO: import from lambda config file
-
   const lambdaName = "test_lambda";
 
   try {
     await createAndDeployLambda(lambdaName);
+    console.log("lambda created and deployed");
 
     const restApiId = await createRestApi();
     const resourceId = await createResource(restApiId);
     await createMethod(restApiId, resourceId);
-    // TODO: create resource policy on the rest api
+    // TODO: create resource policy on the rest api (limit to github webhook ip ranges)
+    console.log("rest api created");
 
     const lambdaArn = await getLambdaArn(lambdaName);
-    await grantInvokePermission(lambdaArn, restApiId);
+    await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
+
+    console.log("lambda execution permissions granted to rest api");
+
+    console.log("register api with api gateway (stages, deployment)");
+    console.log(
+      'setup github webhook with rest api"s url as the webhook payload_url'
+    );
 
     // await setupWebhook("payload_url");
   } catch (error: unknown) {

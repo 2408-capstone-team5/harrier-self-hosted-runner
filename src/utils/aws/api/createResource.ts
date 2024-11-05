@@ -22,18 +22,17 @@ export default async function createResource(restApiId: string) {
 
   console.log("Root resource: ", rootResource);
 
-  const { id } = await client.send(
+  const { id: resourceId } = await client.send(
     new CreateResourceCommand({
       restApiId,
       parentId: rootResource.id,
-      pathPart: "workflow",
+      pathPart: "test",
     })
   );
 
-  if (!id) {
+  if (!resourceId) {
     throw new Error("No id found in createResourceResponse.");
   }
 
-  console.log("new resource created with id: ", id, "at path /workflow");
-  return id;
+  return resourceId;
 }

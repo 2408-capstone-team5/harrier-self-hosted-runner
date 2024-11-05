@@ -18,7 +18,7 @@ export default async function createAndDeployLambda(lambdaName: LambdaName) {
         PackageType: "Zip",
         Publish: true,
         Tags: {
-          Name: `harrier-lambda-${installationHash}`,
+          Name: `Harrier-lambda-${installationHash}`,
         },
         Handler: "index.handler",
         Role: `arn:aws:iam::${config.awsAccountId}:role/service-role/harrier-lambda-role-br4dh2zf`, // this is where we would specify the arn of the iam role that outlines the permissions of the lambda function

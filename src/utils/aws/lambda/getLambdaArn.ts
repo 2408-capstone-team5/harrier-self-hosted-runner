@@ -1,8 +1,8 @@
 import { config } from "../../../config/client";
 import { LambdaClient, GetFunctionCommand } from "@aws-sdk/client-lambda";
-export default async function getLambdaArn(lambdaName: string) {
-  const client = new LambdaClient(config);
+const client = new LambdaClient(config);
 
+export default async function getLambdaArn(lambdaName: string) {
   try {
     const lambda = await client.send(
       new GetFunctionCommand({

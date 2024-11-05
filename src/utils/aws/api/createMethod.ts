@@ -9,15 +9,12 @@ export default async function createMethod(
   resourceId: string
 ) {
   const client = new APIGatewayClient(config);
-  const response = await client.send(
+  await client.send(
     new PutMethodCommand({
       restApiId,
       resourceId,
       httpMethod: "POST",
       authorizationType: "NONE", // configure this later
     })
-  );
-  console.log(
-    `Created method ${JSON.stringify(response)} on resource: ${resourceId} in restApi: ${restApiId}`
   );
 }

@@ -8,7 +8,7 @@ import {
 const client = new APIGatewayClient(config);
 
 export default async function createAPI() {
-  const { id } = await client.send(
+  const { id: restApiId } = await client.send(
     new CreateRestApiCommand({
       name: "test-rest-api",
       description: "test rest and vest",
@@ -25,9 +25,9 @@ export default async function createAPI() {
     })
   );
 
-  if (!id) {
+  if (!restApiId) {
     throw new Error("No id found in CreateApiResponse.");
   }
 
-  return id;
+  return restApiId;
 }
