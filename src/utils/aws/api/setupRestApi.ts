@@ -8,7 +8,7 @@ export default async function setupRestApi() {
     const resourceId = await createResource(restApiId);
     await createMethod(restApiId, resourceId);
 
-    console.log("'*done'");
+    console.log("'*done'"); // next: lambda integration
 
     // create integrations
     // create resource policy
