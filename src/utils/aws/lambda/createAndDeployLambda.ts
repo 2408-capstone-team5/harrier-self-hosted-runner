@@ -9,7 +9,10 @@ import { LambdaName } from "./types";
 
 const client = new LambdaClient(config);
 
-export default async function createAndDeployLambda(lambdaName: LambdaName) {
+export default async function createAndDeployLambda(
+  lambdaName: LambdaName,
+  lambdaRole: string
+) {
   try {
     const { FunctionArn } = await client.send(
       new CreateFunctionCommand({
@@ -22,7 +25,7 @@ export default async function createAndDeployLambda(lambdaName: LambdaName) {
           Name: `Harrier-lambda-${installationHash}`,
         },
         Handler: "index.handler",
-        Role: `arn:aws:iam::${config.awsAccountId}:role/service-role/harrier-lambda-role-br4dh2zf`, // this is where we would specify the arn of the iam role that outlines the permissions of the lambda function
+        Role: `arn:aws:iam::${config.awsAccountId}:role/service-role/${lambdaRole}`, // this is where we would specify the arn of the iam role that outlines the permissions of the lambda function
         Code: {
           ZipFile: readFileSync(
             resolve(
