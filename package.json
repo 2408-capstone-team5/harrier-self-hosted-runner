@@ -11,6 +11,15 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@aws-sdk/client-api-gateway": "^3.682.0",
+    "@aws-sdk/client-ec2": "^3.683.0",
+    "@aws-sdk/client-lambda": "^3.682.0",
+    "@aws-sdk/credential-providers": "^3.685.0",
+    "@octokit/rest": "^21.0.2",
+    "dotenv": "^16.4.5"
+  },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@stylistic/eslint-plugin": "^2.10.1",
@@ -22,6 +31,14 @@
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.5",
     "typescript-eslint": "^8.13.0"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@aws-sdk/client-api-gateway": "^3.682.0",
+    "@aws-sdk/client-ec2": "^3.683.0",
+    "@aws-sdk/client-lambda": "^3.682.0",
+    "@aws-sdk/credential-provider-ini": "^3.679.0",
+    "@octokit/rest": "^21.0.2"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.685.0",
