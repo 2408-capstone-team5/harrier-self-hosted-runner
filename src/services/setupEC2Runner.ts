@@ -6,4 +6,17 @@
     - stop the instance
     */
 
+import { createEC2 } from "../utils/aws/ec2/createEC2";
+import { config } from "../config/client";
+import { configHarrier } from "../config/configHarrier";
+import { getStartScript } from "../../../scripts/setup";
+
+// const userDataScript = startScript;
+const userDataScript = getStartScript(url);
+console.log(userDataScript);
+console.log(instanceType);
+
+// Encode the script in base64 as required by AWS
+const userData = Buffer.from(userDataScript).toString("base64");
+
 export const setupEC2Runner = () => {};
