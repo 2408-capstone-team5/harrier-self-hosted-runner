@@ -3,8 +3,10 @@ import { setupRoles } from "./services/setupRoles";
 import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
 import { setupEC2Runner } from "./services/setupEC2Runner";
-import { setupWorkflowWebhook } from "./services/setupWorkflowWebhook";
+import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupCacheEviction } from "./services/setupCacheEviction";
+
+export const config = setupCredentials();
 
 const main = () => {
   setupCredentials(); // pull github user's secrets from .env into centralized `config` object
@@ -46,7 +48,7 @@ const main = () => {
     - stop the instance
     */
 
-  setupWorkflowWebhook(); // lambda, api gateway, secrets manager
+  setupApiAndWebhook(); // lambda, api gateway, secrets manager
   /* 
     - requires the PAT from the aws secrets manager
 
