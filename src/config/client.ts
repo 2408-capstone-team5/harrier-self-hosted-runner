@@ -8,6 +8,7 @@ import "dotenv/config";
 import { fromEnv } from "@aws-sdk/credential-providers";
 
 export const config = {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
   credentials: fromEnv(), // Load credentials from environment variables
   region: process.env.AWS_REGION,
 };

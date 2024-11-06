@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   EC2Client,
   RunInstancesCommand,
@@ -7,26 +8,34 @@ import {
   TagSpecification,
 } from "@aws-sdk/client-ec2";
 import { config } from "../../../config/client";
-// import { configHarrier } from "../config/configHarrier";
+// import { configHarrierType } from "../../../types/typesConfig";
+import { configHarrier } from "../../../config/configHarrier";
 // import { validInstanceTypes } from "../../../types/ec2InstancesType";
 import { getStartScript } from "../../../scripts/setup";
-import { fromIni } from "@aws-sdk/credential-provider-ini"; // For loading credentials from ~/.aws/credentials
 
-const REGION = "us-east-1"; // Change to your desired region
+// import { fromIni } from "@aws-sdk/credential-provider-ini"; // For loading credentials from ~/.aws/credentials
 
-// Initialize the EC2 client
-const client = new EC2Client({
-  region: REGION,
-  credentials: fromIni({ profile: "default" }), // Load credentials from the default profile
-});
+// const REGION = "us-east-1"; // Change to your desired region
+
+// // Initialize the EC2 client
+// const client = new EC2Client({
+//   region: REGION,
+//   credentials: fromIni({ profile: "default" }), // Load credentials from the default profile
+// });
 
 export const createEC2 = async () => {
-  // const client = new EC2Client(config);
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+  const client = new EC2Client(config);
   const url = "https://github.com/2408-capstone-team5";
 
   // const instanceType = "t2.micro";
   // use configHarrier to assign config values to RunInstancesCommand params
-  const amiId = "ami-0866a3c8686eaeeba";
+
+  // function isConfigHarrier(obj: configHarrierType): obj is configHarrierType {
+  //   return obj && typeof obj.tagValue === 'string' && typeof obj.cidrBlockVPC === 'string' && typeof obj.cidrBlockSubnet === 'string' && obj.vpcId === 'string' && obj.subnetId === 'string' && obj.region === 'string' && obj.awsAccountId === 'string' && obj.imageId === 'string' && obj.instanceType === 'string' && obj.keyName === 'string' && obj.minInstanceCount === 'number' && obj.maxInstanceCount === 'number' && obj.IamInstanceProfile === 'object';
+  // };
+
+  const amiId = configHarrier.imageId;
   const instanceType = "t2.micro";
   const keyName = "test-1-ubuntu-64x86-241022";
   const minCount = 1;
@@ -37,7 +46,7 @@ export const createEC2 = async () => {
   const tagSpecifications: TagSpecification[] = [
     {
       ResourceType: "instance",
-      Tags: [{ Key: "Name", Value: "NewInstanceUsingSDK-test-Wook" }], // Tagging your instance
+      Tags: [{ Key: "Name", Value: configHarrier.tagValue }], // Tagging your instance
     },
   ];
 
@@ -47,7 +56,7 @@ export const createEC2 = async () => {
 
   // Encode the script in base64 as required by AWS
   const userData = Buffer.from(userDataScript).toString("base64");
-  
+
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI ID for the instance
     InstanceType: instanceType, // EC2 instance type

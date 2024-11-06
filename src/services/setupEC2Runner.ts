@@ -7,6 +7,8 @@
     */
 
 import { createEC2 } from "../utils/aws/ec2/createEC2";
+import { config } from "../config/client";
+import { configHarrier } from "../config/configHarrier";
 import { getStartScript } from "../../../scripts/setup";
 
 // const userDataScript = startScript;
