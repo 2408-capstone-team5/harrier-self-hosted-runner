@@ -19,6 +19,7 @@ import createRestApi from "../utils/aws/api/createRestApi";
 
 import getLambdaArn from "../utils/aws/lambda/getLambdaArn";
 import grantInvokePermission from "../utils/aws/iam/grantInvokePermission";
+import createLambdaIntegration from "../utils/aws/api/createLambdaIntegration";
 
 // import setupWebhook from "../utils/github/setupWebhook";
 
@@ -27,6 +28,7 @@ export const setupWorkflowWebhook = async function () {
 
   try {
     await createAndDeployLambda(lambdaName);
+    // TODO: setup vpcCon
     console.log("lambda created and deployed");
 
     const restApiId = await createRestApi();
@@ -37,12 +39,15 @@ export const setupWorkflowWebhook = async function () {
 
     const lambdaArn = await getLambdaArn(lambdaName);
     await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
-
-    console.log("lambda execution permissions granted to rest api");
-
-    console.log("register api with api gateway (stages, deployment)");
+    await createLambdaIntegration(restApiId, resourceId, lambdaArn);
     console.log(
-      'setup github webhook with rest api"s url as the webhook payload_url'
+      "lambda execution permissions granted to rest api and integrated with rest api"
+    );
+
+    registerApiWithApiGateway(restApiId);
+    console.log("NEXT: register api with api gateway (stages, deployment)");
+    console.log(
+      "NEXT: setup github webhook with rest api's url as the webhook payload_url"
     );
 
     // await setupWebhook("payload_url");

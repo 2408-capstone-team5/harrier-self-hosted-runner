@@ -1,6 +1,7 @@
 import { config } from "../../../config/client";
 import { workflow } from "../../../config/lambdas";
 import { AddPermissionCommand, LambdaClient } from "@aws-sdk/client-lambda";
+const client = new LambdaClient(config);
 
 export default async function grantInvokePermission(
   lambdaArn: string,
@@ -9,8 +10,6 @@ export default async function grantInvokePermission(
   //   resourcePath: "test" = "test"
 ) {
   try {
-    const client = new LambdaClient(config);
-
     const command = new AddPermissionCommand({
       ...workflow,
       FunctionName: lambdaArn,
