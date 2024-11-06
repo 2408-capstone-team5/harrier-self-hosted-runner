@@ -16,7 +16,7 @@ export default async function deployApi(restApiId: string, stageName: string) {
     new CreateDeploymentCommand({
       restApiId,
       stageName,
-      stageDescription: "test stage",
+      stageDescription: "test stage description",
       description: "test deployment description",
       variables: {
         theseVariables:
@@ -40,10 +40,4 @@ export default async function deployApi(restApiId: string, stageName: string) {
     " and stageName: ",
     stageName
   );
-
-  // I want the invoke url with the desired 'test-stage/test-resource' path
-  // to use as the webhook payload_url
-  
 }
-
-// void deployApi("77j0v78e7l", "test-stage"); // for testing

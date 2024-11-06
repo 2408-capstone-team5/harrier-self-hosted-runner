@@ -21,16 +21,16 @@ import getLambdaArn from "../utils/aws/lambda/getLambdaArn";
 import grantInvokePermission from "../utils/aws/iam/grantInvokePermission";
 import createLambdaIntegration from "../utils/aws/api/createLambdaIntegration";
 import deployApi from "../utils/aws/api/deployApi";
-import setupWorkflowWebhook from "../utils/github/setupWorkflowWebhook";
+import setupWebhook from "../utils/github/setupWebhook";
 
 export async function setupApiAndWebhook() {
   const lambdaName = "test_lambda";
-  const stageName = "test_stage";
+  const stageName = "test";
   const httpMethod = "POST";
 
   try {
     await createAndDeployLambda(lambdaName);
-    // TODO: setup vpcConfig
+    // TODO: setup vpcConfig SHANE
     console.log("lambda created and deployed");
 
     const restApiId = await createRestApi();
@@ -48,16 +48,11 @@ export async function setupApiAndWebhook() {
 
     await deployApi(restApiId, stageName);
     console.log("created deployment + stage for rest api");
-
-    await setupWorkflowWebhook(restApiId, stageName, httpMethod);
     console.log(
       "NEXT: setup github webhook with rest api's url as the webhook payload_url"
     );
-
-    // await setupWebhook("payload_url");
+    await setupWebhook(restApiId, stageName);
   } catch (error: unknown) {
     console.error("Error executing setupWorkflowWebhook: ", error);
   }
 }
-
-void setupWorkflowWebhook();

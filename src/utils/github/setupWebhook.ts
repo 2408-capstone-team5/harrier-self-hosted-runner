@@ -38,12 +38,11 @@ const constructPayloadUrl = (
   return `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/${resource}`;
 };
 
-export default async function setupWorkflowWebhook(
+export default async function setupWebhook(
   restApiId: string,
   stageName: "test" | "prod" = "test"
 ) {
   const payloadUrl = constructPayloadUrl(restApiId, stageName, "test");
-
   const options = {
     org,
     repo,
@@ -51,7 +50,7 @@ export default async function setupWorkflowWebhook(
     active: true,
     events: ["workflow_job"],
     config: {
-      url: payloadUrl, // request bin url for testing purposes
+      url: payloadUrl,
       content_type: "json",
       insecure_ssl: "0",
     },
@@ -59,16 +58,5 @@ export default async function setupWorkflowWebhook(
       "X-GitHub-Api-Version": "2022-11-28",
     },
   };
-
-  console.log({ options });
-
-  try {
-    const response = await octokit.request(
-      "POST /repos/{org}/{repo}/hooks",
-      options
-    );
-    console.log("Webhook created:", response.data);
-  } catch (error) {
-    console.error("Error creating webhook:", error);
-  }
+  await octokit.request("POST /repos/{org}/{repo}/hooks", options);
 }
