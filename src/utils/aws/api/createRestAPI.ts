@@ -1,3 +1,9 @@
+/* 
+STILL NEED:
+    - setup resource policy (limit to github webhook ip ranges)
+    - configure cloudwatch logging/metrics
+    - request validation
+*/
 import { config } from "../../../config/client";
 import { installationHash } from "../../../config/installationHash";
 import {

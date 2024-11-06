@@ -20,20 +20,22 @@ import createRestApi from "../utils/aws/api/createRestApi";
 import getLambdaArn from "../utils/aws/lambda/getLambdaArn";
 import grantInvokePermission from "../utils/aws/iam/grantInvokePermission";
 import createLambdaIntegration from "../utils/aws/api/createLambdaIntegration";
+import deployApi from "../utils/aws/api/deployApi";
+import setupWorkflowWebhook from "../utils/github/setupWorkflowWebhook";
 
-// import setupWebhook from "../utils/github/setupWebhook"; asdf another est
-
-export const setupWorkflowWebhook = async function () {
+export async function setupApiAndWebhook() {
   const lambdaName = "test_lambda";
+  const stageName = "test_stage";
+  const httpMethod = "POST";
 
   try {
     await createAndDeployLambda(lambdaName);
-    // TODO: setup vpcCon
+    // TODO: setup vpcConfig
     console.log("lambda created and deployed");
 
     const restApiId = await createRestApi();
     const resourceId = await createResource(restApiId);
-    await createMethod(restApiId, resourceId);
+    await createMethod(restApiId, resourceId, httpMethod);
     // TODO: create resource policy on the rest api (limit to github webhook ip ranges)
     console.log("rest api created");
 
@@ -44,8 +46,10 @@ export const setupWorkflowWebhook = async function () {
       "lambda execution permissions granted to rest api and integrated with rest api"
     );
 
-    registerApiWithApiGateway(restApiId);
-    console.log("NEXT: register api with api gateway (stages, deployment)");
+    await deployApi(restApiId, stageName);
+    console.log("created deployment + stage for rest api");
+
+    await setupWorkflowWebhook(restApiId, stageName, httpMethod);
     console.log(
       "NEXT: setup github webhook with rest api's url as the webhook payload_url"
     );
@@ -54,6 +58,6 @@ export const setupWorkflowWebhook = async function () {
   } catch (error: unknown) {
     console.error("Error executing setupWorkflowWebhook: ", error);
   }
-};
+}
 
 void setupWorkflowWebhook();

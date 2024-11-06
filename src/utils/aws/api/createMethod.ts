@@ -4,17 +4,18 @@ import {
   PutMethodCommand,
 } from "@aws-sdk/client-api-gateway";
 
+const client = new APIGatewayClient(config);
 export default async function createMethod(
   restApiId: string,
-  resourceId: string
+  resourceId: string,
+  httpMethod: "POST"
 ) {
-  const client = new APIGatewayClient(config);
   await client.send(
     new PutMethodCommand({
       restApiId,
       resourceId,
-      httpMethod: "POST",
-      authorizationType: "NONE", // configure this later
+      httpMethod,
+      authorizationType: "NONE", // TODO: configure this later
     })
   );
 }
