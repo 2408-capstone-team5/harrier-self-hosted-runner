@@ -3,19 +3,18 @@
         - PAT from the aws secrets manager or the aws .env file or config object
         - 
 
-    - create lambda that receives webhook (queued, inprogress, completed) from github workflow run
-    - deploy lambda
-
-    - create rest API (resources, methods, integrations, resource policy)
-    - register api with api gateway (stages, deployment)
-    - setup github webhook with rest api's url as the webhook payload_url
+    - [x] create and deploy lambda
+    - [x] create rest api
+    - [x] integrate `workflow` lambda with rest api
+    - [x] deploy api
+    - [ ] setup webhook with github (requires `personal-access-token, `repo`, `org`, and payload_url)
   */
 
 import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
 
 import createMethod from "../utils/aws/api/createMethod";
 import createResource from "../utils/aws/api/createResource";
-import createRestApi from "../utils/aws/api/createRestApi";
+import createRestApi from "../utils/aws/api/createRestAPI"; // idk why this keeps changing to "...API"
 
 import getLambdaArn from "../utils/aws/lambda/getLambdaArn";
 import grantInvokePermission from "../utils/aws/iam/grantInvokePermission";
@@ -52,7 +51,10 @@ export async function setupApiAndWebhook() {
       "NEXT: setup github webhook with rest api's url as the webhook payload_url"
     );
     await setupWebhook(restApiId, stageName);
+
+    console.log("webhook setup complete");
   } catch (error: unknown) {
-    console.error("Error executing setupWorkflowWebhook: ", error);
+    console.error("Error executing setupApiAndWebhook: ", error);
   }
 }
+void setupApiAndWebhook();

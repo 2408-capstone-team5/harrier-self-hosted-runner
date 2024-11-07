@@ -25,7 +25,8 @@ export default async function createAndDeployLambda(
           Name: `Harrier-lambda-${installationHash}`,
         },
         Handler: "index.handler",
-        Role: `arn:aws:iam::${config.awsAccountId}:role/service-role/${lambdaRole}`, // this is where we would specify the arn of the iam role that outlines the permissions of the lambda function
+        // TODO: dynamic role creation
+        Role: `arn:aws:iam::${config.awsAccountId}:role/service-role/${lambdaRole}`, // this is where we would specify the arn of the iam role that outlines the permissions of the lambda functio
         Code: {
           ZipFile: readFileSync(
             resolve(

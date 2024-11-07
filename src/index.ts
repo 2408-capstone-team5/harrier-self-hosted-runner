@@ -1,4 +1,3 @@
-import { setupCredentials } from "./services/setupCredentials";
 import { setupRoles } from "./services/setupRoles";
 import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
@@ -6,15 +5,7 @@ import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupCacheEviction } from "./services/setupCacheEviction";
 
-export const config = setupCredentials();
-
 const main = () => {
-  setupCredentials(); // pull github user's secrets from .env into centralized `config` object
-  /* 
-    - creating a basic `config` object that is used throughout the app by all aws-clients
-    - create unique harrier tag that follows a naming convention: 'harrier-<XXXXXXXX>-resource-name'
-    export const config = { user config }
-    */
   setupRoles(); // IAM
   /*
     assumes: 
@@ -48,7 +39,8 @@ const main = () => {
     - stop the instance
     */
 
-  setupApiAndWebhook(); // lambda, api gateway, secrets manager
+  setupApiAndWebhook();
+  // lambda, api gateway, secrets manager
   /* 
     - requires the PAT from the aws secrets manager
 
@@ -67,4 +59,4 @@ const main = () => {
   */
 };
 
-main();
+void main();

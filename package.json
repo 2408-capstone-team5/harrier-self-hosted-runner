@@ -30,9 +30,9 @@
     "@aws-sdk/client-eventbridge": "^3.685.0",
     "@aws-sdk/client-lambda": "^3.682.0",
     "@aws-sdk/client-s3": "^3.685.0",
-    "@aws-sdk/client-scheduler": "^3.682.0",
     "@aws-sdk/credential-providers": "^3.685.0",
-    "@octokit/rest": "^21.0.2",
+    "axios": "^1.7.7",
+    "@aws-sdk/client-scheduler": "^3.682.0",
     "dotenv": "^16.4.5"
   }
 }
