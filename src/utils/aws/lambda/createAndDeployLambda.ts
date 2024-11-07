@@ -18,6 +18,8 @@ export default async function createAndDeployLambda(
     // throw new Error("createAndDeployLambda failed");
     const response = await client.send(
       new CreateFunctionCommand({
+        // I want to specify a vpc config here
+
         Description: "...description",
         FunctionName: lambdaName,
         Runtime: "nodejs20.x",
