@@ -41,7 +41,7 @@ export default async function setupWebhook(
       },
       {
         headers: {
-          Authorization: `Bearer pat`, // I've been hardcoding a PAT here for testing purposes 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
+          Authorization: `Bearer pat`, // I've been hardcoding a PAT here for testing purposes
           Accept: "application/vnd.github.v3+json",
           "X-GitHub-Api-Version": "2022-11-28",
         },
@@ -58,13 +58,6 @@ export default async function setupWebhook(
   }
 }
 
-//   const octokit = new Octokit({
-//     auth: "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",
-//     baseUrl: "https://api.github.com",
-//   });
-
-//   await octokit.request("POST /repos/{org}/{repo}/hooks", options);
-// TODO: ask WOOK/JESSE how this would work with the JIT token!
 // const getRegistrationToken = async () => {
 //   try {
 //     const response = await octokit.request(
@@ -91,25 +84,3 @@ export default async function setupWebhook(
 //   // TODO: region shouldn't be hardcoded
 //   return `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/${resource}`;
 // };
-
-//   const options = {
-//     org: "2408-capstone-team5",
-//     repo: "fake-setup-harrier-action",
-//     name: "web",
-//     active: true,
-//     events: ["workflow_job"],
-//     config: {
-//       url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/test`,
-//       content_type: "json",
-//       insecure_ssl: "0",
-//     },
-//     headers: {
-//       "X-GitHub-Api-Version": "2022-11-28",
-//       Authorization: `Bearer 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`,
-//     },
-//   };
-
-//   const response = await axios.post(
-//     `https://api.github.com/repos/${options.org}/${options.repo}/hooks`,
-//     options
-//   );
