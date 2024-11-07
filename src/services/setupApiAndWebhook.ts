@@ -1,4 +1,4 @@
-import { config } from "../config/client"; // need to import here so I can use the awsAccountId
+// import { config } from "../config/client"; // need to import here so I can use the awsAccountId
 
 import create_workflow_lambdaRoleWithPolicies from "../utils/aws/iam/create_workflow_lambdaRoleWithPolicies";
 import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
@@ -11,12 +11,27 @@ import { LambdaName } from "../utils/aws/lambda/types";
 
 const lambdaName: LambdaName = "workflow"; // HARDCODED lambda name
 const stageName = "dev"; // HARDCODED
-const roleArn = `arn:aws:iam::${config.awsAccountId}:role/service-role/harrier-lambda-role-br4dh2zf`; // HARDCODED role name needed by `workflow` lambda
+// const roleArn = /harrier-lambda-role-br4dh2zf`; // HARDCODED role name needed by `workflow` lambda
 
 export async function setupApiAndWebhook() {
+  const wait = (ms: number) => {
+    const start = Date.now();
+    let now = start;
+    while (now - start < ms) {
+      now = Date.now();
+    }
+  };
   try {
-    await create_workflow_lambdaRoleWithPolicies("JOEl_WORKFLOW");
-    await createAndDeployLambda(lambdaName, roleArn);
+    const roleName = "roleName";
+    const serviceRoleArn =
+      await create_workflow_lambdaRoleWithPolicies(roleName);
+    console.log("serviceRoleArn: ", serviceRoleArn);
+
+    wait(20_000);
+
+    await createAndDeployLambda(lambdaName, serviceRoleArn);
+    throw new Error("stop here");
+
     const { restApiId, resourceId } = await setupRestApi();
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
     await deployApi(restApiId, stageName);
@@ -25,4 +40,4 @@ export async function setupApiAndWebhook() {
     console.error("Error executing setupApiAndWebhook: ", error);
   }
 }
-// void setupApiAndWebhook();
+void setupApiAndWebhook();

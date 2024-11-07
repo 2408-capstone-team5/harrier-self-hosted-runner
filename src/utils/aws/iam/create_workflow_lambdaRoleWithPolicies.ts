@@ -8,32 +8,43 @@ import { config } from "../../../config/client";
 const iamClient = new IAMClient({ region: config.region });
 
 // THIS IS CURRENTLY JUST FOR THE `workflow` lambda!!!  can be generalized later (today?)
+/* 
+
+`workflow` lambda needs to be able to:
+- READ from aws secrets manager
+
+`cleanup` lambda needs to be able to:
+- S3 read/write
+
+*/
+
 export default async function create_workflow_lambdaRoleWithPolicies(
   roleName: string
 ) {
-  const rolePolicyDocument = {
-    Version: "2012-10-17",
-    Statement: [
-      {
-        Effect: "Allow",
-        Principal: {
-          Service: "lambda.amazonaws.com",
+  const input = {
+    RoleName: roleName,
+    Path: "/service-role/",
+    AssumeRolePolicyDocument: JSON.stringify({
+      Version: "2012-10-17",
+      Statement: [
+        {
+          Effect: "Allow",
+          Principal: {
+            Service: "lambda.amazonaws.com",
+          },
+          Action: "sts:AssumeRole",
         },
-        Action: "sts:AssumeRole",
-      },
-    ],
+      ],
+    }),
   };
 
-  const roleResponse = await iamClient.send(
-    new CreateRoleCommand({
-      RoleName: roleName,
-      AssumeRolePolicyDocument: JSON.stringify(rolePolicyDocument),
-    })
-  );
+  const roleResponse = await iamClient.send(new CreateRoleCommand(input));
 
   if (!roleResponse.Role?.Arn) {
     throw new Error("Failed to create IAM role: " + roleName);
   }
+
+  console.log("roleResponse: ", roleResponse);
 
   const ec2Policy = {
     Version: "2012-10-17",
@@ -90,7 +101,9 @@ export default async function create_workflow_lambdaRoleWithPolicies(
     })
   );
 
+  console.log("successfully attached policies to role");
+
+  console.log("roleResponse: ", roleResponse);
+
   return roleResponse.Role.Arn;
 }
-
-void create_workflow_lambdaRoleWithPolicies("JOEL_WORKFLOW");
