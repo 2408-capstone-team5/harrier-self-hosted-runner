@@ -28,11 +28,12 @@
     "@aws-sdk/client-api-gateway": "^3.682.0",
     "@aws-sdk/client-ec2": "^3.683.0",
     "@aws-sdk/client-eventbridge": "^3.685.0",
+    "@aws-sdk/client-iam": "^3.686.0",
     "@aws-sdk/client-lambda": "^3.682.0",
     "@aws-sdk/client-s3": "^3.685.0",
+    "@aws-sdk/client-scheduler": "^3.682.0",
     "@aws-sdk/credential-providers": "^3.685.0",
     "axios": "^1.7.7",
-    "@aws-sdk/client-scheduler": "^3.682.0",
     "dotenv": "^16.4.5"
   }
 }

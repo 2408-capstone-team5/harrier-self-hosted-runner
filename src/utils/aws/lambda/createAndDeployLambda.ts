@@ -14,7 +14,9 @@ export default async function createAndDeployLambda(
   lambdaRole: string
 ) {
   try {
-    const { FunctionArn } = await client.send(
+    // console.log("lambdaRole: ", lambdaRole);
+    // throw new Error("createAndDeployLambda failed");
+    const response = await client.send(
       new CreateFunctionCommand({
         Description: "...description",
         FunctionName: lambdaName,
@@ -26,7 +28,7 @@ export default async function createAndDeployLambda(
         },
         Handler: "index.handler",
         // TODO: dynamic role creation
-        Role: `arn:aws:iam::${config.awsAccountId}:role/service-role/${lambdaRole}`, // this is where we would specify the arn of the iam role that outlines the permissions of the lambda functio
+        Role: lambdaRole,
         Code: {
           ZipFile: readFileSync(
             resolve(
@@ -38,12 +40,12 @@ export default async function createAndDeployLambda(
       })
     );
 
-    if (!FunctionArn) {
+    if (!response?.FunctionArn) {
       throw new Error(
         `The lambda function with the name ${lambdaName} was not created.`
       );
     }
-    return FunctionArn;
+    return response.FunctionArn;
   } catch (error: unknown) {
     console.error("Error creating and deploying a Lambda function:", error);
     throw new Error("createAndDeployLambda failed");

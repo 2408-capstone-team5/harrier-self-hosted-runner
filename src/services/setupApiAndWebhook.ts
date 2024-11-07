@@ -1,5 +1,6 @@
 import { config } from "../config/client"; // need to import here so I can use the awsAccountId
 
+import create_workflow_lambdaRoleWithPolicies from "../utils/aws/iam/create_workflow_lambdaRoleWithPolicies";
 import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
 import setupRestApi from "../utils/aws/api/setupRestApi";
 import integrateLambdaWithApi from "../utils/aws/api/integrateLambdaWithApi";
@@ -14,6 +15,7 @@ const roleArn = `arn:aws:iam::${config.awsAccountId}:role/service-role/harrier-l
 
 export async function setupApiAndWebhook() {
   try {
+    await create_workflow_lambdaRoleWithPolicies("JOEl_WORKFLOW");
     await createAndDeployLambda(lambdaName, roleArn);
     const { restApiId, resourceId } = await setupRestApi();
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
@@ -23,4 +25,4 @@ export async function setupApiAndWebhook() {
     console.error("Error executing setupApiAndWebhook: ", error);
   }
 }
-void setupApiAndWebhook();
+// void setupApiAndWebhook();
