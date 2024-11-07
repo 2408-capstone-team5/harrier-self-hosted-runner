@@ -44,7 +44,7 @@ export default async function create_workflow_lambdaRoleWithPolicies(
     throw new Error("Failed to create IAM role: " + roleName);
   }
 
-  console.log("roleResponse: ", roleResponse);
+  //   console.log("roleResponse: ", roleResponse);
 
   const ec2Policy = {
     Version: "2012-10-17",
@@ -101,9 +101,6 @@ export default async function create_workflow_lambdaRoleWithPolicies(
     })
   );
 
-  console.log("successfully attached policies to role");
-
-  console.log("roleResponse: ", roleResponse);
-
+  console.log("✅ attached 2 policy statements to new role");
   return roleResponse.Role.Arn;
 }

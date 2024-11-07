@@ -14,7 +14,7 @@ export default async function createAndDeployLambda(
   lambdaRoleArn: string
 ) {
   try {
-    console.log("lambdaRoleArn: ", lambdaRoleArn);
+    // console.log("lambdaRoleArn: ", lambdaRoleArn);
     // throw new Error("createAndDeployLambda failed");
     const response = await client.send(
       new CreateFunctionCommand({
@@ -45,6 +45,7 @@ export default async function createAndDeployLambda(
         `The lambda function with the name ${lambdaName} was not created.`
       );
     }
+    console.log("✅ Lambda function created and deployed:", lambdaName);
     return response.FunctionArn;
   } catch (error: unknown) {
     console.error("Error creating and deploying a Lambda function:", error);

@@ -10,7 +10,7 @@ import axios from "axios";
 // import core from "@actions/core";
 const repo = "fake-setup-harrier-action"; // HARDCODED
 const org = "2408-capstone-team5";
-const pat = "ghp_...";
+const pat = "ghp...";
 
 export default async function setupWebhook(
   restApiId: string,
@@ -40,7 +40,7 @@ export default async function setupWebhook(
       }
     );
 
-    console.log("Webhook created successfully:", response.data);
+    console.log("✅ Webhook created successfully:", response.data);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error("Error creating webhook:", error.response?.data);

@@ -15,6 +15,8 @@ const stageName = "dev"; // HARDCODED
 
 export async function setupApiAndWebhook() {
   const wait = (ms: number) => {
+    console.log(`waiting ${ms / 1000} seconds...`);
+
     const start = Date.now();
     let now = start;
     while (now - start < ms) {
@@ -25,17 +27,17 @@ export async function setupApiAndWebhook() {
     const roleName = "roleName";
     const serviceRoleArn =
       await create_workflow_lambdaRoleWithPolicies(roleName);
-    console.log("serviceRoleArn: ", serviceRoleArn);
-
     wait(20_000);
-
     await createAndDeployLambda(lambdaName, serviceRoleArn);
-    throw new Error("stop here");
-
+    wait(5_000);
     const { restApiId, resourceId } = await setupRestApi();
+    wait(5_000);
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
+    wait(5_000);
     await deployApi(restApiId, stageName);
+    wait(5_000);
     await setupWebhook(restApiId, stageName);
+    console.log("✅ completed setupApiAndWebhook ");
   } catch (error: unknown) {
     console.error("Error executing setupApiAndWebhook: ", error);
   }

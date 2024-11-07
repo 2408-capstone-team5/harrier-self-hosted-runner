@@ -35,5 +35,5 @@ export default async function deployApi(
     throw new Error("No id found in CreateDeploymentResponse.");
   }
 
-  console.log(`Deployed Api with Id: ${response.id}`);
+  console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);
 }
