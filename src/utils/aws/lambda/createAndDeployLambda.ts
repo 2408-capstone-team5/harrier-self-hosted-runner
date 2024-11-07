@@ -11,10 +11,10 @@ const client = new LambdaClient(config);
 
 export default async function createAndDeployLambda(
   lambdaName: LambdaName,
-  lambdaRole: string
+  lambdaRoleArn: string
 ) {
   try {
-    // console.log("lambdaRole: ", lambdaRole);
+    // console.log("lambdaRoleArn: ", lambdaRoleArn);
     // throw new Error("createAndDeployLambda failed");
     const response = await client.send(
       new CreateFunctionCommand({
@@ -28,7 +28,7 @@ export default async function createAndDeployLambda(
         },
         Handler: "index.handler",
         // TODO: dynamic role creation
-        Role: lambdaRole,
+        Role: lambdaRoleArn, // service-role/
         Code: {
           ZipFile: readFileSync(
             resolve(
@@ -45,6 +45,7 @@ export default async function createAndDeployLambda(
         `The lambda function with the name ${lambdaName} was not created.`
       );
     }
+    console.log("✅ Lambda function created and deployed:", lambdaName);
     return response.FunctionArn;
   } catch (error: unknown) {
     console.error("Error creating and deploying a Lambda function:", error);
