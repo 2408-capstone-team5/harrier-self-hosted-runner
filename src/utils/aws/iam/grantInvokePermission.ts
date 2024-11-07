@@ -7,7 +7,7 @@ export default async function grantInvokePermission(
   lambdaArn: string,
   restApiId: string
   //   method: "POST" = "POST",
-  //   resourcePath: "test" = "test"
+  //   resourcePath: "workflow" = "workflow"
 ) {
   try {
     const command = new AddPermissionCommand({

@@ -6,42 +6,34 @@
 */
 
 import axios from "axios";
-// import core from "@actions/core";
-// import { Octokit } from "@octokit/core";
-// import { createRequire } from "module";
-// const require = createRequire(import.meta.url);
-// const { Octokit } = require("@octokit/core");
 
-// const configureGithubWebhookOptions = (
-//   restApiId: string,
-//   stageName: string,
-//   org: string,
-//   repo: string
-// ) =>
-// };
+// import core from "@actions/core";
+const repo = "fake-setup-harrier-action"; // HARDCODED
+const org = "2408-capstone-team5";
+const pat = "ghp_...";
 
 export default async function setupWebhook(
   restApiId: string,
-  stageName: "test" | "prod" = "test"
+  stageName: "dev" | "prod" = "dev"
 ) {
   try {
     const response = await axios.post(
-      `https://api.github.com/repos/2408-capstone-team5/fake-setup-harrier-action/hooks`,
+      `https://api.github.com/repos/${org}/${repo}/hooks`,
       {
         config: {
-          url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/test`,
+          url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/workflow`,
           content_type: "json",
           insecure_ssl: "0",
         },
         events: ["workflow_job"],
         active: true,
         name: "web",
-        owner: "2408-capstone-team5",
-        repo: "fake-setup-harrier-action",
+        owner: org,
+        repo,
       },
       {
         headers: {
-          Authorization: `Bearer pat`, // I've been hardcoding a PAT here for testing purposes
+          Authorization: `Bearer ${pat}`,
           Accept: "application/vnd.github.v3+json",
           "X-GitHub-Api-Version": "2022-11-28",
         },

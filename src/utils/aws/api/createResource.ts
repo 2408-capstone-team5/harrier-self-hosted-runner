@@ -8,31 +8,39 @@ import {
 const client = new APIGatewayClient(config);
 
 export default async function createResource(restApiId: string) {
-  const { items } = await client.send(new GetResourcesCommand({ restApiId }));
+  const existingRootResourceId = await getRootResource(restApiId);
+  const resourceId = await createNewResource(restApiId, existingRootResourceId);
+  return resourceId;
+}
 
-  if (!Array.isArray(items)) {
+async function getRootResource(restApiId: string) {
+  const response = await client.send(new GetResourcesCommand({ restApiId }));
+
+  if (!Array.isArray(response?.items)) {
     throw new Error("No items array found in createResourceResponse.");
   }
 
-  const rootResource = items.find(({ path }) => path === "/");
+  const rootResource = response.items.find(({ path }) => path === "/");
 
-  if (!rootResource) {
+  if (!rootResource?.id) {
     throw new Error("No root resource was found.");
   }
 
-  console.log("Root resource: ", rootResource);
+  return rootResource.id;
+}
 
-  const { id: resourceId } = await client.send(
+async function createNewResource(restApiId: string, parentId: string) {
+  const response = await client.send(
     new CreateResourceCommand({
       restApiId,
-      parentId: rootResource.id,
-      pathPart: "test",
+      parentId,
+      pathPart: "workflow", // HARDCODED
     })
   );
 
-  if (!resourceId) {
+  if (!response?.id) {
     throw new Error("No id found in createResourceResponse.");
   }
 
-  return resourceId;
+  return response.id;
 }

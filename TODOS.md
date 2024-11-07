@@ -47,7 +47,9 @@
 ### setupApiAndWebhook
 
 - [x] create and deploy lambda
+- [ ] integrate with shane's vpc
 - [x] create rest api
+- [ ] create resource policy on the rest api (limit to github webhook ip ranges)
 - [x] integrate `workflow` lambda with rest api
 - [x] deploy api
 - [x] setup webhook
