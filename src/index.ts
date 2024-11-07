@@ -1,21 +1,12 @@
-import { setupCredentials } from "./services/setupCredentials";
-import { setupRoles } from "./services/setupRoles";
-import { setupVPC } from "./services/setupVPC";
-import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
-import { setupEC2Runner } from "./services/setupEC2Runner";
+// import { setupRoles } from "./services/setupRoles";
+// import { setupVPC } from "./services/setupVPC";
+// import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
+// import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
-import { setupCacheEviction } from "./services/setupCacheEviction";
-
-export const config = setupCredentials();
+// import { setupCacheEviction } from "./services/setupCacheEviction";
 
 const main = () => {
-  setupCredentials(); // pull github user's secrets from .env into centralized `config` object
-  /* 
-    - creating a basic `config` object that is used throughout the app by all aws-clients
-    - create unique harrier tag that follows a naming convention: 'harrier-<XXXXXXXX>-resource-name'
-    export const config = { user config }
-    */
-  setupRoles(); // IAM
+//   setupRoles(); // IAM
   /*
     assumes: 
     - harrier_identity user exists with minimum user role permissions
@@ -25,7 +16,7 @@ const main = () => {
     - lambda basic execution role
     - cache eviction lambda needs s3 access
    */
-  setupVPC(); // VPC, IP, Public Subnet, Internet Gateway, Route Table
+//   setupVPC(); // VPC, IP, Public Subnet, Internet Gateway, Route Table
   /* 
     Create Public Subnet
     Enable auto-assign public IPv4 address with CIDR blocks 10.0.1.0/24
@@ -35,11 +26,11 @@ const main = () => {
     Associate public subnet with route table
 
   */
-  setupS3CacheBucket(); // S3
+//   setupS3CacheBucket(); // S3
   /* 
     - conditionally create and config S3 bucket
   */
-  setupEC2Runner(); // EC2-EBS instantiate, run script, stop
+//   setupEC2Runner(); // EC2-EBS instantiate, run script, stop
   /* 
     - requires: harrier-tagged S3 bucket, existing harrier VPC, existing resource role (granted by harrier_identity)
     - EC2 created with instance-specific configuration details
@@ -48,7 +39,8 @@ const main = () => {
     - stop the instance
     */
 
-  setupApiAndWebhook(); // lambda, api gateway, secrets manager
+  setupApiAndWebhook().catch(console.log);
+   // lambda, api gateway, secrets manager
   /* 
     - requires the PAT from the aws secrets manager
 
@@ -59,7 +51,7 @@ const main = () => {
     - register api with api gateway (stages, deployment)
     - setup github webhook with rest api's url as the webhook payload_url
   */
-  setupCacheEviction(); // lambda & EventBridge
+//   setupCacheEviction(); // lambda & EventBridge
   /* 
     - requires S3 Name/ARN
     - create lambda with eviction policy
@@ -67,4 +59,4 @@ const main = () => {
   */
 };
 
-main();
+void main();

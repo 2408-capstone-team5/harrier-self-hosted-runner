@@ -13,7 +13,7 @@ import {
 
 const client = new APIGatewayClient(config);
 
-export default async function createRestAPI() {
+export default async function createRestApi() {
   const { id: restApiId } = await client.send(
     new CreateRestApiCommand({
       name: "test-rest-api",
