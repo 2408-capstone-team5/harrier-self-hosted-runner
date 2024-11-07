@@ -11,7 +11,10 @@ import {
 
 const client = new APIGatewayClient(config);
 
-export default async function deployApi(restApiId: string, stageName: string) {
+export default async function deployApi(
+  restApiId: string,
+  stageName: "dev" | "prod"
+) {
   const response = await client.send(
     new CreateDeploymentCommand({
       restApiId,

@@ -67,12 +67,3 @@ export default async function setupWebhook(
 //     console.error("Error fetching registration token:", error);
 //   }
 // };
-
-// const constructPayloadUrl = (
-//   restApiId: string,
-//   stageName: "test" | "prod" = "test",
-//   resource: "test" = "test"
-// ) => {
-//   // TODO: region shouldn't be hardcoded
-//   return `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/${resource}`;
-// };
