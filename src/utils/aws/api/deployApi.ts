@@ -12,12 +12,12 @@ import {
 const client = new APIGatewayClient(config);
 
 export default async function deployApi(restApiId: string, stageName: string) {
-  const { id: deploymentId } = await client.send(
+  const response = await client.send(
     new CreateDeploymentCommand({
       restApiId,
       stageName,
-      stageDescription: "test stage description",
-      description: "test deployment description",
+      stageDescription: `${stageName} stage description`,
+      description: `${stageName} deployment description`,
       variables: {
         theseVariables:
           " are available in the stages execution contexts and are ",
@@ -28,16 +28,9 @@ export default async function deployApi(restApiId: string, stageName: string) {
     })
   );
 
-  if (!deploymentId) {
+  if (!response?.id) {
     throw new Error("No id found in CreateDeploymentResponse.");
   }
 
-  console.log(
-    "created deployment with id: ",
-    deploymentId,
-    " for restApiId: ",
-    restApiId,
-    " and stageName: ",
-    stageName
-  );
+  console.log(`Deployed Api with Id: ${response.id}`);
 }

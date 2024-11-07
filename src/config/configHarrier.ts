@@ -20,3 +20,14 @@ export const configHarrier: configHarrierType = {
   securityGroupIds: ["sg-0f690732e685b371b"],
   githubUrl: "https://github.com/2408-capstone-team5",
 };
+
+export const harrierVPC = {};
+export const harrierEC2 = {};
+export const harrierS3 = {};
+
+export const harrierLambda_Workflow = {};
+export const harrierLambda_Cleanup = {};
+export const harrierLambda_Scheduler = {};
+export const harrierRestApi = {};
+
+// export const harrierWebhook = {};

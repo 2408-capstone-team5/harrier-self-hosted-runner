@@ -14,10 +14,10 @@ import {
 const client = new APIGatewayClient(config);
 
 export default async function createRestApi() {
-  const { id: restApiId } = await client.send(
+  const response = await client.send(
     new CreateRestApiCommand({
-      name: "test-rest-api",
-      description: "test rest and vest",
+      name: "dev-rest-api",
+      description: "rest and vest",
       version: "1.0",
       binaryMediaTypes: ["application/json"],
       minimumCompressionSize: 1024,
@@ -31,9 +31,9 @@ export default async function createRestApi() {
     })
   );
 
-  if (!restApiId) {
+  if (!response?.id) {
     throw new Error("No id found in CreateApiResponse.");
   }
 
-  return restApiId;
+  return response.id;
 }
