@@ -1,9 +1,9 @@
 import { config } from "../../../config/client";
 import { configHarrier } from "../../../config/configHarrier";
-import { installationHash } from "../../../config/installationHash";
 
 import { readFileSync } from "fs";
 import { resolve } from "path";
+// TODO: need to import something to programmatically zip lambdas so we can just hit build
 import {
   LambdaClient,
   CreateFunctionCommand,
@@ -19,13 +19,10 @@ export default async function createAndDeployLambda(
   lambdaRoleArn: string
 ) {
   try {
-    // console.log("lambdaRoleArn: ", lambdaRoleArn);
-    // throw new Error("createAndDeployLambda failed");
-
     const input: CreateFunctionCommandInput = {
       FunctionName: lambdaName,
       Runtime: "nodejs20.x",
-      Role: lambdaRoleArn, // service-role/
+      Role: lambdaRoleArn, // service-role/??
       // TODO: dynamic role creation, is this completed yet?
       Handler: "index.handler",
       Code: {
@@ -38,24 +35,26 @@ export default async function createAndDeployLambda(
       VpcConfig: {
         SubnetIds: configHarrier.subnetIds,
         SecurityGroupIds: configHarrier.securityGroupIds,
-        Ipv6AllowedForDualStack: true, // TODO: check if this is needed
+        // TODO: does our lambda need to support both ipv4 and ipv6?
+        Ipv6AllowedForDualStack: true,
       },
-      PackageType: "Zip", // Theoretically we could create a Docker image for our lambdas
+      PackageType: "Zip", // Theoretically we could create and use a Docker image for our lambdas
       Tags: {
-        Name: `Harrier-lambda-${installationHash}`,
+        Name: `${configHarrier.tagValue}-lambda-${lambdaName}`,
       },
       Layers: [],
-      //   Environment: {
-      //     Variables: {
-      //       TAG_VALUE: `Harrier-${installationHash}`,
-      //       REGION: configHarrier.region,
-      //   },
+      Environment: {
+        Variables: {
+          REGION: configHarrier.region,
+          HI: "mom",
+        },
+      },
       LoggingConfig: {
-        LogFormat: "JSON", // || "Text",
+        // NOTE: the LogGroup needs to exist prior to creating the lambda if we want to specify a group to print to
+        LogFormat: "JSON",
         ApplicationLogLevel: "DEBUG",
-        //   "TRACE" || "DEBUG" || "INFO" || "WARN" || "ERROR" || "FATAL",
-        SystemLogLevel: "DEBUG", // DEBUG" || "INFO" || "WARN",
-        LogGroup: "STRING_VALUE",
+        SystemLogLevel: "DEBUG",
+        LogGroup: "STRING_VALUE", //
       },
     };
 

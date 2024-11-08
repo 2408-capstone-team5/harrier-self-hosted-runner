@@ -36,6 +36,8 @@
 
 ### setupVPC
 
+- [ ] programmatically create security groups
+
 ?
 
 ### setupS3CacheBucket
