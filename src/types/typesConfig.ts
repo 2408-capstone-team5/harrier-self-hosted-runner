@@ -14,6 +14,7 @@ export interface configHarrierType {
   IamInstanceProfile: {
     Name: string;
   };
+  securityGroupName: string;
   securityGroupIds: string[];
   githubUrl: string;
 }
