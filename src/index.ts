@@ -24,7 +24,7 @@ const main = async () => {
 
   // await setupApiAndWebhook();
   // lambda, api gateway, secrets manager
-  /* 
+  /*
     - requires the PAT from the aws secrets manager
 
     - create lambda that receives webhook (queued, inprogress, completed) from github workflow run
@@ -34,6 +34,7 @@ const main = async () => {
     - register api with api gateway (stages, deployment)
     - setup github webhook with rest api's url as the webhook payload_url
   */
+
   // await setupCacheEviction(); // lambda & EventBridge
   /* 
     - requires S3 Name/ARN
