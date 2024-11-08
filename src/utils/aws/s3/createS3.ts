@@ -21,8 +21,8 @@ export const createS3 = async (
       { client, maxWaitTime },
       { Bucket: bucketName }
     );
-    console.log(`Bucket created with location ${Location}`);
-  } catch (error) {
+    console.log(`*** Bucket created with location ${Location} ***`);
+  } catch (error: unknown) {
     if (error instanceof BucketAlreadyExists) {
       console.error(
         `The bucket "${bucketName}" already exists in another AWS account. Bucket names must be globally unique.`

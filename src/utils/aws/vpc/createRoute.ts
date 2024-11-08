@@ -4,13 +4,13 @@ import {
   CreateRouteCommandInput,
 } from "@aws-sdk/client-ec2";
 
-import { configAWS } from "./configAWS";
+// import { configAWS } from "./configAWS";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const createRoute = async (
   routeTableId: string,
-  internetGatewayId: string,
+  internetGatewayId: string
 ): Promise<void> => {
   try {
     const params: CreateRouteCommandInput = {
@@ -23,7 +23,7 @@ export const createRoute = async (
     await ec2Client.send(command);
 
     console.log(
-      `Route to Internet Gateway ${internetGatewayId} created in Route Table ${routeTableId}`,
+      `Route to Internet Gateway ${internetGatewayId} created in Route Table ${routeTableId}`
     );
   } catch (error) {
     throw new Error(`Error creating route: ${error}`);

@@ -5,10 +5,10 @@ import {
   CreateInternetGatewayCommandInput,
 } from "@aws-sdk/client-ec2";
 
-import { configAWS } from "./configAWS";
+// import { configAWS } from "./configAWS";
 import { configHarrier } from "../../../config/configHarrier";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const createInternetGateway = async (): Promise<string> => {
   try {
@@ -33,10 +33,10 @@ export const createInternetGateway = async (): Promise<string> => {
     }
 
     console.log(
-      `Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier.vpcId}`,
+      `Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier.vpcId}`
     );
     return response.InternetGateway.InternetGatewayId;
-  } catch (error) {
+  } catch (error: unknown) {
     throw new Error(`Error creating Internet Gateway: ${error}`);
   }
 };

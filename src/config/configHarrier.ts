@@ -22,7 +22,9 @@ export const configHarrier: configHarrierType = {
   // @SHANE I also saw these associated with the harrier-vpc: 'sg-068b3391ebd88e4a5', 'sg-02c838fe0acc3bb91', and 'sg-03cba7df50bc7df7a'
   // these security groups will need to be created programmatically anyway so the specifics don't matter
   // TODO: programmatically create security groups
+  securityGroupName: "",
   githubUrl: "https://github.com/2408-capstone-team5",
+  s3Name: "",
 };
 
 export const harrierVPC = {};

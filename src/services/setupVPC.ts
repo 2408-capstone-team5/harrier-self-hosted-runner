@@ -10,41 +10,55 @@ import { findRouteTableId } from "../utils/aws/vpc/findRouteTable";
 import { createRoute } from "../utils/aws/vpc/createRoute";
 import { enableDNSSettings } from "../utils/aws/vpc/enableDNSSettings";
 
-import { configAWS } from "../utils/aws/vpc/configAWS";
+// import { configAWS } from "../utils/aws/vpc/configAWS";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
-const setupVPC = async () => {
-  console.log("Starting setupVPC...");
-  console.log(configHarrier);
+export const setupVPC = async () => {
+  try {
+    console.log("Starting setupVPC...");
+    console.log(configHarrier);
 
-  const vpcId = await createVpc(configHarrier);
-  console.log(`VPC ID: ${vpcId}`);
-  configHarrier.vpcId = vpcId;
-  await enableDNSSettings(vpcId);
+    const vpcId = await createVpc(configHarrier);
+    if (!vpcId) {
+      throw new Error("Failed to return VPC ID");
+    }
+    console.log(`VPC ID: ${vpcId}`);
+    configHarrier.vpcId = vpcId;
+    await enableDNSSettings(vpcId);
 
-  const subnetId = await createSubnet(configHarrier, vpcId);
-  configHarrier.subnetId = subnetId;
-  await autoAssignPublicIp(subnetId);
+    const subnetId = await createSubnet(configHarrier, vpcId);
+    if (!subnetId) {
+      throw new Error("Failed to return subnet ID");
+    }
+    configHarrier.subnetId = subnetId;
+    await autoAssignPublicIp(subnetId);
 
-  const gatewayId = await createInternetGateway();
+    const gatewayId = await createInternetGateway();
 
-  await attachInternetGateway(gatewayId, vpcId);
+    await attachInternetGateway(gatewayId, vpcId);
 
-  const routeTableId = await findRouteTableId(vpcId);
-  if (!routeTableId) {
-    throw new Error("Failed to find Route Table for the VPC!!");
+    const routeTableId = await findRouteTableId(vpcId);
+    if (!routeTableId) {
+      throw new Error("Failed to find Route Table for the VPC!!");
+    }
+    const command = new CreateTagsCommand({
+      Resources: [routeTableId],
+      Tags: [{ Key: "Name", Value: configHarrier.tagValue }],
+    });
+    await ec2Client.send(command); // Add tag to route table that was already out there
+
+    await createRoute(routeTableId, gatewayId);
+
+    console.log("*** VPC Setup Complete ***");
+    console.log(configHarrier);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error:", error.message);
+    } else {
+      throw new Error(`Error setting up VPC!`);
+    }
   }
-  const command = new CreateTagsCommand({
-    Resources: [routeTableId],
-    Tags: [{ Key: "Name", Value: configHarrier.tagValue }],
-  });
-  await ec2Client.send(command); // Add tag to route table that was already out there
-
-  await createRoute(routeTableId, gatewayId);
-
-  console.log("*** VPC Setup Complete ***");
-  console.log(configHarrier);
 };
 
-setupVPC();
+// setupVPC();
