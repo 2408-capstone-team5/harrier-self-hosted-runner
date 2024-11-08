@@ -7,6 +7,7 @@ export const configHarrier: configHarrierType = {
   cidrBlockSubnet: "10.0.0.0/24",
   vpcId: "",
   subnetId: "",
+  subnetIds: [], // required for CreateFunctionCommand's input
   region: "us-east-1",
   awsAccountId: "536697269866",
   imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance

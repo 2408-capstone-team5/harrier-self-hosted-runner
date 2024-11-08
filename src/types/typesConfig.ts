@@ -4,6 +4,7 @@ export interface configHarrierType {
   cidrBlockSubnet: string;
   vpcId: string;
   subnetId: string;
+  subnetIds: string[];
   region: string;
   awsAccountId: string;
   imageId: string; // AMI ID for the instance
