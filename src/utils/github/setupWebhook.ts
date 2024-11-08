@@ -1,16 +1,9 @@
-/* 
-    requires:
-        - personal-access-token
-        - org
-        - repo  
-*/
-
 import axios from "axios";
 
 // import core from "@actions/core";
 const repo = "fake-setup-harrier-action"; // HARDCODED
 const org = "2408-capstone-team5";
-const pat = "ghp...";
+const pat = "ghp_...";
 
 export default async function setupWebhook(
   restApiId: string,

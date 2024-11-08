@@ -1,4 +1,5 @@
 import { config } from "../../../config/client";
+import { configHarrier } from "../../../config/configHarrier";
 import {
   SchedulerClient,
   CreateScheduleInput,
@@ -21,7 +22,7 @@ export default async function createDailySchedule(
       Target: {
         // Target
         Arn: lambdaArn,
-        RoleArn: `arn:aws:iam::${config.awsAccountId}:role/service-role/${scheduleRole}`,
+        RoleArn: `arn:aws:iam::${configHarrier.awsAccountId}:role/service-role/${scheduleRole}`,
         // we need the arn of an iam role which gives to the scheduler to access the cleanup lambda, I'm using a manually (console) created role here
       },
       State: "ENABLED",
