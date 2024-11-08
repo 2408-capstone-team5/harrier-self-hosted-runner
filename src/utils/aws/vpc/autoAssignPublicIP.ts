@@ -4,10 +4,10 @@ import {
   ModifySubnetAttributeCommand,
 } from "@aws-sdk/client-ec2";
 
-import { configAWS } from "./configAWS";
+// import { configAWS } from "./configAWS";
 // import { configHarrier } from "../../../services/config";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const autoAssignPublicIp = async (subnetId: string) => {
   try {
@@ -20,9 +20,9 @@ export const autoAssignPublicIp = async (subnetId: string) => {
     await ec2Client.send(command); // Returns empty {} on success or throws reject error if fails
 
     console.log("Auto-assign public IPv4 enabled for Subnet:", subnetId);
-  } catch (error) {
+  } catch (error: unknown) {
     throw new Error(
-      `Error enabling auto-assign public IPv4 on ${subnetId}: ${error}`,
+      `Error enabling auto-assign public IPv4 on ${subnetId}: ${error}`
     );
   }
 };

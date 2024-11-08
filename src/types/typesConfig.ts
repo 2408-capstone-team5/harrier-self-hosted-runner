@@ -2,8 +2,8 @@ export interface configHarrierType {
   tagValue: string;
   cidrBlockVPC: string;
   cidrBlockSubnet: string;
-  vpcId: string;
-  subnetId: string;
+  vpcId: string | undefined;
+  subnetId: string | undefined;
   region: string;
   awsAccountId: string;
   imageId: string; // AMI ID for the instance
@@ -14,6 +14,7 @@ export interface configHarrierType {
   IamInstanceProfile: {
     Name: string;
   };
+  securityGroupName: string;
   securityGroupIds: string[];
   githubUrl: string;
 }
