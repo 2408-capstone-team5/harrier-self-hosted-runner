@@ -10,9 +10,9 @@ import { findRouteTableId } from "../utils/aws/vpc/findRouteTable";
 import { createRoute } from "../utils/aws/vpc/createRoute";
 import { enableDNSSettings } from "../utils/aws/vpc/enableDNSSettings";
 
-import { configAWS } from "../utils/aws/vpc/configAWS";
+// import { configAWS } from "../utils/aws/vpc/configAWS";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const setupVPC = async () => {
   console.log("Starting setupVPC...");
