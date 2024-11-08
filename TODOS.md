@@ -29,7 +29,11 @@
 
 ### setupRoles
 
-- [x] create: `workflow` lambda `arn:aws:iam::${config.awsAccountId}:role/service-role/harrier-lambda-role-br4dh2zf` (last part is actually `roleName` rn)
+- [x] create: `workflow` lambda
+  - [ ] CreateNetworkInterface on EC2
+  - [ ] InvalidParameterValueException: Dual stack cannot be supported on at least one of the subnets
+  - [ ] ADD condition inside the ec2 policy in `create_workflow_lambdaRoleWithPolicies`
+  - [ ]
 - [ ] create: jesse `cleanup` lambda `arn:aws:iam::536697269866:role/service-role/s3CacheCleanupLambda-role-zp58dx91`
 - [ ] create: jesse scheduler role `"Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec"`
 - [ ] other roles...

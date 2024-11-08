@@ -1,13 +1,21 @@
-import { configHarrierType } from "../types/typesConfig";
+// import { configHarrierType } from "../types/typesConfig";
 import { installationHash } from "./installationHash";
 
-export const configHarrier: configHarrierType = {
+export const configHarrier = {
+  vpcId: "vpc-0fbd852ef128f5792",
   tagValue: `Harrier-${installationHash}`,
   cidrBlockVPC: "10.0.0.0/16",
   cidrBlockSubnet: "10.0.0.0/24",
-  vpcId: "vpc-03bb0ff49f91073a1", //
-  subnetId: "subnet-091b52fd4ce191245", // @SHANE i just copied this from the console, it's the only public subnet id that I saw for 'harrier-vpc'
-  subnetIds: ["subnet-091b52fd4ce191245"], // required for CreateFunctionCommand's input
+
+  // m391jwyf
+
+  subnetId: "subnet-04c3e15bb937304b2", // J
+  subnetIds: ["subnet-04c3e15bb937304b2"], // J
+  securityGroupIds: ["sg-0c2f583db167aef55", "sg-0fa85c6e2408628e4"], // J [default, harrier-m391jwyf-sg]
+  workflowLambdaLogGroup: "joel_test", // J
+  securityGroupName: "harrier-m391jwyf-sg", // J
+  logGroup: "/aws/lambda/joel_test", // J
+
   region: "us-east-1",
   awsAccountId: "536697269866",
   imageId: "ami-063d43db0594b521b", // AMI ID for the instance
@@ -19,11 +27,7 @@ export const configHarrier: configHarrierType = {
   IamInstanceProfile: {
     Name: "EC2-access-S3",
   },
-  securityGroupIds: ["sg-0f690732e685b371b"], // from what I saw, this one doesn't seem to be associated with the harrier-vpc
-  // @SHANE I also saw these associated with the harrier-vpc: 'sg-068b3391ebd88e4a5', 'sg-02c838fe0acc3bb91', and 'sg-03cba7df50bc7df7a'
-  // these security groups will need to be created programmatically anyway so the specifics don't matter
-  // TODO: programmatically create security groups
-  securityGroupName: "",
+
   githubUrl: "https://github.com/2408-capstone-team5",
   s3Name: "",
 };

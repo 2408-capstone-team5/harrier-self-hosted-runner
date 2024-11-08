@@ -35,5 +35,26 @@ export default async function deployApi(
     throw new Error("No id found in CreateDeploymentResponse.");
   }
 
-  console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);
+  // EXTRACT
+  try {
+    const waitResult = await waitUntilRoleExists(
+      {
+        client: iamClient,
+        maxWaitTime: 120,
+        minDelay: 5,
+      },
+      {
+        RoleName: roleName,
+      }
+    );
+
+    if (`${waitResult.state}` !== "SUCCESS") {
+      throw new Error("Role creation failed");
+    }
+
+    console.log("✅ role exists");
+    console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);  } catch (error: unknown) {
+    console.error("Error waiting for role to exist: ", error);
+    throw new Error("Role creation failed");
+  }
 }

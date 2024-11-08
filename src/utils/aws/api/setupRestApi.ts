@@ -9,5 +9,6 @@ export default async function setupRestApi() {
   // TODO: create resource policy on the rest api (limit to github webhook ip ranges)
   console.log("✅ Resource: POST /workflow created on restApiId:", restApiId);
   console.log("✅ Rest API created:", restApiId);
+  
   return { restApiId, resourceId };
 }

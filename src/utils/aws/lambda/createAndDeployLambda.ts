@@ -36,7 +36,7 @@ export default async function createAndDeployLambda(
         SubnetIds: configHarrier.subnetIds,
         SecurityGroupIds: configHarrier.securityGroupIds,
         // TODO: does our lambda need to support both ipv4 and ipv6?
-        Ipv6AllowedForDualStack: true,
+        Ipv6AllowedForDualStack: false,
       },
       PackageType: "Zip", // Theoretically we could create and use a Docker image for our lambdas
       Tags: {
@@ -49,12 +49,12 @@ export default async function createAndDeployLambda(
           HI: "mom",
         },
       },
+      // NOTE: the LogGroup needs to exist PRIOR to creating the lambda if we want to specify a group to print to
       LoggingConfig: {
-        // NOTE: the LogGroup needs to exist prior to creating the lambda if we want to specify a group to print to
         LogFormat: "JSON",
         ApplicationLogLevel: "DEBUG",
         SystemLogLevel: "DEBUG",
-        LogGroup: "STRING_VALUE", //
+        LogGroup: configHarrier.logGroup,
       },
     };
 
