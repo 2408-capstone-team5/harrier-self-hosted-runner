@@ -4,11 +4,11 @@ import {
   CreateVpcCommandInput,
 } from "@aws-sdk/client-ec2";
 
-import { configAWS } from "./configAWS";
+// import { configAWS } from "./configAWS";
 import { configHarrierType } from "../../../types/typesConfig";
 // import { configHarrier } from "../../../services/config";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const createVpc = async (configHarrier: configHarrierType) => {
   try {
@@ -36,7 +36,12 @@ export const createVpc = async (configHarrier: configHarrierType) => {
     } else {
       return response.Vpc.VpcId;
     }
-  } catch (error) {
-    throw new Error("VPC Creation Failed!");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error:", error.message);
+    } else {
+      throw new Error("VPC Creation Failed!");
+    }
+    return;
   }
 };
