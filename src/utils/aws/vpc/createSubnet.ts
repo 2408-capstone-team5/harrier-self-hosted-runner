@@ -4,15 +4,15 @@ import {
   CreateSubnetCommandInput,
 } from "@aws-sdk/client-ec2";
 
-import { configAWS } from "./configAWS";
+// import { configAWS } from "./configAWS";
 import { configHarrierType } from "../../../types/typesConfig";
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const createSubnet = async (
   configHarrier: configHarrierType,
-  vpcId: string,
-): Promise<string> => {
+  vpcId: string
+) => {
   try {
     const params: CreateSubnetCommandInput = {
       VpcId: vpcId,
@@ -37,10 +37,16 @@ export const createSubnet = async (
 
     if (!response.Subnet || !response.Subnet.SubnetId) {
       throw new Error("Subnet Creation Failed!");
-    } else {
-      return response.Subnet.SubnetId;
     }
-  } catch (error) {
-    throw new Error(`Error creating subnet! ${configHarrier.cidrBlockSubnet}`);
+    return response.Subnet.SubnetId;
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error:", error.message);
+    } else {
+      throw new Error(
+        `Error creating subnet! ${configHarrier.cidrBlockSubnet}`
+      );
+    }
+    return;
   }
 };
