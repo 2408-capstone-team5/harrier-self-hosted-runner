@@ -42,11 +42,11 @@ export const createSubnet = async (
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error:", error.message);
+      return;
     } else {
       throw new Error(
         `Error creating subnet! ${configHarrier.cidrBlockSubnet}`
       );
     }
-    return;
   }
 };

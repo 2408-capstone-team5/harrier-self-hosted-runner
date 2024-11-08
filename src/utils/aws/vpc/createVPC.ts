@@ -33,15 +33,14 @@ export const createVpc = async (configHarrier: configHarrierType) => {
     console.log("VPC Created:", response.Vpc);
     if (!response.Vpc?.VpcId) {
       throw new Error("VPC Creation Failed!");
-    } else {
-      return response.Vpc.VpcId;
     }
+    return response.Vpc.VpcId;
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("Error:", error.message);
+      return;
     } else {
       throw new Error("VPC Creation Failed!");
     }
-    return;
   }
 };

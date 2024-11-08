@@ -4,9 +4,9 @@ import {
   DescribeRouteTablesCommandInput,
 } from "@aws-sdk/client-ec2";
 
-import { configAWS } from "./configAWS";
+// import { configAWS } from "./configAWS";dsxdscfxf
 
-const ec2Client = new EC2Client(configAWS);
+const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const findRouteTableId = async (vpcId: string): Promise<string> => {
   try {
