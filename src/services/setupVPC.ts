@@ -14,7 +14,7 @@ import { configAWS } from "../utils/aws/vpc/configAWS";
 
 const ec2Client = new EC2Client(configAWS);
 
-const setupVPC = async () => {
+export const setupVPC = async () => {
   console.log("Starting setupVPC...");
   console.log(configHarrier);
 
@@ -47,4 +47,4 @@ const setupVPC = async () => {
   console.log(configHarrier);
 };
 
-setupVPC();
+// setupVPC();
