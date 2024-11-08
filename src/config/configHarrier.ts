@@ -10,7 +10,8 @@ export const configHarrier: configHarrierType = {
   subnetIds: ["subnet-091b52fd4ce191245"], // required for CreateFunctionCommand's input
   region: "us-east-1",
   awsAccountId: "536697269866",
-  imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance
+  imageId: "ami-063d43db0594b521b", // AMI ID for the instance
+  // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
   instanceType: "t2.micro", // EC2 instance type
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
   minInstanceCount: 1, // Minimum instances to launch
