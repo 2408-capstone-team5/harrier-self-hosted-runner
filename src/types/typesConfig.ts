@@ -17,4 +17,5 @@ export interface configHarrierType {
   securityGroupName: string;
   securityGroupIds: string[];
   githubUrl: string;
+  s3Name: string;
 }

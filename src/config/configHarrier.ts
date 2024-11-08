@@ -20,6 +20,7 @@ export const configHarrier: configHarrierType = {
   securityGroupName: "",
   securityGroupIds: ["sg-0f690732e685b371b"],
   githubUrl: "https://github.com/2408-capstone-team5",
+  s3Name: "",
 };
 
 export const harrierVPC = {};
