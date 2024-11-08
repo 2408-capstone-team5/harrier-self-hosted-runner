@@ -55,6 +55,9 @@
 - [x] integrate `workflow` lambda with rest api
 - [x] deploy api
 - [x] setup webhook
+- [x] stop using the `config/client` for the aws-sdk clients
+- [ ] remove all hardcoded values and centralize them in a config file
+- [ ] long polling (?) to ensure that resources exist "enough" to integrate various values
 
 ### setupCacheEviction
 

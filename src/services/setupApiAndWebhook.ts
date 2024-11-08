@@ -1,12 +1,3 @@
-/* 
-todo:
-- stop using the `config/client` for the aws-sdk clients
-- remove hardcoded values and centralize the in a config file
-- long polling (?) to ensure that resources exist "enough" to integrate various values
-
-*/
-// import { config } from "../config/client"; // need to import here so I can use the awsAccountId
-
 import create_workflow_lambdaRoleWithPolicies from "../utils/aws/iam/create_workflow_lambdaRoleWithPolicies";
 import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
 import setupRestApi from "../utils/aws/api/setupRestApi";
