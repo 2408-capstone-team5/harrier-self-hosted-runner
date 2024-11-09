@@ -9,6 +9,8 @@ import {
   //   createUsagePlanKey,
 } from "@aws-sdk/client-api-gateway";
 
+import { waitForApiDeployment } from "./waitForApiDeployment";
+
 const client = new APIGatewayClient(config);
 
 export default async function deployApi(
@@ -35,26 +37,10 @@ export default async function deployApi(
     throw new Error("No id found in CreateDeploymentResponse.");
   }
 
-  // EXTRACT
   try {
-    const waitResult = await waitUntilRoleExists(
-      {
-        client: iamClient,
-        maxWaitTime: 120,
-        minDelay: 5,
-      },
-      {
-        RoleName: roleName,
-      }
-    );
-
-    if (`${waitResult.state}` !== "SUCCESS") {
-      throw new Error("Role creation failed");
-    }
-
-    console.log("✅ role exists");
-    console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);  } catch (error: unknown) {
-    console.error("Error waiting for role to exist: ", error);
-    throw new Error("Role creation failed");
+    await waitForApiDeployment(restApiId, response.id);
+    console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);
+  } catch (error) {
+    console.error("Error waiting for API deployment:", error);
   }
 }

@@ -2,7 +2,7 @@ import {
   IAMClient,
   CreateRoleCommand,
   PutRolePolicyCommand,
-  waitUntilRoleExists,
+  //   waitUntilRoleExists,
 } from "@aws-sdk/client-iam";
 import { config } from "../../../config/client";
 
@@ -210,20 +210,22 @@ export default async function create_workflow_lambdaRoleWithPolicies(
 
   // EXTRACT
   try {
-    const waitResult = await waitUntilRoleExists(
-      {
-        client: iamClient,
-        maxWaitTime: 120,
-        minDelay: 5,
-      },
-      {
-        RoleName: roleName,
-      }
-    );
+    // const waitResult = await waitUntilRoleExists(
+    //   {
+    //     client: iamClient,
+    //     maxWaitTime: 120,
+    //     minDelay: 5,
+    //   },
+    //   {
+    //     RoleName: roleName,
+    //   }
+    // );
 
-    if (`${waitResult.state}` !== "SUCCESS") {
-      throw new Error("Role creation failed");
-    }
+    // if (`${waitResult.state}` !== "SUCCESS") {
+    //   throw new Error("Role creation failed");
+    // }
+
+    // console.log(waitResult);
 
     console.log("✅ role exists");
     return roleResponse.Role.Arn;
