@@ -53,12 +53,12 @@ export default async function createAndDeployLambda(
           },
         },
         // NOTE: the LogGroup needs to exist PRIOR to creating the lambda if we want to specify a group to print to
-        LoggingConfig: {
-          LogFormat: "JSON",
-          ApplicationLogLevel: "DEBUG",
-          SystemLogLevel: "DEBUG",
-          LogGroup: configHarrier.logGroup,
-        },
+        // LoggingConfig: {
+        //   LogFormat: "JSON",
+        //   ApplicationLogLevel: "",
+        //   SystemLogLevel: "DEBUG",
+        //   LogGroup: configHarrier.logGroup,
+        // },
       })
     );
     console.log("lambda created, waiting for it to be active...");
