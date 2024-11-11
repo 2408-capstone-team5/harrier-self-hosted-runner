@@ -1,6 +1,6 @@
 node_modules
 .env
-/dist
+# /dist
 .vscode/*
 .DS_Store
 package-lock.json
