@@ -53,14 +53,14 @@
 ?
 
 ### setupApiAndWebhook
-
-- [x] create and deploy lambda
-- [ ] integrate with shane's vpc
+- [ ] programmatically configure log groups
+- [x] create and deploy `workflow` lambda
+- [x] integrate with shane's vpc
 - [x] create rest api
 - [ ] create resource policy on the rest api (limit to github webhook ip ranges)
 - [x] integrate `workflow` lambda with rest api
-- [x] deploy api
-- [x] setup webhook
+- [x] deploy api (this still needs some reliable status check)
+- [x] setup webhook on user's github 
 - [x] stop using the `config/client` for the aws-sdk clients
 - [ ] remove all hardcoded values and centralize them in a config file
 - [ ] long polling (?) to ensure that resources exist "enough" to integrate various values
