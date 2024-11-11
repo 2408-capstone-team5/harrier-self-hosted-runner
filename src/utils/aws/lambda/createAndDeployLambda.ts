@@ -1,4 +1,3 @@
-import { config } from "../../../config/client";
 import { configHarrier } from "../../../config/configHarrier";
 
 import { readFileSync } from "fs";
@@ -13,7 +12,7 @@ import {
 
 import { LambdaName } from "./types";
 
-const lambdaClient = new LambdaClient(config);
+const lambdaClient = new LambdaClient({ region: configHarrier.region });
 
 export default async function createAndDeployLambda(
   lambdaName: LambdaName,
@@ -67,7 +66,7 @@ export default async function createAndDeployLambda(
           Description: "...description",
           Publish: true,
           VpcConfig: {
-            SubnetIds: configHarrier.subnetIds,
+            SubnetIds: [configHarrier.subnetId as string],
             SecurityGroupIds: configHarrier.securityGroupIds,
             // TODO: does our lambda need to support both ipv4 and ipv6?
             Ipv6AllowedForDualStack: false,

@@ -1,8 +1,8 @@
-import { config } from "../../../config/client";
+
 import { configHarrier } from "../../../config/configHarrier";
 import { workflow } from "../../../config/lambdas";
 import { AddPermissionCommand, LambdaClient } from "@aws-sdk/client-lambda";
-const client = new LambdaClient(config);
+const client = new LambdaClient({region: configHarrier.region});
 
 export default async function grantInvokePermission(
   lambdaArn: string,
@@ -14,8 +14,8 @@ export default async function grantInvokePermission(
     const command = new AddPermissionCommand({
       ...workflow,
       FunctionName: lambdaArn,
-      SourceArn: `arn:aws:execute-api:${config.region}:${configHarrier.awsAccountId}:${restApiId}/*/*/*`,
-      //   SourceArn: `arn:aws:execute-api:${config.region}:${config.awsAccountId}:${restApiId}/*/${method}/${resourcePath}`,});
+      SourceArn: `arn:aws:execute-api:${configHarrier.region}:${configHarrier.awsAccountId}:${restApiId}/*/*/*`,
+      //   SourceArn: `arn:aws:execute-api:${configHarrier.region}:${config.awsAccountId}:${restApiId}/*/${method}/${resourcePath}`,});
     });
     await client.send(command);
   } catch (error) {

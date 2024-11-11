@@ -11,10 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_iam_1 = require("@aws-sdk/client-iam");
 const client_sts_1 = require("@aws-sdk/client-sts");
-const client_1 = require("../../../config/client");
 const configHarrier_1 = require("../../../config/configHarrier");
-const iamClient = new client_iam_1.IAMClient({ region: client_1.config.region });
-const stsClient = new client_sts_1.STSClient({ region: client_1.config.region });
+const iamClient = new client_iam_1.IAMClient({ region: configHarrier_1.configHarrier.region });
+const stsClient = new client_sts_1.STSClient({ region: configHarrier_1.configHarrier.region });
 function checkIfRoleExists(roleName) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {

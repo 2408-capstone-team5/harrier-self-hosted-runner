@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("../../../config/client");
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
 const waitForApiDeployment_1 = require("./waitForApiDeployment");
-const client = new client_api_gateway_1.APIGatewayClient(client_1.config);
+const configHarrier_1 = require("../../../config/configHarrier");
+const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
 function deployApi(restApiId, stageName) {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield client.send(new client_api_gateway_1.CreateDeploymentCommand({

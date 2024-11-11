@@ -1,4 +1,3 @@
-import { config } from "../../../config/client";
 import {
   APIGatewayClient,
   CreateDeploymentCommand,
@@ -10,8 +9,9 @@ import {
 } from "@aws-sdk/client-api-gateway";
 
 import { waitForApiDeployment } from "./waitForApiDeployment";
+import { configHarrier } from "../../../config/configHarrier";
 
-const client = new APIGatewayClient(config);
+const client = new APIGatewayClient({ region: configHarrier.region });
 
 export default async function deployApi(
   restApiId: string,

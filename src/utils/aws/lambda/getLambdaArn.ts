@@ -1,6 +1,6 @@
-import { config } from "../../../config/client";
+import {configHarrier} from "../../../config/configHarrier";
 import { LambdaClient, GetFunctionCommand } from "@aws-sdk/client-lambda";
-const client = new LambdaClient(config);
+const client = new LambdaClient({region: configHarrier.region});
 
 export default async function getLambdaArn(lambdaName: string) {
   try {

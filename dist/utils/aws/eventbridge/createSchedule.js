@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("../../../config/client");
 const configHarrier_1 = require("../../../config/configHarrier");
 const client_scheduler_1 = require("@aws-sdk/client-scheduler"); // ES Modules import
-const client = new client_scheduler_1.SchedulerClient(client_1.config);
+const client = new client_scheduler_1.SchedulerClient({ region: configHarrier_1.configHarrier.region });
 function createDailySchedule(scheduleName, lambdaArn, scheduleRole) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

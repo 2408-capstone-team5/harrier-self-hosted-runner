@@ -9,13 +9,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("../../../config/client");
 const configHarrier_1 = require("../../../config/configHarrier");
 const fs_1 = require("fs");
 const path_1 = require("path");
 // TODO: need to import something to programmatically zip lambdas so we can just hit build
 const client_lambda_1 = require("@aws-sdk/client-lambda");
-const lambdaClient = new client_lambda_1.LambdaClient(client_1.config);
+const lambdaClient = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
 function createAndDeployLambda(lambdaName, lambdaRoleArn) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -53,7 +52,7 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                     Description: "...description",
                     Publish: true,
                     VpcConfig: {
-                        SubnetIds: configHarrier_1.configHarrier.subnetIds,
+                        SubnetIds: [configHarrier_1.configHarrier.subnetId],
                         SecurityGroupIds: configHarrier_1.configHarrier.securityGroupIds,
                         // TODO: does our lambda need to support both ipv4 and ipv6?
                         Ipv6AllowedForDualStack: false,

@@ -9,18 +9,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("../../../config/client");
 const configHarrier_1 = require("../../../config/configHarrier");
 const lambdas_1 = require("../../../config/lambdas");
 const client_lambda_1 = require("@aws-sdk/client-lambda");
-const client = new client_lambda_1.LambdaClient(client_1.config);
+const client = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
 function grantInvokePermission(lambdaArn, restApiId
 //   method: "POST" = "POST",
 //   resourcePath: "workflow" = "workflow"
 ) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const command = new client_lambda_1.AddPermissionCommand(Object.assign(Object.assign({}, lambdas_1.workflow), { FunctionName: lambdaArn, SourceArn: `arn:aws:execute-api:${client_1.config.region}:${configHarrier_1.configHarrier.awsAccountId}:${restApiId}/*/*/*` }));
+            const command = new client_lambda_1.AddPermissionCommand(Object.assign(Object.assign({}, lambdas_1.workflow), { FunctionName: lambdaArn, SourceArn: `arn:aws:execute-api:${configHarrier_1.configHarrier.region}:${configHarrier_1.configHarrier.awsAccountId}:${restApiId}/*/*/*` }));
             yield client.send(command);
         }
         catch (error) {

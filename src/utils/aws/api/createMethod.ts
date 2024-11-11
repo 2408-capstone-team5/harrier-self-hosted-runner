@@ -1,10 +1,10 @@
-import { config } from "../../../config/client";
+import {configHarrier} from "../../../config/configHarrier";
 import {
   APIGatewayClient,
   PutMethodCommand,
 } from "@aws-sdk/client-api-gateway";
 
-const client = new APIGatewayClient(config);
+const client = new APIGatewayClient({region: configHarrier.region});
 export default async function createMethod(
   restApiId: string,
   resourceId: string,

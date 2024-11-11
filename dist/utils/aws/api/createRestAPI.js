@@ -1,4 +1,10 @@
 "use strict";
+/*
+STILL NEED:
+    - setup resource policy (limit to github webhook ip ranges)
+    - configure cloudwatch logging/metrics
+    - request validation
+*/
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -9,16 +15,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/*
-STILL NEED:
-    - setup resource policy (limit to github webhook ip ranges)
-    - configure cloudwatch logging/metrics
-    - request validation
-*/
-const client_1 = require("../../../config/client");
+const configHarrier_1 = require("../../../config/configHarrier");
 const installationHash_1 = require("../../../config/installationHash");
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
-const client = new client_api_gateway_1.APIGatewayClient(client_1.config);
+const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
 function createRestApi() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield client.send(new client_api_gateway_1.CreateRestApiCommand({

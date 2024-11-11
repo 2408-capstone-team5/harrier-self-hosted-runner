@@ -1,5 +1,5 @@
-import { config } from "../../config/client";
 import axios from "axios";
+import { configHarrier } from "../../config/configHarrier";
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
@@ -12,7 +12,7 @@ async function getPat() {
   // const pat = "ghp_...";
 
   const secretClient = new SecretsManagerClient({
-    region: config.region,
+    region: configHarrier.region,
   });
 
   const secretResponse = await secretClient.send(

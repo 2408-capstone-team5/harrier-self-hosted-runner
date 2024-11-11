@@ -1,20 +1,19 @@
-// import { configHarrierType } from "../types/typesConfig";
+import { configHarrierType } from "../types/typesConfig";
 import { installationHash } from "./installationHash";
 
-export const configHarrier = {
-  vpcId: "vpc-0fbd852ef128f5792",
+export const configHarrier: configHarrierType = {
+  vpcId: "",
   tagValue: `Harrier-${installationHash}`,
   cidrBlockVPC: "10.0.0.0/16",
   cidrBlockSubnet: "10.0.0.0/24",
 
-  // m391jwyf
+  subnetId: "",
+  subnetIds: [],
+  securityGroupIds: [],
+  securityGroupName: "",
 
-  subnetId: "subnet-04c3e15bb937304b2", // J
-  subnetIds: ["subnet-04c3e15bb937304b2"], // J
-  securityGroupIds: ["sg-0c2f583db167aef55", "sg-0fa85c6e2408628e4"], // J [default, harrier-m391jwyf-sg]
-  workflowLambdaLogGroup: "joel_test", // J
-  securityGroupName: "harrier-m391jwyf-sg", // J
-  logGroup: "/aws/lambda/joel_test", // J
+  logGroup: "/aws/lambda/joel_test",
+  workflowLambdaLogGroup: "joel_test",
 
   region: "us-east-1",
   awsAccountId: "536697269866",

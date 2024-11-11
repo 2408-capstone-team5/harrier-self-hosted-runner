@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const setupVPC_1 = require("./services/setupVPC");
 const setupS3CacheBucket_1 = require("./services/setupS3CacheBucket");
 const setupEC2Runner_1 = require("./services/setupEC2Runner");
-// import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
+const setupApiAndWebhook_1 = require("./services/setupApiAndWebhook");
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     // setupRoles(); // IAM
@@ -27,9 +27,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
       - cache eviction lambda needs s3 access
      */
     yield (0, setupVPC_1.setupVPC)(); // VPC, IP, Public Subnet, Internet Gateway, Route Table
-    (0, setupS3CacheBucket_1.setupS3CacheBucket)(); // S3
-    (0, setupEC2Runner_1.setupEC2Runner)(); // EC2-EBS instantiate, run script, stop
-    // await setupApiAndWebhook();
+    yield (0, setupS3CacheBucket_1.setupS3CacheBucket)(); // S3
+    yield (0, setupEC2Runner_1.setupEC2Runner)(); // EC2-EBS instantiate, run script, stop
+    yield (0, setupApiAndWebhook_1.setupApiAndWebhook)();
     // lambda, api gateway, secrets manager
     /*
       - requires the PAT from the aws secrets manager

@@ -12,8 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("../../config/client");
 const axios_1 = __importDefault(require("axios"));
+const configHarrier_1 = require("../../config/configHarrier");
 const client_secrets_manager_1 = require("@aws-sdk/client-secrets-manager");
 // import core from "@actions/core";
 function getPat() {
@@ -22,7 +22,7 @@ function getPat() {
         const org = "2408-capstone-team5";
         // const pat = "ghp_...";
         const secretClient = new client_secrets_manager_1.SecretsManagerClient({
-            region: client_1.config.region,
+            region: configHarrier_1.configHarrier.region,
         });
         const secretResponse = yield secretClient.send(new client_secrets_manager_1.GetSecretValueCommand({
             SecretId: "github/token/harrier",

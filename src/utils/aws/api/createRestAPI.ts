@@ -4,14 +4,15 @@ STILL NEED:
     - configure cloudwatch logging/metrics
     - request validation
 */
-import { config } from "../../../config/client";
+
+import { configHarrier } from "../../../config/configHarrier";
 import { installationHash } from "../../../config/installationHash";
 import {
   APIGatewayClient,
   CreateRestApiCommand,
 } from "@aws-sdk/client-api-gateway";
 
-const client = new APIGatewayClient(config);
+const client = new APIGatewayClient({region: configHarrier.region})
 
 export default async function createRestApi() {
   const response = await client.send(

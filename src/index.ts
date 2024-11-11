@@ -2,7 +2,7 @@
 import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
 import { setupEC2Runner } from "./services/setupEC2Runner";
-// import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
+import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 
 const main = async () => {
@@ -18,11 +18,11 @@ const main = async () => {
    */
   await setupVPC(); // VPC, IP, Public Subnet, Internet Gateway, Route Table
 
-  setupS3CacheBucket(); // S3
+  await setupS3CacheBucket(); // S3
 
-  setupEC2Runner(); // EC2-EBS instantiate, run script, stop
+  await setupEC2Runner(); // EC2-EBS instantiate, run script, stop
 
-  // await setupApiAndWebhook();
+  await setupApiAndWebhook();
   // lambda, api gateway, secrets manager
   /*
     - requires the PAT from the aws secrets manager

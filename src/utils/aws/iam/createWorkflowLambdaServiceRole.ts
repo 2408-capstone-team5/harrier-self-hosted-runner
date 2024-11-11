@@ -7,11 +7,11 @@ import {
 } from "@aws-sdk/client-iam";
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 
-import { config } from "../../../config/client";
+
 import { configHarrier } from "../../../config/configHarrier";
 
-const iamClient = new IAMClient({ region: config.region });
-const stsClient = new STSClient({ region: config.region });
+const iamClient = new IAMClient({ region: configHarrier.region });
+const stsClient = new STSClient({ region: configHarrier.region });
 
 async function checkIfRoleExists(roleName: string): Promise<string | null> {
   try {

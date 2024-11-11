@@ -1,10 +1,11 @@
-import { config } from "../../../config/client";
 import {
   APIGatewayClient,
   PutIntegrationCommand,
 } from "@aws-sdk/client-api-gateway";
 
-const client = new APIGatewayClient(config);
+import { configHarrier } from "../../../config/configHarrier";
+
+const client = new APIGatewayClient({ region: configHarrier.region });
 
 export default async function createLambdaIntegration(
   restApiId: string,
@@ -17,7 +18,7 @@ export default async function createLambdaIntegration(
     httpMethod: "POST",
     type: "AWS_PROXY",
     integrationHttpMethod: "POST",
-    uri: `arn:aws:apigateway:${config.region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations`,
+    uri: `arn:aws:apigateway:${configHarrier.region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations`,
   });
   await client.send(command);
 }
