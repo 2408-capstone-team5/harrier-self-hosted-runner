@@ -1,0 +1,35 @@
+name: Test run harrier_setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-harrier-runner:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials for us-east-1 region
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: sts.amazonaws.com
+          aws-region: us-east-1
+          role-to-assume: arn:aws:iam::536697269866:role/jesse-aws-config-action-test # Chad made a new IAM role and trusted GHA IdP
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Install dependencies
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm install
+
+      - name: Run harrier main index.js
+        run: node dist/index.js
