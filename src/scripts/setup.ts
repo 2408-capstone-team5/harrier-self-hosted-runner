@@ -50,6 +50,15 @@ export const getStartScript = () => {
     sudo yum install -y ./mount-s3.rpm
     sudo mkdir s3bucket
     sudo mount-s3 ${configHarrier.s3Name} s3bucket
+    sudo cd ./s3bucket
+    sudo mkdir s3bucket/node_modules_cache_key
+    sudo mkdir s3bucket/node_modules_cached_tar
+    sudo mkdir npm_cache
+    sudo cd ..
+    sudo touch starter_file.txt
+    sudo cp starter_file.txt ./s3bucket/node_modules_cache_key/
+    sudo cp starter_file.txt ./s3bucket/node_modules_cached_tar/
+    sudo cp starter_file.txt ./s3bucket/npm_cache/
 
     # Install Docker
     echo "INSTALL DOCKER"
