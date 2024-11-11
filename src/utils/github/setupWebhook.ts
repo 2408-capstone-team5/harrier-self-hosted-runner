@@ -1,15 +1,37 @@
+import { config } from "../../config/client";
 import axios from "axios";
+import {
+  SecretsManagerClient,
+  GetSecretValueCommand,
+} from "@aws-sdk/client-secrets-manager";
 
 // import core from "@actions/core";
-const repo = "fake-setup-harrier-action"; // HARDCODED
-const org = "2408-capstone-team5";
-const pat = "ghp_...";
+async function getPat() {
+  const repo = "fake-setup-harrier-action";
+  const org = "2408-capstone-team5";
+  // const pat = "ghp_...";
+
+  const secretClient = new SecretsManagerClient({
+    region: config.region,
+  });
+
+  const secretResponse = await secretClient.send(
+    new GetSecretValueCommand({
+      SecretId: "github/token/harrier",
+      VersionStage: "AWSCURRENT",
+    })
+  );
+
+  return { repo, org, pat: secretResponse.SecretString };
+}
 
 export default async function setupWebhook(
   restApiId: string,
   stageName: "dev" | "prod" = "dev"
 ) {
   try {
+    const { repo, org, pat } = await getPat();
+
     const response = await axios.post(
       `https://api.github.com/repos/${org}/${repo}/hooks`,
       {

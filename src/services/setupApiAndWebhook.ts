@@ -27,7 +27,6 @@ export async function setupApiAndWebhook() {
     const { restApiId, resourceId } = await setupRestApi();
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
     await deployApi(restApiId, stageName);
-    // throw new Error("⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️");
     await setupWebhook(restApiId, stageName);
 
     console.log("✅ completed setupApiAndWebhook ");

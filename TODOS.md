@@ -22,6 +22,9 @@
         └── github
 
 ```
+- [ ] OIDC setup
+- [ ] 
+
 
 ## Global Configuration information
 

@@ -149,6 +149,196 @@ async function attachPolicies(roleName: string): Promise<void> {
         ],
       },
     },
+    // the below are copied from `joel_test-role-927gtd4h`:
+
+    {
+      name: `${roleName}_DescribePolicy`,
+      document: {
+        Version: "2012-10-17",
+        Statement: [
+          { Effect: "Allow", Action: "ec2:Describe*", Resource: "*" },
+          {
+            Effect: "Allow",
+            Action: "elasticloadbalancing:Describe*",
+            Resource: "*",
+          },
+          {
+            Effect: "Allow",
+            Action: [
+              "cloudwatch:ListMetrics",
+              "cloudwatch:GetMetricStatistics",
+              "cloudwatch:Describe*",
+            ],
+            Resource: "*",
+          },
+          { Effect: "Allow", Action: "autoscaling:Describe*", Resource: "*" },
+        ],
+      },
+    },
+    {
+      name: `${roleName}_S3Policy`,
+      document: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: ["s3:*", "s3-object-lambda:*"],
+            Resource: "*",
+          },
+        ],
+      },
+    },
+    {
+      name: `${roleName}_MiscPolicy`,
+      document: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: [
+              "cloudwatch:PutMetricData",
+              "ds:CreateComputer",
+              "ds:DescribeDirectories",
+              "ec2:DescribeInstanceStatus",
+              "logs:*",
+              "ssm:*",
+              "ec2messages:*",
+            ],
+            Resource: "*",
+          },
+          {
+            Effect: "Allow",
+            Action: "iam:CreateServiceLinkedRole",
+            Resource:
+              "arn:aws:iam::*:role/aws-service-role/ssm.amazonaws.com/AWSServiceRoleForAmazonSSM*",
+            Condition: {
+              StringLike: {
+                "iam:AWSServiceName": "ssm.amazonaws.com",
+              },
+            },
+          },
+          {
+            Effect: "Allow",
+            Action: [
+              "iam:DeleteServiceLinkedRole",
+              "iam:GetServiceLinkedRoleDeletionStatus",
+            ],
+            Resource:
+              "arn:aws:iam::*:role/aws-service-role/ssm.amazonaws.com/AWSServiceRoleForAmazonSSM*",
+          },
+          {
+            Effect: "Allow",
+            Action: [
+              "ssmmessages:CreateControlChannel",
+              "ssmmessages:CreateDataChannel",
+              "ssmmessages:OpenControlChannel",
+              "ssmmessages:OpenDataChannel",
+            ],
+            Resource: "*",
+          },
+        ],
+      },
+    },
+    {
+      name: `${roleName}_LogPolicy`,
+      document: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Effect: "Allow",
+            Action: "logs:CreateLogGroup",
+            Resource: "arn:aws:logs:us-east-1:536697269866:*",
+          },
+          {
+            Effect: "Allow",
+            Action: ["logs:CreateLogStream", "logs:PutLogEvents"],
+            Resource: [
+              "arn:aws:logs:us-east-1:536697269866:log-group:/aws/lambda/joel_test:*",
+            ],
+          },
+        ],
+      },
+    },
+    {
+      name: `${roleName}_BasePermissionsPolicy`,
+      document: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Sid: "BasePermissions",
+            Effect: "Allow",
+            Action: [
+              "secretsmanager:*",
+              "cloudformation:CreateChangeSet",
+              "cloudformation:DescribeChangeSet",
+              "cloudformation:DescribeStackResource",
+              "cloudformation:DescribeStacks",
+              "cloudformation:ExecuteChangeSet",
+              "docdb-elastic:GetCluster",
+              "docdb-elastic:ListClusters",
+              "ec2:DescribeSecurityGroups",
+              "ec2:DescribeSubnets",
+              "ec2:DescribeVpcs",
+              "kms:DescribeKey",
+              "kms:ListAliases",
+              "kms:ListKeys",
+              "lambda:ListFunctions",
+              "rds:DescribeDBClusters",
+              "rds:DescribeDBInstances",
+              "redshift:DescribeClusters",
+              "redshift-serverless:ListWorkgroups",
+              "redshift-serverless:GetNamespace",
+              "tag:GetResources",
+            ],
+            Resource: "*",
+          },
+          {
+            Sid: "LambdaPermissions",
+            Effect: "Allow",
+            Action: [
+              "lambda:AddPermission",
+              "lambda:CreateFunction",
+              "lambda:GetFunction",
+              "lambda:InvokeFunction",
+              "lambda:UpdateFunctionConfiguration",
+            ],
+            Resource: "arn:aws:lambda:*:*:function:SecretsManager*",
+          },
+          {
+            Sid: "SARPermissions",
+            Effect: "Allow",
+            Action: [
+              "serverlessrepo:CreateCloudFormationChangeSet",
+              "serverlessrepo:GetApplication",
+            ],
+            Resource: "arn:aws:serverlessrepo:*:*:applications/SecretsManager*",
+          },
+          {
+            Sid: "S3Permissions",
+            Effect: "Allow",
+            Action: ["s3:GetObject"],
+            Resource: [
+              "arn:aws:s3:::awsserverlessrepo-changesets*",
+              "arn:aws:s3:::secrets-manager-rotation-apps-*/*",
+            ],
+          },
+        ],
+      },
+    },
+    {
+      name: `${roleName}_StartInstancesPolicy`,
+      document: {
+        Version: "2012-10-17",
+        Statement: [
+          {
+            Sid: "VisualEditor0",
+            Effect: "Allow",
+            Action: "ec2:StartInstances",
+            Resource: "*",
+          },
+        ],
+      },
+    },
   ];
 
   await Promise.all(
@@ -192,7 +382,7 @@ async function roleExistsAndIsAssumable(roleName: string): Promise<boolean> {
 
 export default async function createWorkflowLambdaServiceRole(
   roleName: string
-): Promise<string> {
+) {
   try {
     const existingRoleArn = await checkIfRoleExists(roleName);
 
