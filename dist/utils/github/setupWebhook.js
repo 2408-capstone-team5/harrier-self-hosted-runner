@@ -15,10 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const configHarrier_1 = require("../../config/configHarrier");
 const client_secrets_manager_1 = require("@aws-sdk/client-secrets-manager");
-// import core from "@actions/core";
 function getPat() {
     return __awaiter(this, void 0, void 0, function* () {
-        const repo = "express-test";
         const org = "2408-capstone-team5";
         const secretClient = new client_secrets_manager_1.SecretsManagerClient({
             region: configHarrier_1.configHarrier.region,
@@ -27,15 +25,15 @@ function getPat() {
             SecretId: "github/pat/harrier",
             VersionStage: "AWSCURRENT",
         }));
-        return { repo, org, pat: secretResponse.SecretString };
+        return { org, pat: secretResponse.SecretString };
     });
 }
-function setupWebhook(restApiId, stageName = "dev") {
+function setupOrgWebhook(restApiId, stageName = "dev") {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { repo, org, pat } = yield getPat();
-            const response = yield axios_1.default.post(`https://api.github.com/repos/${org}/${repo}/hooks`, {
+            const { org, pat } = yield getPat();
+            const response = yield axios_1.default.post(`https://api.github.com/orgs/${org}/hooks`, {
                 config: {
                     url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/workflow`,
                     content_type: "json",
@@ -44,8 +42,6 @@ function setupWebhook(restApiId, stageName = "dev") {
                 events: ["workflow_job"],
                 active: true,
                 name: "web",
-                owner: org,
-                repo,
             }, {
                 headers: {
                     Authorization: `Bearer ${pat}`,
@@ -53,11 +49,11 @@ function setupWebhook(restApiId, stageName = "dev") {
                     "X-GitHub-Api-Version": "2022-11-28",
                 },
             });
-            console.log("✅ Webhook created successfully:", response.data);
+            console.log("✅ Organization webhook created successfully:", response.data);
         }
         catch (error) {
             if (axios_1.default.isAxiosError(error)) {
-                console.error("Error creating webhook:", (_a = error.response) === null || _a === void 0 ? void 0 : _a.data);
+                console.error("Error creating organization webhook:", (_a = error.response) === null || _a === void 0 ? void 0 : _a.data);
             }
             else {
                 console.error("Unexpected error:", error);
@@ -65,21 +61,4 @@ function setupWebhook(restApiId, stageName = "dev") {
         }
     });
 }
-exports.default = setupWebhook;
-// const getRegistrationToken = async () => {
-//   try {
-//     const response = await octokit.request(
-//       "POST /orgs/{org}/actions/runners/registration-token",
-//       {
-//         org: core.getInput("org"),
-//         headers: {
-//           "X-GitHub-Api-Version": "2022-11-28",
-//         },
-//       }
-//     );
-//     console.log("Runner registration token:", response.data.token);
-//     return response.data.token;
-//   } catch (error) {
-//     console.error("Error fetching registration token:", error);
-//   }
-// };
+exports.default = setupOrgWebhook;
