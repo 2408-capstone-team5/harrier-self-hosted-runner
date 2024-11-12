@@ -22,11 +22,11 @@ const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier
 function createRestApi() {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield client.send(new client_api_gateway_1.CreateRestApiCommand({
-            name: "dev-rest-api",
-            description: "rest and vest",
+            name: `Harrier-${installationHash_1.installationHash}-restApi`,
+            description: "the development rest api for Harrier that receives webhooks from github",
             version: "1.0",
-            binaryMediaTypes: ["application/json"],
-            minimumCompressionSize: 1024,
+            //   binaryMediaTypes: ["application/json"],
+            minimumCompressionSize: 10485760,
             apiKeySource: "HEADER",
             endpointConfiguration: {
                 types: ["REGIONAL"],

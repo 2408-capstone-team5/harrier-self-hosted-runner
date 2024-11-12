@@ -7,6 +7,7 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 
 const main = async () => {
   // setupRoles(); // IAM
+  // setupCloudWatch(); // for log groups for at least the lambda & rest api
   /*
     assumes: 
     - harrier_identity user exists with minimum user role permissions
