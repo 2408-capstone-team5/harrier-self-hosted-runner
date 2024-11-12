@@ -2,24 +2,6 @@
 
 ```
 .
-├── dist
-│   ├── config
-│   ├── scripts
-│   ├── services
-│   ├── static
-│   │   └── zipped_lambdas
-│   ├── types
-│   └── utils
-│       ├── aws
-│       │   ├── api
-│       │   ├── cloudwatch
-│       │   ├── ec2
-│       │   ├── eventbridge
-│       │   ├── iam
-│       │   ├── lambda
-│       │   ├── s3
-│       │   └── vpc
-│       └── github
 └── src
     ├── config
     ├── scripts
