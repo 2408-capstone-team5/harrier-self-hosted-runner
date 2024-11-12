@@ -7,9 +7,8 @@ import {
 
 // import core from "@actions/core";
 async function getPat() {
-  const repo = "fake-setup-harrier-action";
+  const repo = "express-test";
   const org = "2408-capstone-team5";
-  // const pat = "ghp_...";
 
   const secretClient = new SecretsManagerClient({
     region: configHarrier.region,

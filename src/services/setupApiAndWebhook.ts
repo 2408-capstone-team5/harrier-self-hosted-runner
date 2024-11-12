@@ -1,4 +1,4 @@
-import createWorkflowLambdaServiceRole from "../utils/aws/iam/createWorkflowLambdaServiceRole";
+// import createWorkflowLambdaServiceRole from "../utils/aws/iam/createWorkflowLambdaServiceRole";
 import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
 import setupRestApi from "../utils/aws/api/setupRestApi";
 import integrateLambdaWithApi from "../utils/aws/api/integrateLambdaWithApi";
@@ -21,8 +21,9 @@ export async function setupApiAndWebhook() {
   //     }
   //   };
   try {
-    const roleName = "_";
-    const serviceRoleArn = await createWorkflowLambdaServiceRole(roleName);
+    // const roleName = "_";
+    const serviceRoleArn =
+      "arn:aws:iam::536697269866:role/service-role/joel_test-role-927gtd4h"; //await createWorkflowLambdaServiceRole(roleName);
     await createAndDeployLambda(lambdaName, serviceRoleArn);
     const { restApiId, resourceId } = await setupRestApi();
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
