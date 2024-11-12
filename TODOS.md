@@ -23,13 +23,14 @@
 
 ```
 ## Immediate:
+- [ ] lambda vpc configuration & secretsManager hanging
 - [ ] figure out and minimize the permissions of the role (current model: `jesse-aws-config-action-test`) that chad will create
 - [ ] figure out what's going on with the shell script being delivered to the ec2, is there an issue with the outbound traffic?  what is occurring that is contributing to the slow down?
 - [ ] chad will create the identity provider (IdP) that uses the above role
 - [ ] programmatic creation of `cleanup` lambda
 - [ ] setup cloudwatch logs (centralized in one logGroup versus on a per-resource-basis)
 - [ ] programmatic deletion of all `harrier-XXXXXXXX` tagged resources
-- [ ] lambda vpc configuration & secretsManager hanging
+
 - [ ] programmatically create the joel-test role that the `workflow` lambda will assume (hard-coded currently)
 
 ## Refactor:
