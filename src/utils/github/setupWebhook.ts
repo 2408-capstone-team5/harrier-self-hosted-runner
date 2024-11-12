@@ -5,9 +5,7 @@ import {
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
 
-// import core from "@actions/core";
 async function getPat() {
-  const repo = "express-test";
   const org = "2408-capstone-team5";
 
   const secretClient = new SecretsManagerClient({
@@ -21,18 +19,18 @@ async function getPat() {
     })
   );
 
-  return { repo, org, pat: secretResponse.SecretString };
+  return { org, pat: secretResponse.SecretString };
 }
 
-export default async function setupWebhook(
+export default async function setupOrgWebhook(
   restApiId: string,
   stageName: "dev" | "prod" = "dev"
 ) {
   try {
-    const { repo, org, pat } = await getPat();
+    const { org, pat } = await getPat();
 
     const response = await axios.post(
-      `https://api.github.com/repos/${org}/${repo}/hooks`,
+      `https://api.github.com/orgs/${org}/hooks`,
       {
         config: {
           url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/workflow`,
@@ -42,8 +40,6 @@ export default async function setupWebhook(
         events: ["workflow_job"],
         active: true,
         name: "web",
-        owner: org,
-        repo,
       },
       {
         headers: {
@@ -54,30 +50,12 @@ export default async function setupWebhook(
       }
     );
 
-    console.log("✅ Webhook created successfully:", response.data);
+    console.log("✅ Organization webhook created successfully:", response.data);
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Error creating webhook:", error.response?.data);
+      console.error("Error creating organization webhook:", error.response?.data);
     } else {
       console.error("Unexpected error:", error);
     }
   }
 }
-
-// const getRegistrationToken = async () => {
-//   try {
-//     const response = await octokit.request(
-//       "POST /orgs/{org}/actions/runners/registration-token",
-//       {
-//         org: core.getInput("org"),
-//         headers: {
-//           "X-GitHub-Api-Version": "2022-11-28",
-//         },
-//       }
-//     );
-//     console.log("Runner registration token:", response.data.token);
-//     return response.data.token;
-//   } catch (error) {
-//     console.error("Error fetching registration token:", error);
-//   }
-// };
