@@ -16,7 +16,7 @@ async function getPat() {
 
   const secretResponse = await secretClient.send(
     new GetSecretValueCommand({
-      SecretId: "github/token/harrier",
+      SecretId: "github/pat/harrier",
       VersionStage: "AWSCURRENT",
     })
   );

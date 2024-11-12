@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupApiAndWebhook = void 0;
-const createWorkflowLambdaServiceRole_1 = __importDefault(require("../utils/aws/iam/createWorkflowLambdaServiceRole"));
+// import createWorkflowLambdaServiceRole from "../utils/aws/iam/createWorkflowLambdaServiceRole";
 const createAndDeployLambda_1 = __importDefault(require("../utils/aws/lambda/createAndDeployLambda"));
 const setupRestApi_1 = __importDefault(require("../utils/aws/api/setupRestApi"));
 const integrateLambdaWithApi_1 = __importDefault(require("../utils/aws/api/integrateLambdaWithApi"));
@@ -32,8 +32,8 @@ function setupApiAndWebhook() {
         //     }
         //   };
         try {
-            const roleName = "_";
-            const serviceRoleArn = yield (0, createWorkflowLambdaServiceRole_1.default)(roleName);
+            // const roleName = "_";
+            const serviceRoleArn = "arn:aws:iam::536697269866:role/service-role/joel_test-role-927gtd4h"; //await createWorkflowLambdaServiceRole(roleName);
             yield (0, createAndDeployLambda_1.default)(lambdaName, serviceRoleArn);
             const { restApiId, resourceId } = yield (0, setupRestApi_1.default)();
             yield (0, integrateLambdaWithApi_1.default)(restApiId, resourceId, lambdaName);

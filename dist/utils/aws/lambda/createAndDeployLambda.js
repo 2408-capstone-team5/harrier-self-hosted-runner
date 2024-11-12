@@ -42,6 +42,7 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
             if (error instanceof Error && error.name === "ResourceNotFoundException") {
                 console.log("creating new lambda...");
                 yield lambdaClient.send(new client_lambda_1.CreateFunctionCommand({
+                    Timeout: 900,
                     FunctionName: lambdaName,
                     Runtime: "nodejs20.x",
                     Role: lambdaRoleArn,

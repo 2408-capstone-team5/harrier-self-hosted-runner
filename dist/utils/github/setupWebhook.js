@@ -18,14 +18,13 @@ const client_secrets_manager_1 = require("@aws-sdk/client-secrets-manager");
 // import core from "@actions/core";
 function getPat() {
     return __awaiter(this, void 0, void 0, function* () {
-        const repo = "fake-setup-harrier-action";
+        const repo = "express-test";
         const org = "2408-capstone-team5";
-        // const pat = "ghp_...";
         const secretClient = new client_secrets_manager_1.SecretsManagerClient({
             region: configHarrier_1.configHarrier.region,
         });
         const secretResponse = yield secretClient.send(new client_secrets_manager_1.GetSecretValueCommand({
-            SecretId: "github/token/harrier",
+            SecretId: "github/pat/harrier",
             VersionStage: "AWSCURRENT",
         }));
         return { repo, org, pat: secretResponse.SecretString };

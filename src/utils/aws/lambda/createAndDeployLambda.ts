@@ -51,7 +51,7 @@ export default async function createAndDeployLambda(
       console.log("creating new lambda...");
       await lambdaClient.send(
         new CreateFunctionCommand({
-          Timeout: 30,
+          Timeout: 900,
           FunctionName: lambdaName,
           Runtime: "nodejs20.x",
           Role: lambdaRoleArn,
