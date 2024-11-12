@@ -20,7 +20,7 @@ jobs:
         with:
           audience: sts.amazonaws.com
           aws-region: us-east-1
-          role-to-assume: arn:aws:iam::536697269866:role/jesse-aws-config-action-test # Chad made a new IAM role and trusted GHA IdP
+          role-to-assume: arn:aws:iam::536697269866:role/harrier-setup-role # Chad made a new IAM role and trusted GHA IdP
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
