@@ -1,0 +1,35 @@
+name: "Harrier Setup"
+description: "Sets up Harrier"
+author: "Harrier Team"
+inputs:
+  # aws-credential action:
+  audience:
+    description: "the audience for the AWS STS call"
+    required: true
+    default: "sts.amazonaws.com"
+  aws-region:
+    description: "the AWS region to use"
+    required: true
+    default: "us-east-1"
+  role-to-assume:
+    description: "the ARN of the role that the to assume"
+    required: true
+    default: "arn:aws:iam::222233334444:role/harrier-setup-role"
+
+  # harrier-setup action:
+  org:
+    description: "organization pulled from github context object"
+    required: true
+  repo:
+    description: "the repository name that the action is running in"
+    required: true
+  personal-access-token:
+    description: "user secret pulled from organization's secrets"
+    required: true
+
+runs:
+  using: "node12" # should this match the emitted target JS version in the eventual JS code?
+  main: "/dist/index.js"
+# ADDITIONAL:
+# ec2-runner: # “t2.micro”
+# Cache policy (time to live)

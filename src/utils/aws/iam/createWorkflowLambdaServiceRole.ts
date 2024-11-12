@@ -1,3 +1,5 @@
+// TODO: configure the ec2 policies such that the lambda can start and stop specifically tagged instances (Agent: Harrier-Runner)
+
 import {
   IAMClient,
   CreateRoleCommand,
@@ -6,7 +8,6 @@ import {
   waitUntilRoleExists,
 } from "@aws-sdk/client-iam";
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
-
 
 import { configHarrier } from "../../../config/configHarrier";
 
