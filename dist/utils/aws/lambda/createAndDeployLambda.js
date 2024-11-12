@@ -48,11 +48,12 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                 },
                 Description: "...description",
                 Publish: true,
-                VpcConfig: {
-                    SubnetIds: [configHarrier_1.configHarrier.subnetId],
-                    SecurityGroupIds: configHarrier_1.configHarrier.securityGroupIds,
-                    Ipv6AllowedForDualStack: false,
-                },
+                // VpcConfig: {
+                //   //   VpcId: configHarrier.vpcId, // this is apparently not a member of the VpcConfig type
+                //   SubnetIds: [configHarrier.subnetId as string],
+                //   SecurityGroupIds: configHarrier.securityGroupIds,
+                //   Ipv6AllowedForDualStack: false,
+                // },
                 PackageType: "Zip",
                 Tags: {
                     Name: `${configHarrier_1.configHarrier.tagValue}-lambda-${lambdaName}`,
@@ -61,7 +62,6 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                 Environment: {
                     Variables: {
                         REGION: configHarrier_1.configHarrier.region,
-                        HI: "mom",
                     },
                 },
             }));
