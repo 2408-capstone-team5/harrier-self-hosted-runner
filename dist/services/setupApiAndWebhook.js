@@ -23,14 +23,6 @@ const lambdaName = "workflow"; // HARDCODED lambda name
 const stageName = "dev"; // HARDCODED
 function setupApiAndWebhook() {
     return __awaiter(this, void 0, void 0, function* () {
-        //   const wait = (ms: number) => {
-        //     console.log(`waiting ${ms / 1000} seconds...`);
-        //     const start = Date.now();
-        //     let now = start;
-        //     while (now - start < ms) {
-        //       now = Date.now();
-        //     }
-        //   };
         try {
             // const roleName = "_";
             const serviceRoleArn = "arn:aws:iam::536697269866:role/service-role/joel_test-role-927gtd4h"; // await createWorkflowLambdaServiceRole(roleName);
@@ -47,4 +39,3 @@ function setupApiAndWebhook() {
     });
 }
 exports.setupApiAndWebhook = setupApiAndWebhook;
-void setupApiAndWebhook();

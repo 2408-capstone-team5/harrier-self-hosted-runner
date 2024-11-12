@@ -11,15 +11,6 @@ const lambdaName: LambdaName = "workflow"; // HARDCODED lambda name
 const stageName = "dev"; // HARDCODED
 
 export async function setupApiAndWebhook() {
-  //   const wait = (ms: number) => {
-  //     console.log(`waiting ${ms / 1000} seconds...`);
-
-  //     const start = Date.now();
-  //     let now = start;
-  //     while (now - start < ms) {
-  //       now = Date.now();
-  //     }
-  //   };
   try {
     // const roleName = "_";
     const serviceRoleArn =
@@ -35,5 +26,3 @@ export async function setupApiAndWebhook() {
     console.error("Error executing setupApiAndWebhook: ", error);
   }
 }
-
-void setupApiAndWebhook();
