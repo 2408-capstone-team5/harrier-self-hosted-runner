@@ -28,7 +28,6 @@ jobs:
           node-version: "20.x"
 
       - name: Install dependencies
-        if: ${{ hashFiles('package.json') != '' }}
         run: npm install
 
       - name: Run harrier main index.js
