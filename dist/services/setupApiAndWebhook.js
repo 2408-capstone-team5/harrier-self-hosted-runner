@@ -33,7 +33,7 @@ function setupApiAndWebhook() {
         //   };
         try {
             // const roleName = "_";
-            const serviceRoleArn = "arn:aws:iam::536697269866:role/service-role/joel_test-role-927gtd4h"; //await createWorkflowLambdaServiceRole(roleName);
+            const serviceRoleArn = "arn:aws:iam::536697269866:role/service-role/joel_test-role-927gtd4h"; // await createWorkflowLambdaServiceRole(roleName);
             yield (0, createAndDeployLambda_1.default)(lambdaName, serviceRoleArn);
             const { restApiId, resourceId } = yield (0, setupRestApi_1.default)();
             yield (0, integrateLambdaWithApi_1.default)(restApiId, resourceId, lambdaName);

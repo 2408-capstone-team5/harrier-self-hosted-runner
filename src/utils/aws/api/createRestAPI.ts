@@ -12,16 +12,18 @@ import {
   CreateRestApiCommand,
 } from "@aws-sdk/client-api-gateway";
 
-const client = new APIGatewayClient({region: configHarrier.region})
+const client = new APIGatewayClient({ region: configHarrier.region });
 
 export default async function createRestApi() {
   const response = await client.send(
     new CreateRestApiCommand({
-      name: "dev-rest-api",
-      description: "rest and vest",
+      name: `Harrier-${installationHash}-restApi`,
+      description:
+        "the development rest api for Harrier that receives webhooks from github",
       version: "1.0",
-      binaryMediaTypes: ["application/json"],
-      minimumCompressionSize: 1024,
+      //   binaryMediaTypes: ["application/json"],
+      //   minimumCompressionSize: -1,
+      //   minimumCompressionSize: 10485760, // 10MB
       apiKeySource: "HEADER",
       endpointConfiguration: {
         types: ["REGIONAL"],

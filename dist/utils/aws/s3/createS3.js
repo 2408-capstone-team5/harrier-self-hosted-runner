@@ -17,7 +17,14 @@ const createS3 = (client, bucketName, maxWaitTime) => __awaiter(void 0, void 0, 
             Bucket: bucketName,
         }));
         yield (0, client_s3_1.waitUntilBucketExists)({ client, maxWaitTime }, { Bucket: bucketName });
-        console.log(`*** Bucket created with location ${Location} ***`);
+        const putBucketTaggingCommand = new client_s3_1.PutBucketTaggingCommand({
+            Bucket: bucketName,
+            Tagging: {
+                TagSet: [{ Key: "Agent", Value: "Harrier-Runner" }],
+            },
+        });
+        const putTagsResponse = yield client.send(putBucketTaggingCommand);
+        console.log(`*** Bucket created with location ${Location} and tags: `, putTagsResponse, " ***");
     }
     catch (error) {
         if (error instanceof client_s3_1.BucketAlreadyExists) {

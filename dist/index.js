@@ -17,6 +17,7 @@ const setupApiAndWebhook_1 = require("./services/setupApiAndWebhook");
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     // setupRoles(); // IAM
+    // setupCloudWatch(); // for log groups for at least the lambda & rest api
     /*
       assumes:
       - harrier_identity user exists with minimum user role permissions

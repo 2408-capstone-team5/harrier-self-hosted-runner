@@ -1,4 +1,3 @@
-
 import {
   GetResourcesCommand,
   APIGatewayClient,
@@ -6,7 +5,7 @@ import {
 } from "@aws-sdk/client-api-gateway";
 import { configHarrier } from "../../../config/configHarrier";
 
-const client = new APIGatewayClient({region: configHarrier.region})
+const client = new APIGatewayClient({ region: configHarrier.region });
 
 export default async function createResource(restApiId: string) {
   const existingRootResourceId = await getRootResource(restApiId);

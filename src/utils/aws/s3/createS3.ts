@@ -4,6 +4,7 @@ import {
   BucketAlreadyOwnedByYou,
   waitUntilBucketExists,
   S3Client,
+  PutBucketTaggingCommand,
 } from "@aws-sdk/client-s3";
 
 export const createS3 = async (
@@ -17,11 +18,24 @@ export const createS3 = async (
         Bucket: bucketName,
       })
     );
+
     await waitUntilBucketExists(
       { client, maxWaitTime },
       { Bucket: bucketName }
     );
-    console.log(`*** Bucket created with location ${Location} ***`);
+
+    const putBucketTaggingCommand = new PutBucketTaggingCommand({
+      Bucket: bucketName,
+      Tagging: {
+        TagSet: [{ Key: "Agent", Value: "Harrier-Runner" }],
+      },
+    });
+    const putTagsResponse = await client.send(putBucketTaggingCommand);
+    console.log(
+      `*** Bucket created with location ${Location} and tags: `,
+      putTagsResponse,
+      " ***"
+    );
   } catch (error: unknown) {
     if (error instanceof BucketAlreadyExists) {
       console.error(
