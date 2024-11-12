@@ -2,6 +2,24 @@
 
 ```
 .
+├── dist
+│   ├── config
+│   ├── scripts
+│   ├── services
+│   ├── static
+│   │   └── zipped_lambdas
+│   ├── types
+│   └── utils
+│       ├── aws
+│       │   ├── api
+│       │   ├── cloudwatch
+│       │   ├── ec2
+│       │   ├── eventbridge
+│       │   ├── iam
+│       │   ├── lambda
+│       │   ├── s3
+│       │   └── vpc
+│       └── github
 └── src
     ├── config
     ├── scripts
@@ -12,7 +30,7 @@
     └── utils
         ├── aws
         │   ├── api
-        │   │   └── templates
+        │   ├── cloudwatch
         │   ├── ec2
         │   ├── eventbridge
         │   ├── iam
@@ -21,24 +39,25 @@
         │   └── vpc
         └── github
 
+36 directories
 ```
 ## Immediate:
 - [ ] lambda vpc configuration & secretsManager hanging
-- [ ] figure out and minimize the permissions of the role (current model: `jesse-aws-config-action-test`) that chad will create
 - [ ] figure out what's going on with the shell script being delivered to the ec2, is there an issue with the outbound traffic?  what is occurring that is contributing to the slow down?
-- [ ] chad will create the identity provider (IdP) that uses the above role
+- [ ] chad steps for using `harrier` runner (his aws account, gh secrets, generate pat, ...)
+- [ ] put `awsAccountId` and `region` into `configHarrier`
 - [ ] programmatic creation of `cleanup` lambda
+- [ ] programmatic zipping of lambdas!
 - [ ] setup cloudwatch logs (centralized in one logGroup versus on a per-resource-basis)
+- [ ] programmatically create the `joel-test` role that the `workflow` lambda will assume (hard-coded currently)
+- [ ] figure out and minimize the permissions of the role (current model: `jesse-aws-config-action-test`) that chad will create
 - [ ] programmatic deletion of all `harrier-XXXXXXXX` tagged resources
-
-- [ ] programmatically create the joel-test role that the `workflow` lambda will assume (hard-coded currently)
 
 ## Refactor:
 
-- [ ] http vs rest api (do we refactor or keep as-is?)
 - [ ] add resource policy for api
-- [ ] put `awsAccountId` and `region` into `configHarrier`
 - [ ] refactor `configHarrier` and identify what is a chad-input and what is setup by harrier setup
+- [ ] http vs rest api (do we refactor or keep as-is?)
 
 
 ## Global Configuration information
