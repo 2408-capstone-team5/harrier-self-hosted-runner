@@ -26,7 +26,8 @@ function createRestApi() {
             description: "the development rest api for Harrier that receives webhooks from github",
             version: "1.0",
             //   binaryMediaTypes: ["application/json"],
-            minimumCompressionSize: 10485760,
+            //   minimumCompressionSize: -1,
+            //   minimumCompressionSize: 10485760, // 10MB
             apiKeySource: "HEADER",
             endpointConfiguration: {
                 types: ["REGIONAL"],
