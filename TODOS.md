@@ -22,8 +22,16 @@
         └── github
 
 ```
-- [ ] OIDC setup
-- [ ] 
+## Issues Moving forward:
+- [ ] figure out and minimize the permissions of the role (current model: `jesse-aws-config-action-test`) that chad will create
+- [ ] chad will create the identity provider (IdP) that uses the above role
+- [ ] lambda vpc configuration & secretsManager hanging
+- [ ] programmatically create the joel-test role that the `workflow` lambda will assume (hard-coded currently)
+- [ ] figure out what's going on with the shell script being delivered to the ec2, is there an issue with the outbound traffic?  what is occurring that is contributing to the slow down?
+- [ ] setup cloudwatch logs (centralized in one logGroup versus on a per-resource-basis)
+- [ ] http vs rest api (do we refactor or keep as-is?)
+- [ ] resource policy for api
+- [ ] put awsAccountId and `region` into `configHarrier`
 
 
 ## Global Configuration information
