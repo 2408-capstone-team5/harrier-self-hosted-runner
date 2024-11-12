@@ -59,11 +59,12 @@ export default async function createAndDeployLambda(
         },
         Description: "...description",
         Publish: true,
-        VpcConfig: {
-          SubnetIds: [configHarrier.subnetId as string],
-          SecurityGroupIds: configHarrier.securityGroupIds,
-          Ipv6AllowedForDualStack: false,
-        },
+        // VpcConfig: {
+        //   //   VpcId: configHarrier.vpcId, // this is apparently not a member of the VpcConfig type
+        //   SubnetIds: [configHarrier.subnetId as string],
+        //   SecurityGroupIds: configHarrier.securityGroupIds,
+        //   Ipv6AllowedForDualStack: false,
+        // },
         PackageType: "Zip",
         Tags: {
           Name: `${configHarrier.tagValue}-lambda-${lambdaName}`,
@@ -72,7 +73,6 @@ export default async function createAndDeployLambda(
         Environment: {
           Variables: {
             REGION: configHarrier.region,
-            HI: "mom",
           },
         },
       })
