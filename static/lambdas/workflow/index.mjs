@@ -90,7 +90,7 @@ async function findInstance(state) {
         { Name: "instance-state-name", Values: [state] },
         {
           Name: `tag:${HARRIER_TAG_KEY}`,
-          Values: [`${HARRIER_TAG_VALUE}-OG`],
+          Values: [`${HARRIER_TAG_VALUE}`],
         },
       ],
     };
