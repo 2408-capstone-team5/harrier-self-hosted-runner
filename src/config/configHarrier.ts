@@ -1,11 +1,19 @@
 import { configHarrierType } from "../types/typesConfig";
 import { installationHash } from "./installationHash";
 
+const awsRegion = process.env.AWS_REGION;
+const ghOwnerName = process.env.GH_OWNER;
+const awsAccountId = process.env.AWS_ACCOUNT_ID;
+const instanceType = process.env.EC2_INSTANCE_TYPE;
+const cacheTtlHours = process.env.CACHE_TTL_HOURS;
+const cidrBlockVPC = process.env.CIDR_BLOCK_VPC;
+const cidrBlockSubnet = process.env.CIDR_BLOCK_SUBNET;
+
 export const configHarrier: configHarrierType = {
   vpcId: "",
   tagValue: `Harrier-${installationHash}`,
-  cidrBlockVPC: "10.0.0.0/16",
-  cidrBlockSubnet: "10.0.0.0/24",
+  cidrBlockVPC: cidrBlockVPC,
+  cidrBlockSubnet: cidrBlockSubnet,
 
   subnetId: "",
   subnetIds: [],
@@ -15,11 +23,11 @@ export const configHarrier: configHarrierType = {
   logGroup: "/aws/lambda/joel_test",
   workflowLambdaLogGroup: "joel_test",
 
-  region: "us-east-1",
-  awsAccountId: "536697269866",
+  region: awsRegion,
+  awsAccountId: awsAccountId,
   imageId: "ami-063d43db0594b521b", // AMI ID for the instance
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
-  instanceType: "t2.micro", // EC2 instance type
+  instanceType: instanceType, // EC2 instance type, default from workflow is t2.micro
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
@@ -27,8 +35,9 @@ export const configHarrier: configHarrierType = {
     Name: "EC2-access-S3",
   },
 
-  githubUrl: "https://github.com/2408-capstone-team5",
-  s3Name: "",
+  githubUrl: `https://github.com/${ghOwnerName}`,
+  s3Name: `harrier-s3-${ghOwnerName}`,
+  cacheTtlHours: cacheTtlHours,
 };
 
 export const harrierVPC = {};
