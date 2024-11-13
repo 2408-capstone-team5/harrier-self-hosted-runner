@@ -1,94 +1,148 @@
 import {
   EC2Client,
-  // DescribeVpcsCommand,
+  DescribeVpcsCommand,
   DescribeSubnetsCommand,
-  DeleteSubnetCommand,
   DescribeInternetGatewaysCommand,
+  DeleteVpcCommand,
+  DeleteSubnetCommand,
   DetachInternetGatewayCommand,
   DeleteInternetGatewayCommand,
-  DescribeRouteTablesCommand,
-  DeleteRouteTableCommand,
-  DeleteVpcCommand,
 } from "@aws-sdk/client-ec2";
 
-const ec2Client = new EC2Client({ region: "us-east-1" });
+// Create EC2 client
+const ec2Client = new EC2Client({ region: "us-east-1" }); // Replace with your region
 
-async function cleanupVpcResources(vpcName: string) {
-  try {
-    // 1. Describe Subnets to find the ones in the VPC and delete
-    const { Subnets } = await ec2Client.send(
-      new DescribeSubnetsCommand({
-        Filters: [{ Name: "tag:Name", Values: [vpcName] }],
-      })
-    );
+// Find all VPCs whose name starts with "Harrier"
+const findVpcsWithNamePrefix = async (prefix: string) => {
+  const command = new DescribeVpcsCommand({});
+  const response = await ec2Client.send(command);
 
-    if (Subnets) {
-      for (const subnet of Subnets) {
-        console.log(`Deleting subnet: ${subnet.SubnetId}`);
-        await ec2Client.send(
-          new DeleteSubnetCommand({ SubnetId: subnet.SubnetId })
-        );
+  const harrierVpcIds: string[] = [];
+
+  if (response?.Vpcs) {
+    response.Vpcs.filter((vpc) => {
+      const nameTag = vpc.Tags?.find((tag) => tag.Key === "Name");
+      return nameTag && nameTag.Value?.startsWith(prefix);
+    }).forEach((vpc) => {
+      if (vpc.VpcId) {
+        harrierVpcIds.push(vpc.VpcId);
       }
-    }
-
-    // 2. Describe and detach the Internet Gateway if attached
-    const { InternetGateways } = await ec2Client.send(
-      new DescribeInternetGatewaysCommand({
-        Filters: [{ Name: "tag:Name", Values: [vpcName] }],
-      })
-    );
-
-    if (InternetGateways) {
-      for (const igw of InternetGateways) {
-        console.log(
-          `Detaching and deleting Internet Gateway: ${igw.InternetGatewayId}`
-        );
-        await ec2Client.send(
-          new DetachInternetGatewayCommand({
-            InternetGatewayId: igw.InternetGatewayId,
-            VpcId: vpcId,
-          })
-        );
-        await ec2Client.send(
-          new DeleteInternetGatewayCommand({
-            InternetGatewayId: igw.InternetGatewayId,
-          })
-        );
-      }
-    }
-
-    // 3. Describe and delete any route tables (except default)
-    const { RouteTables } = await ec2Client.send(
-      new DescribeRouteTablesCommand({
-        Filters: [{ Name: "tag:Name", Values: [vpcName] }],
-      })
-    );
-
-    if (RouteTables) {
-      for (const routeTable of RouteTables) {
-        if (!routeTable.Associations?.some((assoc) => assoc.Main)) {
-          // Avoid deleting default route table
-          console.log(
-            `Deleting custom route table: ${routeTable.RouteTableId}`
-          );
-          await ec2Client.send(
-            new DeleteRouteTableCommand({
-              RouteTableId: routeTable.RouteTableId,
-            })
-          );
-        }
-      }
-    }
-
-    // 5. Finally, delete the VPC
-    console.log(`Deleting VPC: ${vpcId}`);
-    await ec2Client.send(new DeleteVpcCommand({ VpcId: vpcId }));
-    console.log(`VPC ${vpcId} deleted successfully.`);
-  } catch (error) {
-    console.error("Error during VPC cleanup:", error);
+    });
   }
-}
 
-// Example usage
-const vpcId = "vpc-xxxxxxxx"; // Replace with your VPC ID
-void cleanupVpcResources(vpcId);
+  return harrierVpcIds;
+};
+
+// Delete subnets associated with VPC
+const deleteSubnets = async (vpcId: string) => {
+  const command = new DescribeSubnetsCommand({
+    Filters: [
+      {
+        Name: "vpc-id",
+        Values: [vpcId],
+      },
+    ],
+  });
+
+  const response = await ec2Client.send(command);
+  const subnets = response.Subnets;
+
+  if (!subnets) {
+    console.log("No subnets found.");
+    return;
+  }
+
+  for (const subnet of subnets) {
+    try {
+      const deleteSubnetCommand = new DeleteSubnetCommand({
+        SubnetId: subnet.SubnetId,
+      });
+      await ec2Client.send(deleteSubnetCommand);
+      console.log(`Subnet ${subnet.SubnetId} deleted.`);
+    } catch (error) {
+      console.error(`Failed to delete subnet ${subnet.SubnetId}:`, error);
+    }
+  }
+};
+
+// Delete Internet Gateways associated with VPC
+const deleteInternetGateways = async (vpcId: string) => {
+  const command = new DescribeInternetGatewaysCommand({
+    Filters: [
+      {
+        Name: "attachment.vpc-id",
+        Values: [vpcId],
+      },
+    ],
+  });
+
+  const response = await ec2Client.send(command);
+  const internetGateways = response.InternetGateways;
+
+  if (!internetGateways) {
+    console.log("No internet gateways found.");
+    return;
+  }
+
+  for (const igw of internetGateways) {
+    try {
+      // Detach Internet Gateway first
+      const detachCommand = new DetachInternetGatewayCommand({
+        InternetGatewayId: igw.InternetGatewayId,
+        VpcId: vpcId,
+      });
+      await ec2Client.send(detachCommand);
+      console.log(`Internet Gateway ${igw.InternetGatewayId} detached.`);
+
+      // Then delete the Internet Gateway
+      const deleteCommand = new DeleteInternetGatewayCommand({
+        InternetGatewayId: igw.InternetGatewayId,
+      });
+      await ec2Client.send(deleteCommand);
+      console.log(`Internet Gateway ${igw.InternetGatewayId} deleted.`);
+    } catch (error) {
+      console.error(
+        `Failed to delete Internet Gateway ${igw.InternetGatewayId}:`,
+        error
+      );
+    }
+  }
+};
+
+// Delete VPC and its associated resources
+const deleteVpcAndResources = async (vpcId: string) => {
+  try {
+    // Delete associated subnets, internet gateways
+    await deleteSubnets(vpcId);
+    await deleteInternetGateways(vpcId);
+
+    // Finally, delete the VPC
+    const deleteVpcCommand = new DeleteVpcCommand({
+      VpcId: vpcId,
+    });
+    await ec2Client.send(deleteVpcCommand);
+    console.log(`VPC ${vpcId} deleted.`);
+  } catch (error) {
+    console.error(`Failed to delete VPC ${vpcId}:`, error);
+  }
+};
+
+// Main function to process all VPCs with name starting with "Harrier"
+export const cleanupVpc = async () => {
+  try {
+    const vpcs = await findVpcsWithNamePrefix("Harrier");
+    if (vpcs.length === 0) {
+      console.log('No VPCs found with the prefix "Harrier".');
+      return;
+    }
+
+    for (const vpc of vpcs) {
+      console.log(`Processing VPC: ${vpc}`);
+
+      // Delete the VPC and its resources
+      await deleteVpcAndResources(vpc);
+    }
+  } catch (error) {
+    console.error("Error processing VPCs:", error);
+  }
+};
