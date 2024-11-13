@@ -14,7 +14,7 @@ inputs:
   role-to-assume:
     description: "the ARN of the role that the to assume"
     required: true
-    default: "arn:aws:iam::222233334444:role/harrier-setup-role"
+    default: "arn:aws:iam::536697269866:role/harrier-setup-role"
 
   # harrier-setup action:
   org:
