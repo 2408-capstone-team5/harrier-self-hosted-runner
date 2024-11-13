@@ -1,0 +1,15 @@
+{
+  "name": "harrier_workflow_lambda",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {},
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.683.0",
+    "@aws-sdk/client-lambda": "^3.686.0",
+    "@aws-sdk/client-ssm": "^3.682.0"
+  }
+}
