@@ -1,0 +1,38 @@
+name: "Harrier Setup"
+description: "Sets up Harrier"
+author: "Harrier Team"
+
+inputs:
+  region:
+    description: "AWS region"
+    required: true
+  ghOwnerName:
+    description: "GitHub owner name"
+    required: true
+  awsAccountId:
+    description: "AWS Account ID"
+    required: true
+  instanceType:
+    description: "EC2 instance type"
+    required: true
+  cacheTtlHours:
+    description: "Cache TTL in hours"
+    required: true
+  cidrBlockVPC:
+    description: "CIDR block for the VPC"
+    required: true
+  cidrBlockSubnet:
+    description: "CIDR block for the Subnet"
+    required: true
+
+runs:
+  using: "node20"
+  main: "/dist/index.js"
+  env:
+    AWS_REGION: ${{ inputs.region }}
+    GH_OWNER: ${{ inputs.ghOwnerName }}
+    AWS_ACCOUNT_ID: ${{ inputs.awsAccountId }}
+    EC2_INSTANCE_TYPE: ${{ inputs.instanceType }}
+    CACHE_TTL_HOURS: ${{ inputs.cacheTtlHours }}
+    CIDR_BLOCK_VPC: ${{ inputs.cidrBlockVPC }}
+    CIDR_BLOCK_SUBNET: ${{ inputs.cidrBlockSubnet }}
