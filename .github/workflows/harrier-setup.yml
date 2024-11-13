@@ -1,0 +1,52 @@
+name: Set Harrier on AWS infrastructure and GitHub webhooks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  setup-harrier-runner:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    env:
+      AWS_AUDIENCE: sts.amazonaws.com
+      AWS_REGION: us-east-1
+      AWS_ACCOUNT: 536697269866
+      AWS_ROLE_ARN: arn:aws:iam::536697269866:role/harrier-setup-role
+      EC2_INSTANCE_TYPE: t2.micro
+      CACHE_TTL_HOURS: 72
+      CIDR_BLOCK_VPC: 10.0.0.0/16
+      CIDR_BLOCK_SUBNET: 10.0.0.0/24
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure AWS Credentials for Harrier setup
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: ${{ env.AWS_AUDIENCE }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+
+      - name: Harrier Self-Hosted Runner Setup
+        uses: 2408-capstone-team5/harrier-self-hosted-runner@main
+        with:
+          region: ${{ env.AWS_REGION }}
+          ghOwnerName: ${{ github.repository_owner }}
+          awsAccountId: ${{ env.AWS_ACCOUNT }}
+          instanceType: ${{ env.EC2_INSTANCE_TYPE }}
+          cacheTtlHours: ${{ env.CACHE_TTL_HOURS }}
+          cidrBlockVPC: ${{ env.CIDR_BLOCK_VPC }}
+          cidrBlockSubnet: ${{ env.CIDR_BLOCK_SUBNET }}
