@@ -28,7 +28,7 @@ inputs:
     required: true
 
 runs:
-  using: "node12" # should this match the emitted target JS version in the eventual JS code?
+  using: "node20" # should this match the emitted target JS version in the eventual JS code?
   main: "/dist/index.js"
 # ADDITIONAL:
 # ec2-runner: # “t2.micro”
