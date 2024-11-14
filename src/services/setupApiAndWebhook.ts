@@ -1,4 +1,3 @@
-import { createRoleAndAttachPolicy } from "../utils/aws/iam/createRoleAndAttachPolicy";
 import { createAndDeployLambda } from "../utils/aws/lambda/createAndDeployLambda";
 import { zipLambda } from "../utils/aws/lambda/zipLambda";
 import { setupRestApi } from "../utils/aws/api/setupRestApi";
@@ -6,19 +5,15 @@ import { integrateLambdaWithApi } from "../utils/aws/api/integrateLambdaWithApi"
 import { deployApi } from "../utils/aws/api/deployApi";
 import { setupOrgWebhook } from "../utils/github/setupOrgWebhook";
 
-import { workflowPolicyDocument, configHarrier } from "../config/configHarrier";
+import { configHarrier } from "../config/configHarrier";
 
 export async function setupApiAndWebhook() {
-  const lambdaName = `${configHarrier.tagValue}-workflow`;
-  const workflowRole = `${configHarrier.tagValue}-workflow`;
+  const lambdaName = configHarrier.workflowServiceName;
   const stageName = "dev"; // HARDCODED
 
   try {
     await zipLambda(lambdaName);
-    const workflowRoleArn = await createRoleAndAttachPolicy(
-      workflowRole,
-      workflowPolicyDocument
-    );
+    const workflowRoleArn = configHarrier.workflowServiceRoleArn;
 
     await createAndDeployLambda(lambdaName, workflowRoleArn);
     const { restApiId, resourceId } = await setupRestApi();
@@ -27,5 +22,6 @@ export async function setupApiAndWebhook() {
     await setupOrgWebhook(restApiId, stageName);
   } catch (error: unknown) {
     console.error("Error executing setupApiAndWebhook: ", error);
+    throw new Error("❌");
   }
 }

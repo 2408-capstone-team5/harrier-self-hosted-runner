@@ -4,15 +4,33 @@ import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
 import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
-// import { setupCacheEviction } from "./services/setupCacheEviction";
+import { setupCacheEviction } from "./services/setupCacheEviction";
 
 const main = async () => {
-  await cleanupPrevInstall();
+  try {
+    await cleanupPrevInstall();
 
-  // setupRoles(); // IAM
+    await setupVPC();
 
-  // setupCloudWatch(); // for log groups for at least the lambda & rest api
-  /*
+    await setupS3CacheBucket(); // S3
+
+    await setupEC2Runner();
+
+    await setupApiAndWebhook();
+
+    await setupCacheEviction();
+  } catch (error) {
+    console.error("Error executing main in index: ", error);
+    throw new Error("❌");
+  }
+};
+
+void main();
+
+// setupRoles(); // IAM
+
+// setupCloudWatch(); // for log groups for at least the lambda & rest api
+/*
     assumes: 
     - harrier_identity user exists with minimum user role permissions
 
@@ -21,15 +39,12 @@ const main = async () => {
     - lambda basic execution role
     - cache eviction lambda needs s3 access
    */
-  await setupVPC(); // VPC, IP, Public Subnet, Internet Gateway, Route Table
 
-  await setupS3CacheBucket(); // S3
+// VPC, IP, Public Subnet, Internet Gateway, Route Table
+// EC2-EBS instantiate, run script, stop
 
-  await setupEC2Runner(); // EC2-EBS instantiate, run script, stop
-
-  await setupApiAndWebhook();
-  // lambda, api gateway, secrets manager
-  /*
+// lambda, api gateway, secrets manager
+/*
     - requires the PAT from the aws secrets manager
 
     - create lambda that receives webhook (queued, inprogress, completed) from github workflow run
@@ -40,12 +55,9 @@ const main = async () => {
     - setup github webhook with rest api's url as the webhook payload_url
   */
 
-  // await setupCacheEviction(); // lambda & EventBridge
-  /* 
+// await setupCacheEviction(); // lambda & EventBridge
+/* 
     - requires S3 Name/ARN
     - create lambda with eviction policy
     - register lambda with EventBridge
   */
-};
-
-void main();
