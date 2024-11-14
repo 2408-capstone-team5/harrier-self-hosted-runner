@@ -52,10 +52,10 @@ const getInstancesByNamePrefix = async (prefix: string) => {
 };
 
 const terminateInstances = async (instanceIds: string[]) => {
-  if (!instanceIds) {
-    console.log("No instances to terminate.");
-    return;
-  }
+  // if (!instanceIds) {
+  //   console.log("No instances to terminate.");
+  //   return;
+  // }
 
   const command = new TerminateInstancesCommand({
     InstanceIds: instanceIds,
@@ -134,10 +134,10 @@ const getInstancesUsingSecurityGroup = async (groupId: string) => {
 };
 
 const deleteSecurityGroups = async (securityGroups: string[]) => {
-  if (!securityGroups) {
-    console.log("No security groups to delete.");
-    return;
-  }
+  // if (!securityGroups) {
+  //   console.log("No security groups to delete.");
+  //   return;
+  // }
 
   // Delete each security group one at a time
   for (const groupId of securityGroups) {
@@ -166,14 +166,22 @@ export const cleanupEC2s = async () => {
     // Step 1: Find all Harrier EC2 instances and security groups
     const harrierInstances = await getInstancesByNamePrefix("harrier");
 
-    // Step 2: Terminate all Harrier EC2 instances
-    await terminateInstances(harrierInstances.instanceIds);
+    if (!harrierInstances.instanceIds) {
+      console.log("No instances to terminate.");
+    } else {
+      // Step 2: Terminate all Harrier EC2 instances
+      await terminateInstances(harrierInstances.instanceIds);
 
-    // Step 2a: Wait for instance termination
-    await waitForInstanceTermination(harrierInstances.instanceIds);
+      // Step 2a: Wait for instance termination
+      await waitForInstanceTermination(harrierInstances.instanceIds);
+    }
 
-    // Step 3: Delete all Security groups associated with Harrier EC2 instances
-    await deleteSecurityGroups(harrierInstances.securityGroups);
+    if (!harrierInstances.securityGroups) {
+      console.log("No security groups to delete.");
+    } else {
+      // Step 3: Delete all Security groups associated with Harrier EC2 instances
+      await deleteSecurityGroups(harrierInstances.securityGroups);
+    }
 
     console.log("*** EC2 cleanup complete ***");
   } catch (error) {
