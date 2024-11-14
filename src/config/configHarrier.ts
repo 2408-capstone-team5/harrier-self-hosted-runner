@@ -49,10 +49,10 @@ export const configHarrier: configHarrierType = {
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
-  //   IamInstanceProfile: {
-  //     Name: "ec2-service-role", // was EC2AccessS3
-  //   },
-
+  IamInstanceProfile: {
+    Name: "EC2AcessS3",
+  },
+  ghOwnerName: ghOwnerName,
   githubUrl: `https://github.com/${ghOwnerName}`,
   s3Name: `harrier-s3-${ghOwnerName}`,
   cacheTtlHours: cacheTtlHours,
