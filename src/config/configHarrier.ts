@@ -9,6 +9,14 @@ const cacheTtlHours = process.env.CACHE_TTL_HOURS;
 const cidrBlockVPC = process.env.CIDR_BLOCK_VPC;
 const cidrBlockSubnet = process.env.CIDR_BLOCK_SUBNET;
 
+// const awsRegion = "us-east-1";
+// const ghOwnerName = "2408-capstone-team5";
+// const awsAccountId = "536697269866";
+// const instanceType = "t2.micro";
+// const cacheTtlHours = 72;
+// const cidrBlockVPC = "10.0.0.0/16";
+// const cidrBlockSubnet = "10.0.0.0/24";
+
 export const configHarrier: configHarrierType = {
   vpcId: "",
   tagValue: `Harrier-${installationHash}`,
