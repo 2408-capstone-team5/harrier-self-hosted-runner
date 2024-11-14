@@ -27,12 +27,4 @@ inputs:
 
 runs:
   using: "node20"
-  main: "/dist/index.js"
-  env:
-    AWS_REGION: ${{ inputs.region }}
-    GH_OWNER: ${{ inputs.ghOwnerName }}
-    AWS_ACCOUNT_ID: ${{ inputs.awsAccountId }}
-    EC2_INSTANCE_TYPE: ${{ inputs.instanceType }}
-    CACHE_TTL_HOURS: ${{ inputs.cacheTtlHours }}
-    CIDR_BLOCK_VPC: ${{ inputs.cidrBlockVPC }}
-    CIDR_BLOCK_SUBNET: ${{ inputs.cidrBlockSubnet }}
+  main: "dist/index.js"
