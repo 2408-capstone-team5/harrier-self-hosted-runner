@@ -25,7 +25,6 @@ export const waitForApiDeployment = async (
 
       // If deployment exists, assume it's successful and break the loop
       if (response.id) {
-        console.log("✅ api deployed");
         return response;
       }
     } catch (error) {

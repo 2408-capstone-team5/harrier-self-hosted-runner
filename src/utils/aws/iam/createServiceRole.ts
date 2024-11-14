@@ -32,7 +32,7 @@ export async function createServiceRole(
     );
 
     // previously, if the !roleExistsAndIsAssumable, throw an error
-    console.log("🚦 waiting for role to propagate");
+    console.log("🚦 ***waiting for role to PROPAGATE***");
     await new Promise((res) => setTimeout(res, 10_000));
     console.log("✅ policies ATTACHED");
     return arn;
