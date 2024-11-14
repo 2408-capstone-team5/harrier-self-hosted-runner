@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupApiAndWebhook = void 0;
-const createServiceRole_1 = require("../utils/aws/iam/createServiceRole");
+// import { createServiceRole } from "../utils/aws/iam/createServiceRole";
 const createAndDeployLambda_1 = require("../utils/aws/lambda/createAndDeployLambda");
 const setupRestApi_1 = require("../utils/aws/api/setupRestApi");
 const integrateLambdaWithApi_1 = require("../utils/aws/api/integrateLambdaWithApi");
@@ -18,13 +18,17 @@ const deployApi_1 = require("../utils/aws/api/deployApi");
 const setupOrgWebhook_1 = require("../utils/github/setupOrgWebhook");
 const configHarrier_1 = require("../config/configHarrier");
 const lambdaName = `${configHarrier_1.configHarrier.tagValue}-workflow`;
-const workflowServiceRole = `${configHarrier_1.configHarrier.tagValue}-workflow-service-role`;
+// const workflowServiceRole = `${configHarrier.tagValue}-workflow-service-role`;
 const stageName = "dev"; // HARDCODED
 function setupApiAndWebhook() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const serviceRoleArn = yield (0, createServiceRole_1.createServiceRole)(workflowServiceRole, configHarrier_1.workflowPolicyDocument);
-            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, serviceRoleArn);
+            // Create service roles in own services file
+            // const serviceRoleArn = await createServiceRole(
+            //   workflowServiceRole,
+            //   workflowPolicyDocument
+            // );
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, configHarrier_1.configHarrier.workflowServiceRoleArn);
             const { restApiId, resourceId } = yield (0, setupRestApi_1.setupRestApi)();
             yield (0, integrateLambdaWithApi_1.integrateLambdaWithApi)(restApiId, resourceId, lambdaName);
             yield (0, deployApi_1.deployApi)(restApiId, stageName);

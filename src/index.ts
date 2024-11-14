@@ -1,11 +1,14 @@
 import { cleanupPrevInstall } from "./services/cleanupPrevInstall";
-// import { setupRoles } from "./services/setupRoles";
 import { setupZippedLambdas } from "./services/setupZippedLambdas";
 import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
 import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
+import { setupRoles } from "./services/setupRoles";
 // import { setupCacheEviction } from "./services/setupCacheEviction";
+
+import { schedulerTrustPolicy } from "./config/trustPolicies";
+import { workflowLambdaPolicy } from "./config/servicePolicies";
 
 const main = async () => {
   await cleanupPrevInstall();
@@ -49,4 +52,15 @@ const main = async () => {
   */
 };
 
-void main();
+const testmain = async () => {
+  console.log(schedulerTrustPolicy);
+
+  console.log(workflowLambdaPolicy);
+
+  await setupRoles();
+};
+
+// void main();
+
+console.log(main);
+void testmain();

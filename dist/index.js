@@ -10,13 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cleanupPrevInstall_1 = require("./services/cleanupPrevInstall");
-// import { setupRoles } from "./services/setupRoles";
 const setupZippedLambdas_1 = require("./services/setupZippedLambdas");
 const setupVPC_1 = require("./services/setupVPC");
 const setupS3CacheBucket_1 = require("./services/setupS3CacheBucket");
 const setupEC2Runner_1 = require("./services/setupEC2Runner");
 const setupApiAndWebhook_1 = require("./services/setupApiAndWebhook");
+const setupRoles_1 = require("./services/setupRoles");
 // import { setupCacheEviction } from "./services/setupCacheEviction";
+const trustPolicies_1 = require("./config/trustPolicies");
+const servicePolicies_1 = require("./config/servicePolicies");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, cleanupPrevInstall_1.cleanupPrevInstall)();
     // setupRoles(); // IAM
@@ -53,4 +55,11 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
       - register lambda with EventBridge
     */
 });
-void main();
+const testmain = () => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(trustPolicies_1.schedulerTrustPolicy);
+    console.log(servicePolicies_1.workflowLambdaPolicy);
+    yield (0, setupRoles_1.setupRoles)();
+});
+// void main();
+console.log(main);
+void testmain();

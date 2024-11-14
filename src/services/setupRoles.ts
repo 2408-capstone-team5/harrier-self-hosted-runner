@@ -7,4 +7,20 @@
     - lambda basic execution role
     - cache eviction lambda needs s3 access
    */
-export const setupRoles = () => {};
+
+// import {
+//   createInstanceServiceRole,
+//   createLambdaServiceRole,
+//   createSchedulerServiceRole,
+// } from "../utils/aws/iam/createServiceRole";
+
+// import { configHarrier } from "../config/configHarrier";
+
+export const setupRoles = async () => {};
+
+//   workflowServiceRoleArn: "",
+//   cacheEvictionServiceRoleArn: "",
+//   runnerInstanceServiceRoleArn: "",
+//   eventBridgeServiceRoleArn: "",
+
+// const workflowServiceRole = `${configHarrier.tagValue}-workflow-service-role`;

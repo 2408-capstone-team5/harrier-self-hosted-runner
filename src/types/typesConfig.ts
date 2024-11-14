@@ -20,6 +20,10 @@ export interface configHarrierType {
   cacheTtlHours: string;
   secretName: string;
   ghOwnerName: string;
+  workflowServiceRoleArn: string;
+  cacheEvictionServiceRoleArn: string;
+  runnerInstanceServiceRoleArn: string;
+  eventBridgeServiceRoleArn: string;
   IamInstanceProfile: {
     Name: string;
   };

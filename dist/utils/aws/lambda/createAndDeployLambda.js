@@ -59,6 +59,8 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                 Environment: {
                     Variables: {
                         REGION: configHarrier_1.configHarrier.region,
+                        TTL: configHarrier_1.configHarrier.cacheTtlHours,
+                        BUCKET: configHarrier_1.configHarrier.s3Name,
                     },
                 },
             }));
