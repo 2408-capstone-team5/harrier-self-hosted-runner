@@ -17,6 +17,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createRestApi = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
+// import { apiResourcePolicyDocument as policy } from "../../../config/configHarrier";
+// import { installationHash } from "../../../config/installationHash";
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
 const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
 function createRestApi() {
@@ -32,6 +34,7 @@ function createRestApi() {
             endpointConfiguration: {
                 types: ["REGIONAL"],
             },
+            //   policy, // _should_ only allow traffic from github "hook" specific ip address ranges
             tags: {
                 Name: configHarrier_1.configHarrier.tagValue,
             },

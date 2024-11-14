@@ -6,9 +6,9 @@ STILL NEED:
 */
 
 import { configHarrier } from "../../../config/configHarrier";
-import { apiResourcePolicyDocument as policy } from "../../../config/configHarrier";
+// import { apiResourcePolicyDocument as policy } from "../../../config/configHarrier";
 
-import { installationHash } from "../../../config/installationHash";
+// import { installationHash } from "../../../config/installationHash";
 import {
   APIGatewayClient,
   CreateRestApiCommand,
@@ -30,7 +30,7 @@ export async function createRestApi() {
       endpointConfiguration: {
         types: ["REGIONAL"],
       },
-      policy, // _should_ only allow traffic from github "hook" specific ip address ranges
+      //   policy, // _should_ only allow traffic from github "hook" specific ip address ranges
       tags: {
         Name: configHarrier.tagValue,
       },

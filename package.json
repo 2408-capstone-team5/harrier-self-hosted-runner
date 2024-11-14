@@ -16,7 +16,6 @@
     "@eslint/js": "^9.14.0",
     "@stylistic/eslint-plugin": "^2.10.1",
     "@types/archiver": "^6.0.3",
-    "@types/archiver": "^6.0.3",
     "@types/eslint__js": "^8.42.3",
     "@types/node": "^22.9.0",
     "@typescript-eslint/parser": "^8.13.0",
@@ -45,9 +44,7 @@
     "@eslint/config-array": "^0.19.0",
     "@eslint/object-schema": "^2.1.4",
     "archiver": "^7.0.1",
-    "archiver": "^7.0.1",
     "axios": "^1.7.7",
-    "dotenv": "^16.4.5",
     "glob": "^11.0.0",
     "rimraf": "^6.0.1"
   }

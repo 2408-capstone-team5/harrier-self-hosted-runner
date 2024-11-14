@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Cleanup = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.cleanupPolicyDocument = exports.workflowPolicyDocument = exports.configHarrier = void 0;
+exports.apiResourcePolicyDocument = exports.workflowPolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Cleanup = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 // import { getInput } from "@actions/core";
 // const awsRegion = getInput("region");
@@ -19,21 +19,13 @@ const cidrBlockVPC = "10.0.0.0/16";
 const cidrBlockSubnet = "10.0.0.0/24";
 exports.configHarrier = {
     vpcId: "",
-    tagValue: `Harrier-${installationHash_1.installationHash}`,
+    tagValue: `harrier-${installationHash_1.installationHash}`,
     cidrBlockVPC: cidrBlockVPC,
     cidrBlockSubnet: cidrBlockSubnet,
     subnetId: "",
     subnetIds: [],
     securityGroupIds: [],
     securityGroupName: "",
-    /*
-      I'm wondering if we want a SINGLE log group for all logging?
-      
-      Note: each time a lambda is created, a default '/aws/lambda/<lambda-name>' gets created
-  
-      there's definite tradeoffs and sifting through multiple log streams is a pain imo but having ALL logs
-      in once place might be a little overwhelming...
-    */
     logGroupName: "/aws/lambdas/__TEST_LOG_GROUP",
     //   logGroup: "/aws/lambda/joel_test",
     region: awsRegion,
@@ -44,16 +36,22 @@ exports.configHarrier = {
     keyName: "test-1-ubuntu-64x86-241022",
     minInstanceCount: 1,
     maxInstanceCount: 1,
-
-    secretName: "github/pat/harrier",
     IamInstanceProfile: {
-        Name: "EC2-access-S3",
+        Name: "EC2AccessS3", // this will change as it is created programmatically
     },
+    secretName: "github/pat/harrier",
+    ghOwnerName: ghOwnerName,
     githubUrl: `https://github.com/${ghOwnerName}`,
     s3Name: `harrier-s3-${ghOwnerName}`,
     cacheTtlHours: cacheTtlHours,
-
 };
+exports.harrierVPC = {};
+exports.harrierEC2 = {};
+exports.harrierS3 = {};
+exports.harrierLambda_Workflow = {};
+exports.harrierLambda_Cleanup = {};
+exports.harrierLambda_Scheduler = {};
+exports.harrierRestApi = {};
 exports.workflowPolicyDocument = JSON.stringify({
     Version: "2012-10-17",
     Statement: [
@@ -101,12 +99,27 @@ exports.workflowPolicyDocument = JSON.stringify({
         },
     ],
 });
-exports.cleanupPolicyDocument = JSON.stringify({});
-exports.harrierVPC = {};
-exports.harrierEC2 = {};
-exports.harrierS3 = {};
-exports.harrierLambda_Workflow = {};
-exports.harrierLambda_Cleanup = {};
-exports.harrierLambda_Scheduler = {};
-exports.harrierRestApi = {};
+exports.apiResourcePolicyDocument = JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+        {
+            Effect: "Allow",
+            Principal: "*",
+            Action: "execute-api:Invoke",
+            Resource: `arn:aws:execute-api:${exports.configHarrier.region}:${exports.configHarrier.awsAccountId}:*/*`,
+            Condition: {
+                IpAddress: {
+                    "aws:SourceIp": [
+                        "192.30.252.0/22",
+                        "185.199.108.0/22",
+                        "140.82.112.0/20",
+                        "143.55.64.0/20",
+                        "2a0a:a440::/29",
+                        "2606:50c0::/32",
+                    ],
+                },
+            },
+        },
+    ],
+});
 // export const harrierWebhook = {};

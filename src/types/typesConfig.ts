@@ -19,8 +19,8 @@ export interface configHarrierType {
   s3Name: string;
   cacheTtlHours: string;
   secretName: string;
-  org: string;
-  //   IamInstanceProfile: {
-  //     Name: string;
-  //   };
+  ghOwnerName: string;
+  IamInstanceProfile: {
+    Name: string;
+  };
 }

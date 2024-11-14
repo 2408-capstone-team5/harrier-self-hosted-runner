@@ -21,8 +21,8 @@ function setupOrgWebhook(restApiId, stageName = "dev") {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const pat = yield getPat();
-            const org = configHarrier_1.configHarrier.org;
-            yield axios_1.default.post(`https://api.github.com/orgs/${org}/hooks`, {
+            const ghOwnerName = configHarrier_1.configHarrier.ghOwnerName;
+            yield axios_1.default.post(`https://api.github.com/orgs/${ghOwnerName}/hooks`, {
                 config: {
                     url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/workflow`,
                     content_type: "json",
@@ -38,7 +38,7 @@ function setupOrgWebhook(restApiId, stageName = "dev") {
                     "X-GitHub-Api-Version": "2022-11-28",
                 },
             });
-            console.log("✅ webhook CREATED");
+            console.log(`✅ webhook CREATED for ${ghOwnerName}`);
         }
         catch (error) {
             if (axios_1.default.isAxiosError(error)) {
