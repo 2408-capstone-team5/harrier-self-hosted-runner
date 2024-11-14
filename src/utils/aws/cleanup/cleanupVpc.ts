@@ -130,6 +130,8 @@ const deleteVpcAndResources = async (vpcId: string) => {
 // Main function to process all VPCs with name starting with "Harrier"
 export const cleanupVpc = async () => {
   try {
+    console.log("Start VPC cleanup");
+
     const vpcs = await findVpcsWithNamePrefix("harrier");
     if (vpcs.length === 0) {
       console.log('No VPCs found with the prefix "harrier".');
@@ -142,6 +144,8 @@ export const cleanupVpc = async () => {
       // Delete the VPC and its resources
       await deleteVpcAndResources(vpc);
     }
+
+    console.log("*** VPC cleanup complete ***");
   } catch (error) {
     console.error("Error processing VPCs:", error);
   }

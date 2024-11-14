@@ -9,6 +9,8 @@ const apiGatewayClient = new APIGatewayClient({ region: "us-east-1" });
 // Function to delete API Gateway REST APIs with names starting with "Harrier"
 export const cleanupApi = async () => {
   try {
+    console.log("Start API cleanup");
+
     const getRestApisCommand = new GetRestApisCommand({});
     const apiResponse = await apiGatewayClient.send(getRestApisCommand);
 
@@ -32,6 +34,7 @@ export const cleanupApi = async () => {
         }
       }
     }
+    console.log("*** API cleanup complete ***");
   } catch (error) {
     console.error("Error listing API Gateway REST APIs:", error);
   }

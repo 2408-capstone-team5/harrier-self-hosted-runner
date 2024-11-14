@@ -9,6 +9,8 @@ const iamClient = new IAMClient({ region: "us-east-1" });
 // Function to delete IAM roles with names starting with "Harrier"
 export const cleanupIamRoles = async () => {
   try {
+    console.log("Start IAM role cleanup");
+
     const listRolesCommand = new ListRolesCommand({});
     const rolesResponse = await iamClient.send(listRolesCommand);
 
@@ -29,6 +31,7 @@ export const cleanupIamRoles = async () => {
         }
       }
     }
+    console.log("*** IAM role cleanup complete ***");
   } catch (error) {
     console.error("Error listing IAM roles:", error);
   }
