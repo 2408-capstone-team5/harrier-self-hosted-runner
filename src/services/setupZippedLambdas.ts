@@ -9,7 +9,7 @@ const projectRoot = path.resolve(__dirname, "..", "..", "static");
 export async function setupZippedLambdas() {
   try {
     await zipLambda("workflow");
-    // await zipLambda("cleanup");
+    // await zipLambda("eviction");
     // await zipLambda("other");
   } catch (error: unknown) {
     console.error("uncaught error in setupZippedLambdas:", error);

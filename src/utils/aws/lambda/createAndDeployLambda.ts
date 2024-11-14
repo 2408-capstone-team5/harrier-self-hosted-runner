@@ -63,6 +63,8 @@ export async function createAndDeployLambda(
         Environment: {
           Variables: {
             REGION: configHarrier.region,
+            TTL: configHarrier.cacheTtlHours,
+            BUCKET: configHarrier.s3Name,
           },
         },
       })
