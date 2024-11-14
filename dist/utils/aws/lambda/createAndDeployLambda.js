@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createAndDeployLambda = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
-const setupZippedLambdas_1 = require("../../../services/setupZippedLambdas");
+const getLambda_1 = require("../lambda/getLambda");
 const client_lambda_1 = require("@aws-sdk/client-lambda");
 const lambdaClient = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
 function createAndDeployLambda(lambdaName, lambdaRoleArn) {
@@ -35,22 +35,15 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
         }
         // if (!existingLambda) ...
         try {
-            // console.log("creating new lambda...");
             yield lambdaClient.send(new client_lambda_1.CreateFunctionCommand({
                 Timeout: 900,
                 FunctionName: lambdaName,
                 Runtime: "nodejs20.x",
                 Role: lambdaRoleArn,
                 Handler: "index.handler",
-                Code: { ZipFile: (0, setupZippedLambdas_1.getLambda)(lambdaName) },
-                Description: "...description",
+                Code: { ZipFile: (0, getLambda_1.getLambda)(lambdaName) },
+                Description: "the workflow lambda",
                 Publish: true,
-                // VpcConfig: {
-                //   //   VpcId: configHarrier.vpcId, // this is apparently not a member of the VpcConfig type
-                //   SubnetIds: [configHarrier.subnetId as string],
-                //   SecurityGroupIds: configHarrier.securityGroupIds,
-                //   Ipv6AllowedForDualStack: false,
-                // },
                 PackageType: "Zip",
                 Tags: {
                     Name: `${configHarrier_1.configHarrier.tagValue}`,

@@ -22,7 +22,7 @@ export async function createDailySchedule(
         // Target
         Arn: lambdaArn,
         RoleArn: `arn:aws:iam::${configHarrier.awsAccountId}:role/service-role/${scheduleRole}`,
-        // we need the arn of an iam role which gives to the scheduler to access the cleanup lambda, I'm using a manually (console) created role here
+        // we need the arn of an iam role which gives to the scheduler to access the eviction lambda, I'm using a manually (console) created role here
       },
       State: "ENABLED",
     };
