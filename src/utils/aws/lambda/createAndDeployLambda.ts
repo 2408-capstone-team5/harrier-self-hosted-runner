@@ -1,8 +1,6 @@
 import { configHarrier } from "../../../config/configHarrier";
 
-import { readFileSync } from "fs";
-import { resolve } from "path";
-// TODO: need to import something to programmatically zip lambdas so we can just hit build
+import { getLambda } from "../../../services/setupZippedLambdas";
 import {
   LambdaClient,
   CreateFunctionCommand,
@@ -42,6 +40,7 @@ export default async function createAndDeployLambda(
   // if (!existingLambda) ...
   try {
     console.log("creating new lambda...");
+
     await lambdaClient.send(
       new CreateFunctionCommand({
         Timeout: 900,
@@ -49,14 +48,7 @@ export default async function createAndDeployLambda(
         Runtime: "nodejs20.x",
         Role: lambdaRoleArn,
         Handler: "index.handler",
-        Code: {
-          ZipFile: readFileSync(
-            resolve(
-              __dirname,
-              `../../../static/zipped_lambdas/${lambdaName}.zip`
-            )
-          ),
-        },
+        Code: { ZipFile: getLambda(lambdaName) },
         Description: "...description",
         Publish: true,
         // VpcConfig: {

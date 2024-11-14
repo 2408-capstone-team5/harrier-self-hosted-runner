@@ -16,18 +16,22 @@ export const configHarrier: configHarrierType = {
   workflowLambdaLogGroup: "joel_test",
 
   region: "us-east-1",
-  awsAccountId: "536697269866",
+  awsAccountId: "536697269866", // this needs to be chad's aws account id
   imageId: "ami-063d43db0594b521b", // AMI ID for the instance
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
   instanceType: "t2.micro", // EC2 instance type
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
-  IamInstanceProfile: {
-    Name: "EC2-access-S3",
-  },
+  //   IamInstanceProfile: {
+  //     Name: "ec2-service-role", // was EC2AccessS3
+  //   },
 
   githubUrl: "https://github.com/2408-capstone-team5",
+  secretName: "github/pat/harrier",
+  workflowLambdaServiceRole: "workflow-lambda-service-role",
+  cleanupLambdaServiceRole: "cleanup-lambda-service-role",
+  ec2ServiceRole: "ec2-service-role",
   s3Name: "",
 };
 

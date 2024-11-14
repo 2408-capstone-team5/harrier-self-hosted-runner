@@ -21,4 +21,8 @@ export interface configHarrierType {
   securityGroupIds: string[];
   githubUrl: string;
   s3Name: string;
+  secretName: string;
+  workflowLambdaServiceRole: string;
+  cleanupLambdaServiceRole: string;
+  ec2ServiceRole: string;
 }
