@@ -29,11 +29,60 @@ export const configHarrier: configHarrierType = {
 
   githubUrl: "https://github.com/2408-capstone-team5",
   secretName: "github/pat/harrier",
-  workflowLambdaServiceRole: "workflow-lambda-service-role",
-  cleanupLambdaServiceRole: "cleanup-lambda-service-role",
-  ec2ServiceRole: "ec2-service-role",
   s3Name: "",
+
+  org: "2408-capstone-team5",
 };
+
+export const workflowPolicyDocument = JSON.stringify({
+  Version: "2012-10-17",
+  Statement: [
+    {
+      Sid: "VisualEditor0",
+      Effect: "Allow",
+      Action: ["ec2:StartInstances", "ec2:StopInstances"],
+      Resource: `arn:aws:ec2:*:${configHarrier.awsAccountId}:instance/*`,
+      Condition: {
+        StringEquals: {
+          "ec2:ResourceTag/Agent": "Harrier-Runner",
+        },
+      },
+    },
+    {
+      Sid: "VisualEditor1",
+      Effect: "Allow",
+      Action: ["ssm:SendCommand", "logs:CreateLogGroup"],
+      Resource: [
+        `arn:aws:ec2:*:${configHarrier.awsAccountId}:instance/*`,
+        "arn:aws:ssm:*:*:document/AWS-RunShellScript",
+        `arn:aws:logs:*:${configHarrier.awsAccountId}:log-group:*`,
+      ],
+    },
+    {
+      Sid: "VisualEditor2",
+      Effect: "Allow",
+      Action: [
+        "logs:CreateLogStream",
+        "s3:GetBucketTagging",
+        "secretsmanager:GetSecretValue",
+        "logs:PutLogEvents",
+      ],
+      Resource: [
+        "arn:aws:s3:::harrier*",
+        `arn:aws:secretsmanager:*:${configHarrier.awsAccountId}:secret:${configHarrier.secretName}*`,
+        `arn:aws:logs:*:${configHarrier.awsAccountId}:log-group:*:log-stream:*`,
+      ],
+    },
+    {
+      Sid: "VisualEditor3",
+      Effect: "Allow",
+      Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
+      Resource: "*",
+    },
+  ],
+});
+
+export const cleanupPolicyDocument = JSON.stringify({});
 
 export const harrierVPC = {};
 export const harrierEC2 = {};

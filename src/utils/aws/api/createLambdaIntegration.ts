@@ -9,7 +9,7 @@ import { configHarrier } from "../../../config/configHarrier";
 
 const client = new APIGatewayClient({ region: configHarrier.region });
 
-export default async function createLambdaIntegration(
+export async function createLambdaIntegration(
   restApiId: string,
   resourceId: string,
   lambdaArn: string

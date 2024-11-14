@@ -14,15 +14,13 @@ export interface configHarrierType {
   keyName: string;
   minInstanceCount: number; // Minimum instances to launch
   maxInstanceCount: number; // Maximum instances to launch
-  IamInstanceProfile: {
-    Name: string;
-  };
   securityGroupName: string;
   securityGroupIds: string[];
   githubUrl: string;
   s3Name: string;
   secretName: string;
-  workflowLambdaServiceRole: string;
-  cleanupLambdaServiceRole: string;
-  ec2ServiceRole: string;
+  org: string;
+  //   IamInstanceProfile: {
+  //     Name: string;
+  //   };
 }

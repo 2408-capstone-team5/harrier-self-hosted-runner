@@ -14,7 +14,7 @@ import {
 
 const client = new APIGatewayClient({ region: configHarrier.region });
 
-export default async function createRestApi() {
+export async function createRestApi() {
   const response = await client.send(
     new CreateRestApiCommand({
       name: `Harrier-${installationHash}-restApi`,
@@ -35,7 +35,7 @@ export default async function createRestApi() {
   );
 
   if (!response?.id) {
-    throw new Error("No id found in CreateApiResponse.");
+    throw new Error("❌ No id found in CreateApiResponse.");
   }
 
   return response.id;

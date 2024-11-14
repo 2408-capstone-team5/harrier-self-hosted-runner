@@ -53,5 +53,3 @@ export function getLambda(lambdaName: LambdaName) {
   );
   return readFileSync(resolve(lambdaPath));
 }
-
-void setupZippedLambdas();

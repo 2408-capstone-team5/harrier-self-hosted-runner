@@ -21,13 +21,14 @@ exports.configHarrier = {
     keyName: "test-1-ubuntu-64x86-241022",
     minInstanceCount: 1,
     maxInstanceCount: 1,
-    IamInstanceProfile: {
-        Name: "EC2-access-S3"
-    },
+    //   IamInstanceProfile: {
+    //     Name: "ec2-service-role", // was EC2AccessS3
+    //   },
     githubUrl: "https://github.com/2408-capstone-team5",
     secretName: "github/pat/harrier",
-    workflowLambdaServiceRole: "workflow-lambda-service-role",
-    cleanupLambdaServiceRole: "cleanup-lambda-service-role",
+    //   workflowLambdaServiceRole: "workflow-lambda-service-role",
+    //   cleanupLambdaServiceRole: "cleanup-lambda-service-role",
+    ec2ServiceRole: "ec2-service-role",
     s3Name: ""
 };
 exports.harrierVPC = {};

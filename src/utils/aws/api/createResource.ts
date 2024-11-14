@@ -7,7 +7,7 @@ import { configHarrier } from "../../../config/configHarrier";
 
 const client = new APIGatewayClient({ region: configHarrier.region });
 
-export default async function createResource(restApiId: string) {
+export async function createResource(restApiId: string) {
   const existingRootResourceId = await getRootResource(restApiId);
   const resourceId = await createNewResource(restApiId, existingRootResourceId);
   return resourceId;

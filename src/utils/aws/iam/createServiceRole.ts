@@ -15,6 +15,34 @@ import { configHarrier } from "../../../config/configHarrier";
 const iamClient = new IAMClient({ region: configHarrier.region });
 // const stsClient = new STSClient({ region: configHarrier.region });
 
+export async function createServiceRole(
+  roleName: string,
+  policyDocument: string
+) {
+  try {
+    // previously, we checked if the role already existed and if so, just returned the existingRoleArn
+    const arn = await createRole(roleName);
+
+    await iamClient.send(
+      new PutRolePolicyCommand({
+        RoleName: roleName,
+        PolicyName: `${roleName}-policy`,
+        PolicyDocument: policyDocument,
+      })
+    );
+
+    // previously, if the !roleExistsAndIsAssumable, throw an error
+    console.log("🚦 waiting for role to propagate");
+    await new Promise((res) => setTimeout(res, 10_000));
+    console.log("✅ policies");
+    console.log(`✅ role: ${roleName} created`);
+    return arn;
+  } catch (error) {
+    console.error("Error in createWorkflowLambdaServiceRole ", error);
+    throw new Error("❌");
+  }
+}
+
 async function createRole(roleName: string) {
   const response = await iamClient.send(
     new CreateRoleCommand({
@@ -34,49 +62,22 @@ async function createRole(roleName: string) {
   );
 
   if (!response.Role?.Arn) {
-    throw new Error(`Failed to create IAM role: ${roleName}`);
+    throw new Error(`❌ Failed to create IAM role: ${roleName}`);
   }
-
+  console.log(`✅ created ${roleName} `);
   return response.Role.Arn;
 }
 
-export default async function createServiceRole(
-  roleName: string,
-  policyDocument: string
-) {
-  try {
-    // const existingRoleArn = await checkIfRoleExists(roleName);
+// if (!(await roleExistsAndIsAssumable(roleName))) {
+//   throw new Error("Role is not assumable");
+// }
 
-    // if (existingRoleArn) {
-    //   console.log(`Role ${roleName} already exists, skipping creation...`);
-    //   return existingRoleArn;
-    // }
+// const existingRoleArn = await checkIfRoleExists(roleName);
 
-    console.log("calling createRole...");
-    const arn = await createRole(roleName);
-    const policyName = `${roleName}-policy`;
-
-    await iamClient.send(
-      new PutRolePolicyCommand({
-        RoleName: roleName,
-        PolicyName: policyName,
-        PolicyDocument: policyDocument,
-      })
-    );
-
-    // if (!(await roleExistsAndIsAssumable(roleName))) {
-    //   throw new Error("Role is not assumable");
-    // }
-
-    console.log("waiting 10 seconds...");
-    await new Promise((res) => setTimeout(res, 10_000));
-    console.log(`✅ Created role ${roleName}`);
-    return arn;
-  } catch (error) {
-    console.error("Error in createWorkflowLambdaServiceRole: ", error);
-    throw new Error("💩💩💩");
-  }
-}
+// if (existingRoleArn) {
+//   console.log(`Role ${roleName} already exists, skipping creation...`);
+//   return existingRoleArn;
+// }
 
 // async function roleExistsAndIsAssumable(roleName: string): Promise<boolean> {
 //   const waitResult = await waitUntilRoleExists(
