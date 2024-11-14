@@ -9,5 +9,6 @@ export function getLambda(lambdaName: string) {
     "zippedLambdas",
     `${lambdaName}.zip`
   );
+  console.log(`✅ zipped lambda RETRIEVED`);
   return readFileSync(resolve(lambdaPath));
 }
