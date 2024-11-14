@@ -16,7 +16,7 @@ export const cleanupIamRoles = async () => {
 
     for (const role of roles) {
       // Filter by role name starting with "Harrier"
-      if (role.RoleName?.startsWith("Harrier")) {
+      if (role.RoleName?.startsWith("harrier")) {
         try {
           console.log(`Deleting IAM Role: ${role.RoleName}`);
           const deleteRoleCommand = new DeleteRoleCommand({

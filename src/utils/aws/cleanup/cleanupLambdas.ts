@@ -16,7 +16,7 @@ export const cleanupLambdas = async () => {
     const lambdaFunctions = lambdaResponse.Functions || [];
 
     for (const lambda of lambdaFunctions) {
-      if (lambda.FunctionName?.startsWith("Harrier")) {
+      if (lambda.FunctionName?.startsWith("harrier")) {
         // Filter by name prefix
         try {
           console.log(`Deleting Lambda function: ${lambda.FunctionName}`);

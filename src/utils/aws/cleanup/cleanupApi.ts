@@ -15,7 +15,7 @@ export const cleanupApi = async () => {
     const apis = apiResponse.items || [];
 
     for (const api of apis) {
-      if (api.name?.startsWith("Harrier")) {
+      if (api.name?.startsWith("harrier")) {
         // Filter by API name
         try {
           console.log(`Deleting API Gateway REST API: ${api.id} - ${api.name}`);
