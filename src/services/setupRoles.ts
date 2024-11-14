@@ -1,10 +1,39 @@
-/*
-    assumes: 
-    - harrier_identity user exists with minimum user role permissions
+import {
+  createInstanceServiceRole,
+  createLambdaServiceRole,
+  createSchedulerServiceRole,
+} from "../utils/aws/iam/createServiceRole";
 
-    using the `harrier_identity` user, setup resource-related roles
-    - ec2 can access s3
-    - lambda basic execution role
-    - cache eviction lambda needs s3 access
-   */
-export const setupRoles = () => {};
+import { configHarrier } from "../config/configHarrier";
+import {
+  workflowLambdaPolicy,
+  cacheEvictionLambdaPolicy,
+  runnerInstancePolicy,
+  eventBridgeSchedulerPolicy,
+} from "../config/servicePolicies";
+
+const ROLE_NAME_IDENTIFIER = "-service-role";
+
+export const setupRoles = async () => {
+  configHarrier.workflowServiceRoleArn = await createLambdaServiceRole(
+    `${configHarrier.workflowServiceName}${ROLE_NAME_IDENTIFIER}`,
+    workflowLambdaPolicy,
+  );
+
+  configHarrier.cacheEvictionServiceRoleArn = await createLambdaServiceRole(
+    `${configHarrier.cacheEvictionServiceName}${ROLE_NAME_IDENTIFIER}`,
+    cacheEvictionLambdaPolicy,
+  );
+
+  configHarrier.runnerInstanceServiceRoleArn = await createInstanceServiceRole(
+    `${configHarrier.runnerInstanceServiceName}${ROLE_NAME_IDENTIFIER}`,
+    runnerInstancePolicy,
+  );
+
+  configHarrier.schedulerServiceRoleArn = await createSchedulerServiceRole(
+    `${configHarrier.schedulerServiceName}${ROLE_NAME_IDENTIFIER}`,
+    eventBridgeSchedulerPolicy,
+  );
+
+  console.log(configHarrier);
+};

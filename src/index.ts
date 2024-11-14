@@ -1,15 +1,21 @@
 import { cleanupPrevInstall } from "./services/cleanupPrevInstall";
-// import { setupRoles } from "./services/setupRoles";
+
+import { setupZippedLambdas } from "./services/setupZippedLambdas";
+
 import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
 import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
+import { setupRoles } from "./services/setupRoles";
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 
 const main = async () => {
   await cleanupPrevInstall();
 
-  // setupRoles(); // IAM
+
+  await setupRoles(); // IAM
+
+  await setupZippedLambdas(); // zip lambdas
 
   // setupCloudWatch(); // for log groups for at least the lambda & rest api
   /*

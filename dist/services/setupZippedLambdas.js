@@ -43,7 +43,7 @@ function setupZippedLambdas() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield zipLambda("workflow");
-            // await zipLambda("cleanup");
+            // await zipLambda("eviction");
             // await zipLambda("other");
         }
         catch (error) {
