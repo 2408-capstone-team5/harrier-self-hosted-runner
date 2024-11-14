@@ -20,4 +20,5 @@ export interface configHarrierType {
   securityGroupIds: string[];
   githubUrl: string;
   s3Name: string;
+  cacheTtlHours: string;
 }
