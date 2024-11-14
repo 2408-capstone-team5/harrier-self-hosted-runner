@@ -25,4 +25,3 @@ function setupCloudwatchLogGroups() {
     });
 }
 exports.setupCloudwatchLogGroups = setupCloudwatchLogGroups;
-// void setupCloudwatchLogGroups();
