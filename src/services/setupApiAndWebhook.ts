@@ -8,15 +8,15 @@ import { setupOrgWebhook } from "../utils/github/setupOrgWebhook";
 
 import { workflowPolicyDocument, configHarrier } from "../config/configHarrier";
 
-const lambdaName = `${configHarrier.tagValue}-workflow`;
-const workflowServiceRole = `${configHarrier.tagValue}-workflow-service-role`;
-const stageName = "dev"; // HARDCODED
-
 export async function setupApiAndWebhook() {
+  const lambdaName = `${configHarrier.tagValue}-workflow`;
+  const workflowRole = `${configHarrier.tagValue}-workflow`;
+  const stageName = "dev"; // HARDCODED
+
   try {
     await zipLambda(lambdaName);
     const workflowRoleArn = await createRoleAndAttachPolicy(
-      workflowServiceRole,
+      workflowRole,
       workflowPolicyDocument
     );
 

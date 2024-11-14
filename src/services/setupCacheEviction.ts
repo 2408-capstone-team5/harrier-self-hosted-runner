@@ -1,33 +1,34 @@
 import { createAndDeployLambda } from "../utils/aws/lambda/createAndDeployLambda";
 import { getLambdaArn } from "../utils/aws/lambda/getLambdaArn";
-
+import { configHarrier, evictionPolicyDocument } from "../config/configHarrier";
+import { zipLambda } from "../utils/aws/lambda/zipLambda";
+import { createRoleAndAttachPolicy } from "../utils/aws/iam/createRoleAndAttachPolicy";
 import { createDailySchedule } from "../utils/aws/eventbridge/createDailySchedule";
 
 export async function setupCacheEviction() {
-  const lambdaName = "cache_test_lambda";
-  const lambdaRole = "s3CacheCleanupLambda-role-zp58dx91";
-  const scheduleName = "test-schedule";
-  const scheduleRole = "Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec";
+  const lambdaName = `${configHarrier.tagValue}-eviction`;
+  const evictionRole = `${configHarrier.tagValue}-eviction`; // previously: "s3CacheCleanupLambda-role-zp58dx91"
+  const scheduleName = `${configHarrier.tagValue}-eviction`;
+  const scheduleRole = `${configHarrier.tagValue}-eviction`; // previously: "Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec"
 
   try {
-    await createAndDeployLambda(lambdaName, lambdaRole);
-    // TODO: lambda is using an existing role, need to make one programatically?
-    console.log("lambda created with role to access s3, and deployed");
-
-    const lambdaArn = await getLambdaArn(lambdaName);
-
-    // TODO: scheduler using an existing role, need to make one programatically?
-    const scheduleId = await createDailySchedule(
-      scheduleName,
-      lambdaArn,
-      scheduleRole
+    await zipLambda(lambdaName);
+    const evictionRoleArn = await createRoleAndAttachPolicy(
+      evictionRole,
+      evictionPolicyDocument
     );
 
-    console.log("eventbridge schedule created with id: ", scheduleId);
+    const scheduleRoleArn = await createRoleAndAttachPolicy(
+      scheduleRole,
+      schedulePolicyDocument
+    );
 
-    // TODO: skipping grantInvoke for now since I have a role already. OK? NO?
-    // await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
+    await createAndDeployLambda(lambdaName, evictionRoleArn);
+    const lambdaArn = await getLambdaArn(lambdaName);
+
+    await createDailySchedule(scheduleName, lambdaArn, scheduleRoleArn);
   } catch (error: unknown) {
-    console.error("Error executing setupWorkflowWebhook: ", error);
+    console.error("Error creating eviction role and attaching policy: ", error);
+    throw new Error("❌");
   }
 }
