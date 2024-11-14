@@ -59,7 +59,7 @@ export async function createAndDeployLambda(
         // },
         PackageType: "Zip",
         Tags: {
-          Name: `${configHarrier.tagValue}-lambda-${lambdaName}`,
+          Name: `${configHarrier.tagValue}`,
         },
         Layers: [],
         Environment: {

@@ -15,12 +15,9 @@
   "devDependencies": {
     "@eslint/js": "^9.14.0",
     "@stylistic/eslint-plugin": "^2.10.1",
-    "@types/archiver": "^6.0.3",
-    "@types/archiver": "^6.0.3",
     "@types/eslint__js": "^8.42.3",
-    "@types/node": "^22.9.0",
     "@typescript-eslint/parser": "^8.13.0",
-    "eslint": "^9.14.0",
+    "eslint": "^8.57.1",
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "ts-node-dev": "^2.0.0",
@@ -30,7 +27,6 @@
   "dependencies": {
     "@actions/core": "^1.11.1",
     "@aws-sdk/client-api-gateway": "^3.682.0",
-    "@aws-sdk/client-cloudwatch-logs": "^3.691.0",
     "@aws-sdk/client-ec2": "^3.683.0",
     "@aws-sdk/client-eventbridge": "^3.687.0",
     "@aws-sdk/client-iam": "^3.686.0",
@@ -42,13 +38,7 @@
     "@aws-sdk/client-sns": "^3.687.0",
     "@aws-sdk/client-sqs": "^3.687.0",
     "@aws-sdk/credential-providers": "^3.685.0",
-    "@eslint/config-array": "^0.19.0",
-    "@eslint/object-schema": "^2.1.4",
-    "archiver": "^7.0.1",
-    "archiver": "^7.0.1",
     "axios": "^1.7.7",
-    "dotenv": "^16.4.5",
-    "glob": "^11.0.0",
-    "rimraf": "^6.0.1"
+    "dotenv": "^16.4.5"
   }
 }

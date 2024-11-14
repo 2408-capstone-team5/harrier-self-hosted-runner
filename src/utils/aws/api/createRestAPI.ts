@@ -19,7 +19,7 @@ const client = new APIGatewayClient({ region: configHarrier.region });
 export async function createRestApi() {
   const response = await client.send(
     new CreateRestApiCommand({
-      name: `Harrier-${installationHash}-restApi`,
+      name: `${configHarrier.tagValue}-api`,
       description:
         "the development rest api for Harrier that receives webhooks from github",
       version: "1.0",
@@ -32,7 +32,7 @@ export async function createRestApi() {
       },
       policy, // _should_ only allow traffic from github "hook" specific ip address ranges
       tags: {
-        name: `Harrier-${installationHash}-restApi`,
+        Name: configHarrier.tagValue,
       },
     })
   );

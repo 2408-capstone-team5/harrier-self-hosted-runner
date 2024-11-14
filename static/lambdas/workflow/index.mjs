@@ -1,4 +1,3 @@
-// import { fromIni } from "@aws-sdk/credential-provider-ini"; // For loading credentials from ~/.aws/credentials
 import { SSMClient, SendCommandCommand } from "@aws-sdk/client-ssm";
 import {
   EC2Client,
@@ -21,7 +20,7 @@ import {
 const HARRIER_TAG_KEY = "Agent";
 const HARRIER_TAG_VALUE = "Harrier-Runner";
 const REGION = process.env.AWS_REGION;
-// const REGION = "us-east-1"; // Change to your desired region
+const SSM_SEND_COMMAND_TIMEOUT = 40;
 
 // User needs to use the exact below secret name
 const secretName = "github/pat/harrier";
@@ -34,39 +33,30 @@ const secretClient = new SecretsManagerClient({
 // Initialize the SSM client
 const ssmClient = new SSMClient({
   region: REGION,
-  // credentials: fromIni({ profile: "default" }), // Load credentials from the default profile
 });
 
 // Initialize the EC2 client
 const ec2Client = new EC2Client({
   region: REGION,
-  // credentials: fromIni({ profile: "default" }), // Load credentials from the default profile
 });
 
 // Initialize the S3 client
 const s3Client = new S3Client({
   region: REGION,
-  // credentials: fromIni({ profile: "default" }), // Load credentials from the default profile
 });
 
 async function findS3Bucket() {
   try {
     const bucketList = await s3Client.send(new ListBucketsCommand({}));
-    // console.log('*** BUCKETLIST ***');
-    // console.log(bucketList);
-    // console.log('****************');
     for (const bucket of bucketList.Buckets) {
       const bucketName = bucket.Name;
-      // console.log(`BucketName: ${bucketName}`);
 
       try {
         const taggingData = await s3Client.send(
           new GetBucketTaggingCommand({ Bucket: bucketName })
         );
-        // console.log(`taggingData: ${taggingData}`);
 
         const tags = taggingData.TagSet;
-        // console.log(`tags: ${tags}`);
         const tag = tags.find(
           (tag) =>
             tag.Key === HARRIER_TAG_KEY && tag.Value === HARRIER_TAG_VALUE
@@ -79,7 +69,7 @@ async function findS3Bucket() {
           return bucketName; // Return the matching bucket name
         }
       } catch (error) {
-        console.log(`No tags found on bucket: ${bucketName}`);
+        console.log(`No tags found on bucket: ${bucketName}`, error);
       }
     }
     console.log(
@@ -100,7 +90,7 @@ async function findInstance(state) {
         { Name: "instance-state-name", Values: [state] },
         {
           Name: `tag:${HARRIER_TAG_KEY}`,
-          Values: [HARRIER_TAG_VALUE],
+          Values: [`${HARRIER_TAG_VALUE}`],
         },
       ],
     };
@@ -128,7 +118,7 @@ async function findInstance(state) {
 
 async function startInstance(instanceId) {
   try {
-    console.log(`Trying to start instanceId: ${instanceId}`);
+    console.log(`🚀 Trying to start instanceId: ${instanceId}`);
     const params = {
       InstanceIds: [instanceId],
     };
@@ -154,7 +144,7 @@ const MAX_WAITER_TIME_IN_SECONDS = 60 * 8;
 
 async function waitForInstanceRunning(instanceId) {
   try {
-    console.log(`Polling InstanceId ${instanceId} until RUNNING.`);
+    console.log(`🚀 Polling InstanceId ${instanceId} until RUNNING.`);
     const startTime = new Date();
     await waitUntilInstanceRunning(
       {
@@ -196,22 +186,28 @@ async function sendCommandToSSM(params) {
   }
 }
 
-let count = 0;
+let count;
 async function runCommand(params) {
   try {
     // Send the command to the EC2 instance
     await sendCommandToSSM(params);
 
-    // Optionally, you can check the result after the command has completed.
-    // You would typically poll the command status here.
+    // Poll the command status here.
   } catch (error) {
-    console.error(
-      `⚠️ Failed sending command ${count}, trying again until 40...`
-    );
-    if (count < 40) {
+    if (error.name === "InvalidInstanceId") {
+      console.error(
+        `⚠️ Failed sending command ${count}, trying again until ${SSM_SEND_COMMAND_TIMEOUT}...`
+      );
+    } else {
+      console.log(error);
+    }
+  
+    if (count < SSM_SEND_COMMAND_TIMEOUT) {
       wait(500);
       count += 1;
       await runCommand(params);
+    } else {
+      throw new Error(`❌ SSM Send Command timed out after ${count} tries!`);
     }
   }
 }
@@ -265,35 +261,29 @@ const main = async (action, secret, owner) => {
     console.log(`✅ Found S3 Bucket ${s3BucketName}`);
 
     console.log("🔍 Calling findInstance from our Lambda");
-    const instanceId = await findInstance("stopped"); // This could return undefined currently, if no stopped instances are found
+    const instanceId = await findInstance("stopped");
 
-    console.log(instanceId);
     if (instanceId) {
-      console.log("Calling startInstance from workflow lambda");
       await startInstance(instanceId);
 
-      // Wait for instance to be running?????????
       await waitForInstanceRunning(instanceId);
 
-      // Parameters for the SendCommand API
-      const params = {
+      const sendCommandParams = {
         DocumentName: "AWS-RunShellScript", // This document allows running shell scripts
-        InstanceIds: [instanceId], // Replace with your EC2 instance ID
+        InstanceIds: [instanceId],
         Parameters: {
-          commands: [getScript(secret, owner, s3BucketName)], // Specify the shell script to run
+          commands: [getScript(secret, owner, s3BucketName)],
         },
       };
-      await runCommand(params);
+      count = 0;
+      await runCommand(sendCommandParams);
       console.log("✅ Shell Script successfully run");
     } else {
       console.log("❌ Error: instanceId missing!");
     }
   } else if (action === "completed") {
     console.log("🔍 Calling findInstance from our Lambda");
-    // Does the webhook payload include the name of the runner that has completed the work?
-    // Maybe we can send the instanceId as part of the JIT request so that it can be
-    //   returned with the completed webhook...
-    const instanceId = await findInstance("running"); // This could return undefined currently, if no running instances are found
+    const instanceId = await findInstance("running");
     if (instanceId) {
       console.log("✅ Calling stopInstance from workflow lambda");
       await stopInstance(instanceId);
@@ -304,15 +294,13 @@ const main = async (action, secret, owner) => {
 };
 
 export const handler = async (event) => {
-  console.log("*********** NEW 7 !!! ******");
+  console.log("🚀 ***** Harrier Workflow Lambda ***** 🚀");
   console.log(`REGION = ${REGION}`);
-  console.log({ theEvent: event });
   console.log({ theZen: event.zen });
   console.log({ theAction: event.action });
 
   if (event.zen) {
-    console.log(`💯 Ping received in event.zen: ${event.zen}`);
-    console.log("💯 returning early from the lambda handler function...");
+    console.log(`✅ Ping received in event.zen: ${event.zen}`);
     const response = {
       statusCode: 200,
       body: JSON.stringify("Ping of workflow lambda success!"),
@@ -327,26 +315,22 @@ export const handler = async (event) => {
     const owner = event.repository.owner.login.trim();
     console.log("🚀 GitHub Workflow Owner:", owner);
 
-    console.log("💯 about to access client secret...");
     const secretResponse = await secretClient.send(
       new GetSecretValueCommand({
         SecretId: secretName,
       })
     );
-    console.log("💯 Got client secret...");
+    console.log("✅ Got client secret...");
 
     const secret = secretResponse.SecretString;
-    // const secret = "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";
-    console.log({ secret });
-    console.log("💯 before main...");
+
     await main(action, secret, owner);
-    console.log("💯 after main...");
 
     const response = {
       statusCode: 200,
       body: JSON.stringify("Called workflow lambda"),
     };
-    console.log("💯 success?!");
+    console.log("💯 Done");
     return response;
   } catch (error) {
     console.error(`❌ Error in handler function`, error);
@@ -354,10 +338,3 @@ export const handler = async (event) => {
     throw error;
   }
 };
-
-// handler(EVENT);
-
-// await main("queued");
-
-// wait(1000 * 60);
-// await main("completed");

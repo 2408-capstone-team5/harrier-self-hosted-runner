@@ -1,6 +1,5 @@
 export interface configHarrierType {
-  workflowLambdaLogGroup: string;
-  logGroup: string;
+  logGroupName: string;
   tagValue: string;
   cidrBlockVPC: string;
   cidrBlockSubnet: string;
@@ -18,6 +17,7 @@ export interface configHarrierType {
   securityGroupIds: string[];
   githubUrl: string;
   s3Name: string;
+  cacheTtlHours: string;
   secretName: string;
   org: string;
   //   IamInstanceProfile: {
