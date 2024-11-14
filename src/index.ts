@@ -7,9 +7,6 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 
-import { schedulerTrustPolicy } from "./config/trustPolicies";
-import { workflowLambdaPolicy } from "./config/servicePolicies";
-
 const main = async () => {
   await cleanupPrevInstall();
 
@@ -53,9 +50,9 @@ const main = async () => {
 };
 
 const testmain = async () => {
-  console.log(schedulerTrustPolicy);
+  // console.log(schedulerTrustPolicy);
 
-  console.log(workflowLambdaPolicy);
+  // console.log(workflowLambdaPolicy);
 
   await setupRoles();
 };

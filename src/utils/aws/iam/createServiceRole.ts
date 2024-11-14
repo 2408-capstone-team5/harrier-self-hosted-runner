@@ -33,11 +33,9 @@ export async function createLambdaServiceRole(
     );
 
     // previously, if the !roleExistsAndIsAssumable, throw an error
-    console.log(
-      `🚦 ***waiting for lambda service ${roleName} role to PROPAGATE***`,
-    );
+    console.log(`🚦 ***waiting for lambda service ${roleName} to PROPAGATE***`);
     await new Promise((res) => setTimeout(res, 10_000));
-    console.log("✅ policies ATTACHED");
+    console.log(`✅ Permissions policy attached to ${roleName}`);
     return arn;
   } catch (error) {
     console.error("❌ Error in createWorkflowLambdaServiceRole ", error);
@@ -66,7 +64,7 @@ export async function createInstanceServiceRole(
       `🚦 ***waiting for instance service role ${roleName} to PROPAGATE***`,
     );
     await new Promise((res) => setTimeout(res, 10_000));
-    console.log("✅ policies ATTACHED");
+    console.log(`✅ Permissions policy attached to ${roleName}`);
     return arn;
   } catch (error) {
     console.error("❌ Error in createInstanceServiceRole ", error);
@@ -92,10 +90,10 @@ export async function createSchedulerServiceRole(
 
     // previously, if the !roleExistsAndIsAssumable, throw an error
     console.log(
-      `🚦 ***waiting for scheculer service ${roleName} role to PROPAGATE***`,
+      `🚦 ***waiting for scheculer service ${roleName} to PROPAGATE***`,
     );
     await new Promise((res) => setTimeout(res, 10_000));
-    console.log("✅ policies ATTACHED");
+    console.log(`✅ Permissions policy attached to ${roleName}`);
     return arn;
   } catch (error) {
     console.error("❌ Error in createSchedulerServiceRole ", error);

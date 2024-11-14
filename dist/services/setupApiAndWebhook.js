@@ -17,20 +17,14 @@ const integrateLambdaWithApi_1 = require("../utils/aws/api/integrateLambdaWithAp
 const deployApi_1 = require("../utils/aws/api/deployApi");
 const setupOrgWebhook_1 = require("../utils/github/setupOrgWebhook");
 const configHarrier_1 = require("../config/configHarrier");
-const lambdaName = `${configHarrier_1.configHarrier.tagValue}-workflow`;
-// const workflowServiceRole = `${configHarrier.tagValue}-workflow-service-role`;
 const stageName = "dev"; // HARDCODED
 function setupApiAndWebhook() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // Create service roles in own services file
-            // const serviceRoleArn = await createServiceRole(
-            //   workflowServiceRole,
-            //   workflowPolicyDocument
-            // );
-            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, configHarrier_1.configHarrier.workflowServiceRoleArn);
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(configHarrier_1.configHarrier.workflowServiceName, configHarrier_1.configHarrier.workflowServiceRoleArn);
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(configHarrier_1.configHarrier.cacheEvictionServiceName, configHarrier_1.configHarrier.cacheEvictionServiceRoleArn);
             const { restApiId, resourceId } = yield (0, setupRestApi_1.setupRestApi)();
-            yield (0, integrateLambdaWithApi_1.integrateLambdaWithApi)(restApiId, resourceId, lambdaName);
+            yield (0, integrateLambdaWithApi_1.integrateLambdaWithApi)(restApiId, resourceId, configHarrier_1.configHarrier.workflowServiceName);
             yield (0, deployApi_1.deployApi)(restApiId, stageName);
             yield (0, setupOrgWebhook_1.setupOrgWebhook)(restApiId, stageName);
         }

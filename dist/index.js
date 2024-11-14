@@ -17,8 +17,6 @@ const setupEC2Runner_1 = require("./services/setupEC2Runner");
 const setupApiAndWebhook_1 = require("./services/setupApiAndWebhook");
 const setupRoles_1 = require("./services/setupRoles");
 // import { setupCacheEviction } from "./services/setupCacheEviction";
-const trustPolicies_1 = require("./config/trustPolicies");
-const servicePolicies_1 = require("./config/servicePolicies");
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, cleanupPrevInstall_1.cleanupPrevInstall)();
     // setupRoles(); // IAM
@@ -56,8 +54,8 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
     */
 });
 const testmain = () => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(trustPolicies_1.schedulerTrustPolicy);
-    console.log(servicePolicies_1.workflowLambdaPolicy);
+    // console.log(schedulerTrustPolicy);
+    // console.log(workflowLambdaPolicy);
     yield (0, setupRoles_1.setupRoles)();
 });
 // void main();

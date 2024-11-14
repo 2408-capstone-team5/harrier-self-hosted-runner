@@ -30,9 +30,9 @@ function createLambdaServiceRole(roleName, policyDocument) {
                 PolicyDocument: policyDocument,
             }));
             // previously, if the !roleExistsAndIsAssumable, throw an error
-            console.log(`🚦 ***waiting for lambda service ${roleName} role to PROPAGATE***`);
+            console.log(`🚦 ***waiting for lambda service ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
-            console.log("✅ policies ATTACHED");
+            console.log(`✅ Permissions policy attached to ${roleName}`);
             return arn;
         }
         catch (error) {
@@ -55,7 +55,7 @@ function createInstanceServiceRole(roleName, policyDocument) {
             // previously, if the !roleExistsAndIsAssumable, throw an error
             console.log(`🚦 ***waiting for instance service role ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
-            console.log("✅ policies ATTACHED");
+            console.log(`✅ Permissions policy attached to ${roleName}`);
             return arn;
         }
         catch (error) {
@@ -76,9 +76,9 @@ function createSchedulerServiceRole(roleName, policyDocument) {
                 PolicyDocument: policyDocument,
             }));
             // previously, if the !roleExistsAndIsAssumable, throw an error
-            console.log(`🚦 ***waiting for scheculer service ${roleName} role to PROPAGATE***`);
+            console.log(`🚦 ***waiting for scheculer service ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
-            console.log("✅ policies ATTACHED");
+            console.log(`✅ Permissions policy attached to ${roleName}`);
             return arn;
         }
         catch (error) {
