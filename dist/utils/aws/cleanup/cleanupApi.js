@@ -16,6 +16,7 @@ const apiGatewayClient = new client_api_gateway_1.APIGatewayClient({ region: "us
 const cleanupApi = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
+        console.log("Start API cleanup");
         const getRestApisCommand = new client_api_gateway_1.GetRestApisCommand({});
         const apiResponse = yield apiGatewayClient.send(getRestApisCommand);
         const apis = apiResponse.items || [];
@@ -35,6 +36,7 @@ const cleanupApi = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
             }
         }
+        console.log("*** API cleanup complete ***");
     }
     catch (error) {
         console.error("Error listing API Gateway REST APIs:", error);

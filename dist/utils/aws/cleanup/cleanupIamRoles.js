@@ -16,6 +16,7 @@ const iamClient = new client_iam_1.IAMClient({ region: "us-east-1" });
 const cleanupIamRoles = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
+        console.log("Start IAM role cleanup");
         const listRolesCommand = new client_iam_1.ListRolesCommand({});
         const rolesResponse = yield iamClient.send(listRolesCommand);
         const roles = rolesResponse.Roles || [];
@@ -35,6 +36,7 @@ const cleanupIamRoles = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
             }
         }
+        console.log("*** IAM role cleanup complete ***");
     }
     catch (error) {
         console.error("Error listing IAM roles:", error);

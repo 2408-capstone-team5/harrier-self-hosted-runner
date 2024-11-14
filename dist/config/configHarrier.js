@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.apiResourcePolicyDocument = exports.workflowPolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Cleanup = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
+exports.apiResourcePolicyDocument = exports.workflowPolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 // import { getInput } from "@actions/core";
 // const awsRegion = getInput("region");
@@ -49,7 +49,7 @@ exports.harrierVPC = {};
 exports.harrierEC2 = {};
 exports.harrierS3 = {};
 exports.harrierLambda_Workflow = {};
-exports.harrierLambda_Cleanup = {};
+exports.harrierLambda_Eviction = {};
 exports.harrierLambda_Scheduler = {};
 exports.harrierRestApi = {};
 exports.workflowPolicyDocument = JSON.stringify({
