@@ -12,8 +12,16 @@ export const configHarrier: configHarrierType = {
   securityGroupIds: [],
   securityGroupName: "",
 
-  logGroup: "/aws/lambda/joel_test",
-  workflowLambdaLogGroup: "joel_test",
+  /* 
+    I'm wondering if we want a SINGLE log group for all logging?
+    
+    Note: each time a lambda is created, a default '/aws/lambda/<lambda-name>' gets created 
+
+    there's definite tradeoffs and sifting through multiple log streams is a pain imo but having ALL logs
+    in once place might be a little overwhelming...
+  */
+  logGroupName: "/aws/lambdas/__TEST_LOG_GROUP",
+  //   logGroup: "/aws/lambda/joel_test",
 
   region: "us-east-1",
   awsAccountId: "536697269866",

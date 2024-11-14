@@ -144,7 +144,7 @@ function attachPolicies(roleName) {
                                 "logs:CreateLogStream",
                                 "logs:PutLogEvents",
                             ],
-                            Resource: `arn:aws:logs:us-east-1:536697269866:log-group:${configHarrier_1.configHarrier.logGroup}:*`,
+                            Resource: `arn:aws:logs:us-east-1:536697269866:log-group:${configHarrier_1.configHarrier.logGroupName}:*`, // @JOEL COME BACK TO THIS
                         },
                     ],
                 },

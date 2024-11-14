@@ -56,7 +56,7 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                 // },
                 PackageType: "Zip",
                 Tags: {
-                    Name: `${configHarrier_1.configHarrier.tagValue}-lambda-${lambdaName}`,
+                    Name: `${configHarrier_1.configHarrier.tagValue}`,
                 },
                 Layers: [],
                 Environment: {
