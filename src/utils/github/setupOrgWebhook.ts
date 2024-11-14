@@ -11,10 +11,10 @@ export async function setupOrgWebhook(
 ) {
   try {
     const pat = await getPat();
-    const org = configHarrier.org;
+    const ghOwnerName = configHarrier.ghOwnerName;
 
     await axios.post(
-      `https://api.github.com/orgs/${org}/hooks`,
+      `https://api.github.com/orgs/${ghOwnerName}/hooks`,
       {
         config: {
           url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/workflow`,
@@ -34,7 +34,7 @@ export async function setupOrgWebhook(
       }
     );
 
-    console.log("✅ webhook CREATED");
+    console.log(`✅ webhook CREATED for ${ghOwnerName}`);
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(
