@@ -1,11 +1,6 @@
 import {
   APIGatewayClient,
   CreateDeploymentCommand,
-  //   putRestApi,
-  //   CreateStageCommand,
-  //   updateStage,
-  //   createUsagePlan, // TODO: create usage plan
-  //   createUsagePlanKey,
 } from "@aws-sdk/client-api-gateway";
 
 import { waitForApiDeployment } from "./waitForApiDeployment";
@@ -13,10 +8,7 @@ import { configHarrier } from "../../../config/configHarrier";
 
 const client = new APIGatewayClient({ region: configHarrier.region });
 
-export default async function deployApi(
-  restApiId: string,
-  stageName: "dev" | "prod"
-) {
+export async function deployApi(restApiId: string, stageName: "dev" | "prod") {
   const response = await client.send(
     new CreateDeploymentCommand({
       restApiId,
@@ -34,13 +26,13 @@ export default async function deployApi(
   );
 
   if (!response?.id) {
-    throw new Error("No id found in CreateDeploymentResponse.");
+    throw new Error("❌ No id found in CreateDeploymentResponse.");
   }
 
   try {
     await waitForApiDeployment(restApiId, response.id);
-    console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);
+    console.log(`✅ api DEPLOYED`);
   } catch (error) {
-    console.error("Error waiting for API deployment:", error);
+    console.error("❌ Error waiting for API deployment:", error);
   }
 }

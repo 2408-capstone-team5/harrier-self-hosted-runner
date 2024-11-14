@@ -15,6 +15,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createRestApi = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
 const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
@@ -36,9 +37,9 @@ function createRestApi() {
             },
         }));
         if (!(response === null || response === void 0 ? void 0 : response.id)) {
-            throw new Error("No id found in CreateApiResponse.");
+            throw new Error("❌ No id found in CreateApiResponse.");
         }
         return response.id;
     });
 }
-exports.default = createRestApi;
+exports.createRestApi = createRestApi;

@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-api-gateway";
 
 const client = new APIGatewayClient({ region: configHarrier.region });
-export default async function createMethod(
+export async function createMethod(
   restApiId: string,
   resourceId: string,
   httpMethod: "POST"

@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLambdaArn = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
 const client_lambda_1 = require("@aws-sdk/client-lambda");
 const client = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
@@ -20,15 +21,15 @@ function getLambdaArn(lambdaName) {
                 FunctionName: lambdaName,
             }));
             if (!((_a = lambda.Configuration) === null || _a === void 0 ? void 0 : _a.FunctionArn)) {
-                throw new Error(`The lambda with a FunctionName: ${lambdaName} was not found thus no associated ARN could be retrieved.`);
+                throw new Error(`❌ The lambda with a FunctionName: ${lambdaName} was not found thus no associated ARN could be retrieved.`);
             }
             const lambdaArn = lambda.Configuration.FunctionArn;
             return lambdaArn;
         }
         catch (error) {
             console.error("Error getting lambda arn: ", error);
-            throw new Error("getLambdaArn failed.");
+            throw new Error("❌ Error getting lambda arn");
         }
     });
 }
-exports.default = getLambdaArn;
+exports.getLambdaArn = getLambdaArn;

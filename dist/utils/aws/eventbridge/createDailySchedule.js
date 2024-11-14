@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createDailySchedule = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
 const client_scheduler_1 = require("@aws-sdk/client-scheduler"); // ES Modules import
 const client = new client_scheduler_1.SchedulerClient({ region: configHarrier_1.configHarrier.region });
@@ -43,7 +44,7 @@ function createDailySchedule(scheduleName, lambdaArn, scheduleRole) {
         }
     });
 }
-exports.default = createDailySchedule;
+exports.createDailySchedule = createDailySchedule;
 // void createDailySchedule(
 //   "cache_test_lambda",
 //   "Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec"

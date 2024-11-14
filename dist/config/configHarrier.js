@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Cleanup = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
+exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Cleanup = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.cleanupPolicyDocument = exports.workflowPolicyDocument = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 const core_1 = require("@actions/core");
 const awsRegion = (0, core_1.getInput)("region");
@@ -44,13 +44,64 @@ exports.configHarrier = {
     keyName: "test-1-ubuntu-64x86-241022",
     minInstanceCount: 1,
     maxInstanceCount: 1,
+
+    secretName: "github/pat/harrier",
     IamInstanceProfile: {
         Name: "EC2-access-S3",
     },
     githubUrl: `https://github.com/${ghOwnerName}`,
     s3Name: `harrier-s3-${ghOwnerName}`,
     cacheTtlHours: cacheTtlHours,
+
 };
+exports.workflowPolicyDocument = JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+        {
+            Sid: "VisualEditor0",
+            Effect: "Allow",
+            Action: ["ec2:StartInstances", "ec2:StopInstances"],
+            Resource: `arn:aws:ec2:*:${exports.configHarrier.awsAccountId}:instance/*`,
+            Condition: {
+                StringEquals: {
+                    "ec2:ResourceTag/Agent": "Harrier-Runner",
+                },
+            },
+        },
+        {
+            Sid: "VisualEditor1",
+            Effect: "Allow",
+            Action: ["ssm:SendCommand", "logs:CreateLogGroup"],
+            Resource: [
+                `arn:aws:ec2:*:${exports.configHarrier.awsAccountId}:instance/*`,
+                "arn:aws:ssm:*:*:document/AWS-RunShellScript",
+                `arn:aws:logs:*:${exports.configHarrier.awsAccountId}:log-group:*`,
+            ],
+        },
+        {
+            Sid: "VisualEditor2",
+            Effect: "Allow",
+            Action: [
+                "logs:CreateLogStream",
+                "s3:GetBucketTagging",
+                "secretsmanager:GetSecretValue",
+                "logs:PutLogEvents",
+            ],
+            Resource: [
+                "arn:aws:s3:::harrier*",
+                `arn:aws:secretsmanager:*:${exports.configHarrier.awsAccountId}:secret:${exports.configHarrier.secretName}*`,
+                `arn:aws:logs:*:${exports.configHarrier.awsAccountId}:log-group:*:log-stream:*`,
+            ],
+        },
+        {
+            Sid: "VisualEditor3",
+            Effect: "Allow",
+            Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
+            Resource: "*",
+        },
+    ],
+});
+exports.cleanupPolicyDocument = JSON.stringify({});
 exports.harrierVPC = {};
 exports.harrierEC2 = {};
 exports.harrierS3 = {};

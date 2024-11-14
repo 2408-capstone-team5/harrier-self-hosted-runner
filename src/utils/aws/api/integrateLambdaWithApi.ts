@@ -1,16 +1,14 @@
-import grantInvokePermission from "../iam/grantInvokePermission";
-import getLambdaArn from "../lambda/getLambdaArn";
-import createLambdaIntegration from "./createLambdaIntegration";
+import { grantInvokePermission } from "../iam/grantInvokePermission";
+import { getLambdaArn } from "../lambda/getLambdaArn";
+import { createLambdaIntegration } from "./createLambdaIntegration";
 
-export default async function integrateLambdaWithApi(
+export async function integrateLambdaWithApi(
   restApiId: string,
   resourceId: string,
   lambdaName: string
 ) {
   const lambdaArn = await getLambdaArn(lambdaName);
-  await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
+  await grantInvokePermission(lambdaArn, restApiId); // TODO: ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
   await createLambdaIntegration(restApiId, resourceId, lambdaArn);
-  console.log(
-    "✅ 'workflow' lambda integrated with rest api resource: POST /workflow"
-  );
+  console.log("✅ lambda INTEGRATED w/ api ");
 }

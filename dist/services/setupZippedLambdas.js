@@ -32,10 +32,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setupZippedLambdas = void 0;
+exports.getLambda = exports.setupZippedLambdas = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const archiver = __importStar(require("archiver"));
+const fs_1 = require("fs");
+const path_1 = require("path");
+const projectRoot = path.resolve(__dirname, "..", "..", "static");
 function setupZippedLambdas() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -52,7 +55,6 @@ exports.setupZippedLambdas = setupZippedLambdas;
 function zipLambda(lambdaName) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const projectRoot = path.resolve(__dirname, "..", "..", "static");
             const lambdaPath = path.join(projectRoot, "lambdas", lambdaName);
             const zipPath = path.join(projectRoot, "zippedLambdas", `${lambdaName}.zip`);
             fs.mkdirSync(path.dirname(zipPath), { recursive: true });
@@ -70,3 +72,8 @@ function zipLambda(lambdaName) {
         }
     });
 }
+function getLambda(lambdaName) {
+    const lambdaPath = path.join(projectRoot, "zippedLambdas", `${lambdaName}.zip`);
+    return (0, fs_1.readFileSync)((0, path_1.resolve)(lambdaPath));
+}
+exports.getLambda = getLambda;

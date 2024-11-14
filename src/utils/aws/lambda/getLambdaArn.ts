@@ -1,8 +1,8 @@
-import {configHarrier} from "../../../config/configHarrier";
+import { configHarrier } from "../../../config/configHarrier";
 import { LambdaClient, GetFunctionCommand } from "@aws-sdk/client-lambda";
-const client = new LambdaClient({region: configHarrier.region});
+const client = new LambdaClient({ region: configHarrier.region });
 
-export default async function getLambdaArn(lambdaName: string) {
+export async function getLambdaArn(lambdaName: string) {
   try {
     const lambda = await client.send(
       new GetFunctionCommand({
@@ -12,7 +12,7 @@ export default async function getLambdaArn(lambdaName: string) {
 
     if (!lambda.Configuration?.FunctionArn) {
       throw new Error(
-        `The lambda with a FunctionName: ${lambdaName} was not found thus no associated ARN could be retrieved.`
+        `❌ The lambda with a FunctionName: ${lambdaName} was not found thus no associated ARN could be retrieved.`
       );
     }
 
@@ -21,6 +21,6 @@ export default async function getLambdaArn(lambdaName: string) {
     return lambdaArn;
   } catch (error: unknown) {
     console.error("Error getting lambda arn: ", error);
-    throw new Error("getLambdaArn failed.");
+    throw new Error("❌ Error getting lambda arn");
   }
 }

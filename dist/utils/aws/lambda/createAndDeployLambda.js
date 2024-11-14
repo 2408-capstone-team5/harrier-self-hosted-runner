@@ -9,10 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createAndDeployLambda = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
-const fs_1 = require("fs");
-const path_1 = require("path");
-// TODO: need to import something to programmatically zip lambdas so we can just hit build
+const setupZippedLambdas_1 = require("../../../services/setupZippedLambdas");
 const client_lambda_1 = require("@aws-sdk/client-lambda");
 const lambdaClient = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
 function createAndDeployLambda(lambdaName, lambdaRoleArn) {
@@ -36,16 +35,14 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
         }
         // if (!existingLambda) ...
         try {
-            console.log("creating new lambda...");
+            // console.log("creating new lambda...");
             yield lambdaClient.send(new client_lambda_1.CreateFunctionCommand({
                 Timeout: 900,
                 FunctionName: lambdaName,
                 Runtime: "nodejs20.x",
                 Role: lambdaRoleArn,
                 Handler: "index.handler",
-                Code: {
-                    ZipFile: (0, fs_1.readFileSync)((0, path_1.resolve)(__dirname, `../../../static/zipped_lambdas/${lambdaName}.zip`)),
-                },
+                Code: { ZipFile: (0, setupZippedLambdas_1.getLambda)(lambdaName) },
                 Description: "...description",
                 Publish: true,
                 // VpcConfig: {
@@ -65,13 +62,13 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                     },
                 },
             }));
-            console.log("lambda created, waiting for it to be active...");
+            console.log("✅ lambda CREATED");
             const waitResponse = yield (0, client_lambda_1.waitUntilFunctionActiveV2)({ client: lambdaClient, maxWaitTime: 1000, minDelay: 5 }, { FunctionName: lambdaName });
-            console.log("waitResponse.state", waitResponse.state);
             if (`${waitResponse.state}` !== "SUCCESS") {
-                throw new Error("WaiterResult state was not SUCCESS");
+                throw new Error("❌ WaiterResult state was not SUCCESS");
             }
-            console.log("✅ Lambda created, role assumed, and lambda is ACTIVE");
+            console.log("✅ lambda ACTIVE");
+            console.log("✅ role ASSUMED");
         }
         catch (error) {
             console.error("error creating lambda or waiting for lambda to be active with state= SUCCESS", error);
@@ -79,4 +76,4 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
         }
     });
 }
-exports.default = createAndDeployLambda;
+exports.createAndDeployLambda = createAndDeployLambda;
