@@ -1,13 +1,15 @@
 import { configHarrierType } from "../types/typesConfig";
 import { installationHash } from "./installationHash";
 
-const awsRegion = process.env.AWS_REGION;
-const ghOwnerName = process.env.GH_OWNER;
-const awsAccountId = process.env.AWS_ACCOUNT_ID;
-const instanceType = process.env.EC2_INSTANCE_TYPE;
-const cacheTtlHours = process.env.CACHE_TTL_HOURS;
-const cidrBlockVPC = process.env.CIDR_BLOCK_VPC;
-const cidrBlockSubnet = process.env.CIDR_BLOCK_SUBNET;
+import { getInput } from "@actions/core";
+
+const awsRegion = getInput("region");
+const ghOwnerName = getInput("ghOwnerName");
+const awsAccountId = getInput("awsAccountId");
+const instanceType = getInput("instanceType");
+const cacheTtlHours = getInput("cacheTtlHours");
+const cidrBlockVPC = getInput("cidrBlockVPC");
+const cidrBlockSubnet = getInput("cidrBlockSubnet");
 
 // const awsRegion = "us-east-1";
 // const ghOwnerName = "2408-capstone-team5";
