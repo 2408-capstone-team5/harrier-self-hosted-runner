@@ -1,6 +1,5 @@
 import { configHarrier } from "../../../config/configHarrier";
-
-import { getLambda } from "../../../services/setupZippedLambdas";
+import { getLambda } from "../lambda/getLambda";
 import {
   LambdaClient,
   CreateFunctionCommand,
@@ -37,8 +36,6 @@ export async function createAndDeployLambda(
 
   // if (!existingLambda) ...
   try {
-    // console.log("creating new lambda...");
-
     await lambdaClient.send(
       new CreateFunctionCommand({
         Timeout: 900,
@@ -47,14 +44,8 @@ export async function createAndDeployLambda(
         Role: lambdaRoleArn,
         Handler: "index.handler",
         Code: { ZipFile: getLambda(lambdaName) },
-        Description: "...description",
+        Description: "the workflow lambda",
         Publish: true,
-        // VpcConfig: {
-        //   //   VpcId: configHarrier.vpcId, // this is apparently not a member of the VpcConfig type
-        //   SubnetIds: [configHarrier.subnetId as string],
-        //   SecurityGroupIds: configHarrier.securityGroupIds,
-        //   Ipv6AllowedForDualStack: false,
-        // },
         PackageType: "Zip",
         Tags: {
           Name: `${configHarrier.tagValue}`,
