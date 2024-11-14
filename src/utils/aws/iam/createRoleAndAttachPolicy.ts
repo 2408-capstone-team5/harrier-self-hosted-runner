@@ -4,40 +4,22 @@ import {
   IAMClient,
   CreateRoleCommand,
   PutRolePolicyCommand,
-  //   GetRoleCommand,
-  //   waitUntilRoleExists,
 } from "@aws-sdk/client-iam";
-// import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
-// import { STSClient } from "@aws-sdk/client-sts";
 
 import { configHarrier } from "../../../config/configHarrier";
 
 const iamClient = new IAMClient({ region: configHarrier.region });
-// const stsClient = new STSClient({ region: configHarrier.region });
 
-export async function createServiceRole(
+export async function createRoleAndAttachPolicy(
   roleName: string,
   policyDocument: string
 ) {
   try {
-    // previously, we checked if the role already existed and if so, just returned the existingRoleArn
-    const arn = await createRole(roleName);
-
-    await iamClient.send(
-      new PutRolePolicyCommand({
-        RoleName: roleName,
-        PolicyName: `${roleName}-policy`,
-        PolicyDocument: policyDocument,
-      })
-    );
-
-    // previously, if the !roleExistsAndIsAssumable, throw an error
-    console.log("🚦 ***waiting for role to PROPAGATE***");
-    await new Promise((res) => setTimeout(res, 10_000));
-    console.log("✅ policies ATTACHED");
-    return arn;
+    const roleArn = await createRole(roleName);
+    await attachPolicy(roleName, policyDocument);
+    return roleArn;
   } catch (error) {
-    console.error("❌ Error in createWorkflowLambdaServiceRole ", error);
+    console.error("❌ Error in createRoleAndAttachPolicy ", error);
     throw new Error("❌");
   }
 }
@@ -67,54 +49,19 @@ async function createRole(roleName: string) {
   return response.Role.Arn;
 }
 
-// if (!(await roleExistsAndIsAssumable(roleName))) {
-//   throw new Error("Role is not assumable");
-// }
+async function attachPolicy(roleName: string, policyDocument: string) {
+  await iamClient.send(
+    new PutRolePolicyCommand({
+      RoleName: roleName,
+      PolicyName: `${roleName}-policy`,
+      PolicyDocument: policyDocument,
+    })
+  );
 
-// const existingRoleArn = await checkIfRoleExists(roleName);
-
-// if (existingRoleArn) {
-//   console.log(`Role ${roleName} already exists, skipping creation...`);
-//   return existingRoleArn;
-// }
-
-// async function roleExistsAndIsAssumable(roleName: string): Promise<boolean> {
-//   const waitResult = await waitUntilRoleExists(
-//     { client: iamClient, maxWaitTime: 120, minDelay: 5 },
-//     { RoleName: roleName }
-//   );
-
-//   if (`${waitResult.state}` !== "SUCCESS") {
-//     return false;
-//   }
-
-//   try {
-//     const assumedRole = await stsClient.send(
-//       new AssumeRoleCommand({
-//         RoleArn: `arn:aws:iam::${configHarrier.awsAccountId}:role/${roleName}`,
-//         RoleSessionName: "TestSession",
-//       })
-//     );
-//     return !!assumedRole.Credentials;
-//   } catch (error) {
-//     console.error("Error assuming role: ", error);
-//     return false;
-//   }
-// }
-
-// async function checkIfRoleExists(roleName: string): Promise<string | null> {
-//   try {
-//     const response = await iamClient.send(
-//       new GetRoleCommand({ RoleName: roleName })
-//     );
-//     return response.Role?.Arn || null;
-//   } catch (error: unknown) {
-//     if (error instanceof Error && error.name === "NoSuchEntityException") {
-//       return null;
-//     }
-//     throw error;
-//   }
-// }
+  console.log("🚦 ***waiting for role to PROPAGATE***");
+  await new Promise((res) => setTimeout(res, 10_000));
+  console.log("✅ policies ATTACHED");
+}
 
 //     {
 //       name: `${roleName}_LambdaEc2Policy`,

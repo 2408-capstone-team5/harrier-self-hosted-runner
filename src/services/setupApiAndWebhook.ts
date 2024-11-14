@@ -1,4 +1,4 @@
-import { createServiceRole } from "../utils/aws/iam/createServiceRole";
+import { createRoleAndAttachPolicy } from "../utils/aws/iam/createRoleAndAttachPolicy";
 import { createAndDeployLambda } from "../utils/aws/lambda/createAndDeployLambda";
 import { zipLambda } from "../utils/aws/lambda/zipLambda";
 import { setupRestApi } from "../utils/aws/api/setupRestApi";
@@ -15,12 +15,12 @@ const stageName = "dev"; // HARDCODED
 export async function setupApiAndWebhook() {
   try {
     await zipLambda(lambdaName);
-
-    const serviceRoleArn = await createServiceRole(
+    const workflowRoleArn = await createRoleAndAttachPolicy(
       workflowServiceRole,
       workflowPolicyDocument
     );
-    await createAndDeployLambda(lambdaName, serviceRoleArn);
+
+    await createAndDeployLambda(lambdaName, workflowRoleArn);
     const { restApiId, resourceId } = await setupRestApi();
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
     await deployApi(restApiId, stageName);
