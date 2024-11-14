@@ -17,7 +17,7 @@ const integrateLambdaWithApi_1 = require("../utils/aws/api/integrateLambdaWithAp
 const deployApi_1 = require("../utils/aws/api/deployApi");
 const setupOrgWebhook_1 = require("../utils/github/setupOrgWebhook");
 const configHarrier_1 = require("../config/configHarrier");
-const lambdaName = "workflow"; // HARDCODED lambda name
+const lambdaName = `${configHarrier_1.configHarrier.tagValue}-workflow`;
 const stageName = "dev"; // HARDCODED
 function setupApiAndWebhook() {
     return __awaiter(this, void 0, void 0, function* () {

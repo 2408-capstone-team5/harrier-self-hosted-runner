@@ -8,12 +8,10 @@ import {
   waitUntilFunctionActiveV2,
 } from "@aws-sdk/client-lambda";
 
-import { LambdaName } from "./types";
-
 const lambdaClient = new LambdaClient({ region: configHarrier.region });
 
 export async function createAndDeployLambda(
-  lambdaName: LambdaName,
+  lambdaName: string,
   lambdaRoleArn: string
 ) {
   let existingLambda;

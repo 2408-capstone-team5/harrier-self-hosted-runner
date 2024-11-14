@@ -12,14 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupS3CacheBucket = void 0;
 // import { config } from "../config/client";
 const createS3_1 = require("../utils/aws/s3/createS3");
-const installationHash_1 = require("../config/installationHash");
+// import { installationHash } from "../config/installationHash";
 const client_s3_1 = require("@aws-sdk/client-s3");
 const configHarrier_1 = require("../config/configHarrier");
 const client = new client_s3_1.S3Client({ region: "us-east-1" });
 const maxWaitTime = 60;
 const setupS3CacheBucket = () => __awaiter(void 0, void 0, void 0, function* () {
-    const bucketName = `harrier-${installationHash_1.installationHash}-s3`;
-    configHarrier_1.configHarrier.s3Name = bucketName;
+    const bucketName = `${configHarrier_1.configHarrier.s3Name}`;
+    // configHarrier.s3Name = bucketName;
     yield (0, createS3_1.createS3)(client, bucketName, maxWaitTime);
 });
 exports.setupS3CacheBucket = setupS3CacheBucket;

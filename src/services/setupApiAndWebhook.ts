@@ -5,10 +5,9 @@ import { integrateLambdaWithApi } from "../utils/aws/api/integrateLambdaWithApi"
 import { deployApi } from "../utils/aws/api/deployApi";
 import { setupOrgWebhook } from "../utils/github/setupOrgWebhook";
 
-import { LambdaName } from "../utils/aws/lambda/types";
 import { workflowPolicyDocument, configHarrier } from "../config/configHarrier";
 
-const lambdaName: LambdaName = `${configHarrier.tagName}-workflow`; // HARDCODED lambda name ** WOOK changed it to add "Harrier-" prefix
+const lambdaName = `${configHarrier.tagValue}-workflow`;
 const stageName = "dev"; // HARDCODED
 
 export async function setupApiAndWebhook() {
