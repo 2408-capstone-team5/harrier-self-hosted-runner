@@ -29,10 +29,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-
-      - name: Install Action Dependencies
-        run: npm install
-        working-directory: .github/actions/harrier-self-hosted-runner
         
       - name: Configure AWS Credentials for Harrier setup
         uses: aws-actions/configure-aws-credentials@v4
