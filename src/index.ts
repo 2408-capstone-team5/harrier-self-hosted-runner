@@ -14,11 +14,11 @@ const main = async () => {
 
     await setupS3CacheBucket(); // S3
 
+    await setupCacheEviction();
+
     await setupEC2Runner();
 
     await setupApiAndWebhook();
-
-    await setupCacheEviction();
   } catch (error) {
     console.error("Error executing main in index: ", error);
     throw new Error("❌");
