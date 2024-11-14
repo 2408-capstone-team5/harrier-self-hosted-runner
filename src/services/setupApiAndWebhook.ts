@@ -7,7 +7,7 @@ import setupWebhook from "../utils/github/setupWebhook";
 
 import { LambdaName } from "../utils/aws/lambda/types";
 
-const lambdaName: LambdaName = "workflow"; // HARDCODED lambda name
+const lambdaName: LambdaName = "Harrier-workflow"; // HARDCODED lambda name ** WOOK changed it to add "Harrier-" prefix
 const stageName = "dev"; // HARDCODED
 
 export async function setupApiAndWebhook() {

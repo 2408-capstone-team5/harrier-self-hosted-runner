@@ -1,3 +1,4 @@
+import { cleanupPrevInstall } from "./services/cleanupPrevInstall";
 // import { setupRoles } from "./services/setupRoles";
 // import { setupCloudwatchLogGroups } from './services/setupCloudwatchLogGroups'
 import { setupVPC } from "./services/setupVPC";
@@ -7,6 +8,8 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 
 const main = async () => {
+  await cleanupPrevInstall();
+
   // setupRoles(); // IAM
   // setupCloudWatch(); // for log groups for at least the lambda & rest api
   /*

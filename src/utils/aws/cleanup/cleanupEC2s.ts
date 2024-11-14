@@ -101,7 +101,7 @@ const waitForInstanceTermination = async (instanceIds: string[]) => {
 };
 
 // Helper function to get instances associated with a security group
-async function getInstancesUsingSecurityGroup(groupId: string) {
+const getInstancesUsingSecurityGroup = async (groupId: string) => {
   const command = new DescribeInstancesCommand({
     Filters: [
       {
@@ -127,7 +127,7 @@ async function getInstancesUsingSecurityGroup(groupId: string) {
   }
 
   return instanceIds;
-}
+};
 
 const deleteSecurityGroups = async (securityGroups: string[]) => {
   if (!securityGroups) {
@@ -155,7 +155,7 @@ const deleteSecurityGroups = async (securityGroups: string[]) => {
   }
 };
 
-export const cleanupEC2 = async () => {
+export const cleanupEC2s = async () => {
   try {
     // Step 1: Find all Harrier EC2 instances and security groups
     const harrierInstances = await getInstancesByNamePrefix("Harrier");
