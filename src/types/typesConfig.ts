@@ -1,6 +1,5 @@
 export interface configHarrierType {
-  workflowLambdaLogGroup: string;
-  logGroup: string;
+  logGroupName: string;
   tagValue: string;
   cidrBlockVPC: string;
   cidrBlockSubnet: string;

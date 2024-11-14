@@ -6,7 +6,6 @@ STILL NEED:
 */
 
 import { configHarrier } from "../../../config/configHarrier";
-import { installationHash } from "../../../config/installationHash";
 import {
   APIGatewayClient,
   CreateRestApiCommand,
@@ -17,7 +16,7 @@ const client = new APIGatewayClient({ region: configHarrier.region });
 export default async function createRestApi() {
   const response = await client.send(
     new CreateRestApiCommand({
-      name: `Harrier-${installationHash}-restApi`,
+      name: `${configHarrier.tagValue}-api`,
       description:
         "the development rest api for Harrier that receives webhooks from github",
       version: "1.0",
@@ -29,7 +28,7 @@ export default async function createRestApi() {
         types: ["REGIONAL"],
       },
       tags: {
-        name: `Harrier-${installationHash}-restApi`,
+        Name: configHarrier.tagValue,
       },
     })
   );

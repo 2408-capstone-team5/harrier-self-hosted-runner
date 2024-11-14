@@ -145,7 +145,7 @@ async function attachPolicies(roleName: string): Promise<void> {
               "logs:CreateLogStream",
               "logs:PutLogEvents",
             ],
-            Resource: `arn:aws:logs:us-east-1:536697269866:log-group:${configHarrier.logGroup}:*`,
+            Resource: `arn:aws:logs:us-east-1:536697269866:log-group:${configHarrier.logGroupName}:*`, // @JOEL COME BACK TO THIS
           },
         ],
       },

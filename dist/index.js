@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // import { setupRoles } from "./services/setupRoles";
+// import { setupCloudwatchLogGroups } from './services/setupCloudwatchLogGroups'
 const setupVPC_1 = require("./services/setupVPC");
 const setupS3CacheBucket_1 = require("./services/setupS3CacheBucket");
 const setupEC2Runner_1 = require("./services/setupEC2Runner");
