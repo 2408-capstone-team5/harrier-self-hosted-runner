@@ -10,7 +10,8 @@ import { setupRoles } from "./services/setupRoles";
 const main = async () => {
   await cleanupPrevInstall();
 
-  // setupRoles(); // IAM
+  await setupRoles(); // IAM
+
   await setupZippedLambdas(); // zip lambdas
   // setupCloudWatch(); // for log groups for at least the lambda & rest api
   /*
@@ -49,15 +50,4 @@ const main = async () => {
   */
 };
 
-const testmain = async () => {
-  // console.log(schedulerTrustPolicy);
-
-  // console.log(workflowLambdaPolicy);
-
-  await setupRoles();
-};
-
-// void main();
-
-console.log(main);
-void testmain();
+void main();

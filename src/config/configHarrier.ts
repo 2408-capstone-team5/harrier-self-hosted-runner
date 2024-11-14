@@ -54,7 +54,7 @@ export const configHarrier: configHarrierType = {
   workflowServiceRoleArn: "",
   cacheEvictionServiceRoleArn: "",
   runnerInstanceServiceRoleArn: "",
-  eventBridgeServiceRoleArn: "",
+  schedulerServiceRoleArn: "",
 };
 
 export const harrierVPC = {};

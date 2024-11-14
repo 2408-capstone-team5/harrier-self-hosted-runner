@@ -19,7 +19,7 @@ const setupRoles_1 = require("./services/setupRoles");
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, cleanupPrevInstall_1.cleanupPrevInstall)();
-    // setupRoles(); // IAM
+    yield (0, setupRoles_1.setupRoles)(); // IAM
     yield (0, setupZippedLambdas_1.setupZippedLambdas)(); // zip lambdas
     // setupCloudWatch(); // for log groups for at least the lambda & rest api
     /*
@@ -53,11 +53,4 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
       - register lambda with EventBridge
     */
 });
-const testmain = () => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(schedulerTrustPolicy);
-    // console.log(workflowLambdaPolicy);
-    yield (0, setupRoles_1.setupRoles)();
-});
-// void main();
-console.log(main);
-void testmain();
+void main();

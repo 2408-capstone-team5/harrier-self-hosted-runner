@@ -51,7 +51,7 @@ exports.configHarrier = {
     workflowServiceRoleArn: "",
     cacheEvictionServiceRoleArn: "",
     runnerInstanceServiceRoleArn: "",
-    eventBridgeServiceRoleArn: "",
+    schedulerServiceRoleArn: "",
 };
 exports.harrierVPC = {};
 exports.harrierEC2 = {};

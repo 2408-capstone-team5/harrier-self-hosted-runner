@@ -30,7 +30,7 @@ export const setupRoles = async () => {
     runnerInstancePolicy,
   );
 
-  configHarrier.eventBridgeServiceRoleArn = await createSchedulerServiceRole(
+  configHarrier.schedulerServiceRoleArn = await createSchedulerServiceRole(
     `${configHarrier.schedulerServiceName}${ROLE_NAME_IDENTIFIER}`,
     eventBridgeSchedulerPolicy,
   );

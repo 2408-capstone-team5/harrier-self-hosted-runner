@@ -23,7 +23,7 @@ export interface configHarrierType {
   workflowServiceRoleArn: string;
   cacheEvictionServiceRoleArn: string;
   runnerInstanceServiceRoleArn: string;
-  eventBridgeServiceRoleArn: string;
+  schedulerServiceRoleArn: string;
   workflowServiceName: string;
   cacheEvictionServiceName: string;
   runnerInstanceServiceName: string;
