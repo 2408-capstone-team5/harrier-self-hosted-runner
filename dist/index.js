@@ -10,7 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const cleanupPrevInstall_1 = require("./services/cleanupPrevInstall");
+
 const setupZippedLambdas_1 = require("./services/setupZippedLambdas");
+
 const setupVPC_1 = require("./services/setupVPC");
 const setupS3CacheBucket_1 = require("./services/setupS3CacheBucket");
 const setupEC2Runner_1 = require("./services/setupEC2Runner");
@@ -19,8 +21,10 @@ const setupRoles_1 = require("./services/setupRoles");
 // import { setupCacheEviction } from "./services/setupCacheEviction";
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, cleanupPrevInstall_1.cleanupPrevInstall)();
+
     yield (0, setupRoles_1.setupRoles)(); // IAM
     yield (0, setupZippedLambdas_1.setupZippedLambdas)(); // zip lambdas
+
     // setupCloudWatch(); // for log groups for at least the lambda & rest api
     /*
       assumes:
