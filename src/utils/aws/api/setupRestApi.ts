@@ -7,7 +7,6 @@ export async function setupRestApi() {
   const resourceId = await createResource(restApiId);
   await createMethod(restApiId, resourceId, "POST"); // HARDCODED httpMethod
   // TODO: create resource policy on the rest api (limit to github webhook ip ranges)
-  console.log("✅ Resource: POST /workflow created on restApiId:", restApiId);
-  console.log("✅ Rest API created:", restApiId);
+  console.log("✅ api CREATED:", restApiId);
   return { restApiId, resourceId };
 }

@@ -14,7 +14,7 @@ const stageName = "dev"; // HARDCODED
 export async function setupApiAndWebhook() {
   try {
     const serviceRoleArn = await createServiceRole(
-      "__workflow_SR",
+      "_workflow_SR",
       workflowPolicyDocument
     );
     await createAndDeployLambda(lambdaName, serviceRoleArn);
@@ -22,7 +22,6 @@ export async function setupApiAndWebhook() {
     await integrateLambdaWithApi(restApiId, resourceId, lambdaName);
     await deployApi(restApiId, stageName);
     await setupOrgWebhook(restApiId, stageName);
-    console.log("✅ completed setupApiAndWebhook ");
   } catch (error: unknown) {
     console.error("Error executing setupApiAndWebhook: ", error);
   }

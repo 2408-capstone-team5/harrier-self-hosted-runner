@@ -34,11 +34,10 @@ export async function createServiceRole(
     // previously, if the !roleExistsAndIsAssumable, throw an error
     console.log("🚦 waiting for role to propagate");
     await new Promise((res) => setTimeout(res, 10_000));
-    console.log("✅ policies");
-    console.log(`✅ role: ${roleName} created`);
+    console.log("✅ policies ATTACHED");
     return arn;
   } catch (error) {
-    console.error("Error in createWorkflowLambdaServiceRole ", error);
+    console.error("❌ Error in createWorkflowLambdaServiceRole ", error);
     throw new Error("❌");
   }
 }

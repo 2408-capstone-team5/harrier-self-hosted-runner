@@ -10,5 +10,5 @@ export async function integrateLambdaWithApi(
   const lambdaArn = await getLambdaArn(lambdaName);
   await grantInvokePermission(lambdaArn, restApiId); // TODO: ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
   await createLambdaIntegration(restApiId, resourceId, lambdaArn);
-  console.log("✅ integrated workflow lambda with rest api ");
+  console.log("✅ lambda INTEGRATED w/ api ");
 }

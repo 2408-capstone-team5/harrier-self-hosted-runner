@@ -70,7 +70,7 @@ export async function createAndDeployLambda(
       })
     );
 
-    console.log("✅ lambda created, waiting for it to be active...");
+    console.log("✅ lambda CREATED");
     const waitResponse = await waitUntilFunctionActiveV2(
       { client: lambdaClient, maxWaitTime: 1000, minDelay: 5 },
       { FunctionName: lambdaName }

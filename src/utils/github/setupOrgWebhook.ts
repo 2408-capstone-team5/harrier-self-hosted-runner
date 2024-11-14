@@ -34,7 +34,7 @@ export async function setupOrgWebhook(
       }
     );
 
-    console.log("✅ Organization webhook created successfully:", response.data);
+    console.log("✅ webhook CREATED");
   } catch (error) {
     if (axios.isAxiosError(error)) {
       console.error(

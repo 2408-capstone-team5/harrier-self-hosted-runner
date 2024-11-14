@@ -31,8 +31,8 @@ export async function deployApi(restApiId: string, stageName: "dev" | "prod") {
 
   try {
     await waitForApiDeployment(restApiId, response.id);
-    console.log(`✅ Deployed Api with DeploymentId: ${response.id}`);
+    console.log(`✅ api DEPLOYED`);
   } catch (error) {
-    console.error("Error waiting for API deployment:", error);
+    console.error("❌ Error waiting for API deployment:", error);
   }
 }
