@@ -54,7 +54,7 @@ export const harrierEC2 = {};
 export const harrierS3 = {};
 
 export const harrierLambda_Workflow = {};
-export const harrierLambda_Cleanup = {};
+export const harrierLambda_Eviction = {};
 export const harrierLambda_Scheduler = {};
 export const harrierRestApi = {};
 
