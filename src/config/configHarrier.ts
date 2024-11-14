@@ -114,6 +114,7 @@ export const harrierRestApi = {};
 //   ],
 // });
 
+export const evictionPolicyDocument = JSON.stringify({});
 export const apiResourcePolicyDocument = JSON.stringify({
   Version: "2012-10-17",
   Statement: [

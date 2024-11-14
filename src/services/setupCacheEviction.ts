@@ -1,33 +1,22 @@
 import { createAndDeployLambda } from "../utils/aws/lambda/createAndDeployLambda";
 import { getLambdaArn } from "../utils/aws/lambda/getLambdaArn";
-
+import { configHarrier } from "../config/configHarrier";
 import { createDailySchedule } from "../utils/aws/eventbridge/createDailySchedule";
 
 export async function setupCacheEviction() {
-  const lambdaName = "cache_test_lambda";
-  const lambdaRole = "s3CacheCleanupLambda-role-zp58dx91";
-  const scheduleName = "test-schedule";
-  const scheduleRole = "Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec";
+  const lambdaName = configHarrier.cacheEvictionServiceName;
+  const scheduleName = configHarrier.schedulerServiceName;
 
   try {
-    await createAndDeployLambda(lambdaName, lambdaRole);
-    // TODO: lambda is using an existing role, need to make one programatically?
-    console.log("lambda created with role to access s3, and deployed");
+    const evictionRoleArn = configHarrier.cacheEvictionServiceRoleArn;
+    const scheduleRoleArn = configHarrier.schedulerServiceRoleArn;
 
+    await createAndDeployLambda(lambdaName, evictionRoleArn);
     const lambdaArn = await getLambdaArn(lambdaName);
 
-    // TODO: scheduler using an existing role, need to make one programatically?
-    const scheduleId = await createDailySchedule(
-      scheduleName,
-      lambdaArn,
-      scheduleRole
-    );
-
-    console.log("eventbridge schedule created with id: ", scheduleId);
-
-    // TODO: skipping grantInvoke for now since I have a role already. OK? NO?
-    // await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
+    await createDailySchedule(scheduleName, lambdaArn, scheduleRoleArn);
   } catch (error: unknown) {
-    console.error("Error executing setupWorkflowWebhook: ", error);
+    console.error("Error executing setupCacheEviction: ", error);
+    throw new Error("❌");
   }
 }

@@ -1,4 +1,3 @@
-// import { createServiceRole } from "../utils/aws/iam/createServiceRole";
 import { createAndDeployLambda } from "../utils/aws/lambda/createAndDeployLambda";
 import { setupRestApi } from "../utils/aws/api/setupRestApi";
 import { integrateLambdaWithApi } from "../utils/aws/api/integrateLambdaWithApi";
@@ -10,6 +9,9 @@ import { configHarrier } from "../config/configHarrier";
 const stageName = "dev"; // HARDCODED
 
 export async function setupApiAndWebhook() {
+  const lambdaName = configHarrier.workflowServiceName;
+  const stageName = "dev"; // HARDCODED
+
   try {
     await createAndDeployLambda(
       configHarrier.workflowServiceName,
@@ -34,5 +36,6 @@ export async function setupApiAndWebhook() {
     await setupOrgWebhook(restApiId, stageName);
   } catch (error: unknown) {
     console.error("Error executing setupApiAndWebhook: ", error);
+    throw new Error("❌");
   }
 }

@@ -2,11 +2,7 @@ import {
   IAMClient,
   CreateRoleCommand,
   PutRolePolicyCommand,
-  //   GetRoleCommand,
-  //   waitUntilRoleExists,
 } from "@aws-sdk/client-iam";
-// import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
-// import { STSClient } from "@aws-sdk/client-sts";
 
 import { configHarrier } from "../../../config/configHarrier";
 import { lambdaTrustPolicy } from "../../../config/trustPolicies";
@@ -14,7 +10,6 @@ import { instanceTrustPolicy } from "../../../config/trustPolicies";
 import { schedulerTrustPolicy } from "../../../config/trustPolicies";
 
 const iamClient = new IAMClient({ region: configHarrier.region });
-// const stsClient = new STSClient({ region: configHarrier.region });
 
 export async function createLambdaServiceRole(
   roleName: string,
