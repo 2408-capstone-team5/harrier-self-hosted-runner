@@ -13,7 +13,7 @@ export async function setupOrgWebhook(
     const pat = await getPat();
     const org = configHarrier.org;
 
-    const response = await axios.post(
+    await axios.post(
       `https://api.github.com/orgs/${org}/hooks`,
       {
         config: {
