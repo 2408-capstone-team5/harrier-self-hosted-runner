@@ -30,6 +30,7 @@ const path_1 = require("path");
 const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static");
 function getLambda(lambdaName) {
     const lambdaPath = path.join(projectRoot, "zippedLambdas", `${lambdaName}.zip`);
+    console.log(`✅ zipped lambda RETRIEVED`);
     return (0, fs_1.readFileSync)((0, path_1.resolve)(lambdaPath));
 }
 exports.getLambda = getLambda;
