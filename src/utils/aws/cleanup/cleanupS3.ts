@@ -73,9 +73,9 @@ const deleteBucket = async (bucketName: string) => {
 // Main function to find, empty, and delete S3 buckets with prefix "Harrier"
 export const cleanupS3 = async () => {
   try {
-    const buckets = await findBucketsWithPrefix("Harrier");
+    const buckets = await findBucketsWithPrefix("harrier");
     if (buckets.length === 0) {
-      console.log('No buckets found with the prefix "Harrier".');
+      console.log('No buckets found with the prefix "harrier".');
       return;
     }
 

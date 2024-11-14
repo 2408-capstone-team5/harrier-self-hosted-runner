@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanupEC2 = void 0;
+exports.cleanupEC2s = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
 const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" }); // specify your region
 // Find EC2 instances by prefix
@@ -87,32 +87,30 @@ const waitForInstanceTermination = (instanceIds) => __awaiter(void 0, void 0, vo
     }
 });
 // Helper function to get instances associated with a security group
-function getInstancesUsingSecurityGroup(groupId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const command = new client_ec2_1.DescribeInstancesCommand({
-            Filters: [
-                {
-                    Name: "instance.group-id",
-                    Values: [groupId],
-                },
-            ],
-        });
-        const response = yield ec2Client.send(command);
-        const instanceIds = [];
-        if (response.Reservations) {
-            response.Reservations.forEach((reservation) => {
-                if (reservation.Instances) {
-                    reservation.Instances.forEach((instance) => {
-                        if (instance.InstanceId) {
-                            instanceIds.push(instance.InstanceId);
-                        }
-                    });
-                }
-            });
-        }
-        return instanceIds;
+const getInstancesUsingSecurityGroup = (groupId) => __awaiter(void 0, void 0, void 0, function* () {
+    const command = new client_ec2_1.DescribeInstancesCommand({
+        Filters: [
+            {
+                Name: "instance.group-id",
+                Values: [groupId],
+            },
+        ],
     });
-}
+    const response = yield ec2Client.send(command);
+    const instanceIds = [];
+    if (response.Reservations) {
+        response.Reservations.forEach((reservation) => {
+            if (reservation.Instances) {
+                reservation.Instances.forEach((instance) => {
+                    if (instance.InstanceId) {
+                        instanceIds.push(instance.InstanceId);
+                    }
+                });
+            }
+        });
+    }
+    return instanceIds;
+});
 const deleteSecurityGroups = (securityGroups) => __awaiter(void 0, void 0, void 0, function* () {
     if (!securityGroups) {
         console.log("No security groups to delete.");
@@ -134,10 +132,10 @@ const deleteSecurityGroups = (securityGroups) => __awaiter(void 0, void 0, void 
         }
     }
 });
-const cleanupEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
+const cleanupEC2s = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // Step 1: Find all Harrier EC2 instances and security groups
-        const harrierInstances = yield getInstancesByNamePrefix("Harrier");
+        const harrierInstances = yield getInstancesByNamePrefix("harrier");
         // Step 2: Terminate all Harrier EC2 instances
         yield terminateInstances(harrierInstances.instanceIds);
         // Step 2a: Wait for instance termination
@@ -149,4 +147,4 @@ const cleanupEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         console.error("Error:", error);
     }
 });
-exports.cleanupEC2 = cleanupEC2;
+exports.cleanupEC2s = cleanupEC2s;

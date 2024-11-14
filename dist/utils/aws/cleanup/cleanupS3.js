@@ -71,9 +71,9 @@ const deleteBucket = (bucketName) => __awaiter(void 0, void 0, void 0, function*
 // Main function to find, empty, and delete S3 buckets with prefix "Harrier"
 const cleanupS3 = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const buckets = yield findBucketsWithPrefix("Harrier");
+        const buckets = yield findBucketsWithPrefix("harrier");
         if (buckets.length === 0) {
-            console.log('No buckets found with the prefix "Harrier".');
+            console.log('No buckets found with the prefix "harrier".');
             return;
         }
         for (const bucket of buckets) {

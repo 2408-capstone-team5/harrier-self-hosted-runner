@@ -40,7 +40,7 @@ export const configHarrier: configHarrierType = {
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
   IamInstanceProfile: {
-    Name: "EC2AccessS3", // this will change as it is created programmatically
+    Name: "EC2-access-S3", // this will change as it is created programmatically
   },
   secretName: "github/pat/harrier", // githubPAT
   ghOwnerName: ghOwnerName,

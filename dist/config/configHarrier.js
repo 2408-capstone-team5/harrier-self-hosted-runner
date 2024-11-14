@@ -37,7 +37,7 @@ exports.configHarrier = {
     minInstanceCount: 1,
     maxInstanceCount: 1,
     IamInstanceProfile: {
-        Name: "EC2AccessS3", // this will change as it is created programmatically
+        Name: "EC2-access-S3", // this will change as it is created programmatically
     },
     secretName: "github/pat/harrier",
     ghOwnerName: ghOwnerName,

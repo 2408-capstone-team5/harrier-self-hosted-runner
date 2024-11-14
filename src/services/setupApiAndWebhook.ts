@@ -5,16 +5,16 @@ import { integrateLambdaWithApi } from "../utils/aws/api/integrateLambdaWithApi"
 import { deployApi } from "../utils/aws/api/deployApi";
 import { setupOrgWebhook } from "../utils/github/setupOrgWebhook";
 
-import { LambdaName } from "../utils/aws/lambda/types";
-import { workflowPolicyDocument } from "../config/configHarrier";
+import { workflowPolicyDocument, configHarrier } from "../config/configHarrier";
 
-const lambdaName: LambdaName = "workflow"; // HARDCODED lambda name
+const lambdaName = `${configHarrier.tagValue}-workflow`;
+const workflowServiceRole = `${configHarrier.tagValue}-workflow-service-role`;
 const stageName = "dev"; // HARDCODED
 
 export async function setupApiAndWebhook() {
   try {
     const serviceRoleArn = await createServiceRole(
-      "_workflow_SR",
+      workflowServiceRole,
       workflowPolicyDocument
     );
     await createAndDeployLambda(lambdaName, serviceRoleArn);
