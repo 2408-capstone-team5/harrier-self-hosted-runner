@@ -10,6 +10,8 @@ const lambdaClient = new LambdaClient({ region: configHarrier.region });
 // Function to delete Lambdas with names starting with "Harrier"
 export const cleanupLambdas = async () => {
   try {
+    console.log("Start Lambda cleanup");
+
     const listFunctionsCommand = new ListFunctionsCommand({});
     const lambdaResponse = await lambdaClient.send(listFunctionsCommand);
 
@@ -33,6 +35,7 @@ export const cleanupLambdas = async () => {
         }
       }
     }
+    console.log("*** Lambda cleanup complete ***");
   } catch (error) {
     console.error("Error listing Lambda functions:", error);
   }

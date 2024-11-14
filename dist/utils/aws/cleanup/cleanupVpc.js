@@ -117,6 +117,7 @@ const deleteVpcAndResources = (vpcId) => __awaiter(void 0, void 0, void 0, funct
 // Main function to process all VPCs with name starting with "Harrier"
 const cleanupVpc = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        console.log("Start VPC cleanup");
         const vpcs = yield findVpcsWithNamePrefix("harrier");
         if (vpcs.length === 0) {
             console.log('No VPCs found with the prefix "harrier".');
@@ -127,6 +128,7 @@ const cleanupVpc = () => __awaiter(void 0, void 0, void 0, function* () {
             // Delete the VPC and its resources
             yield deleteVpcAndResources(vpc);
         }
+        console.log("*** VPC cleanup complete ***");
     }
     catch (error) {
         console.error("Error processing VPCs:", error);

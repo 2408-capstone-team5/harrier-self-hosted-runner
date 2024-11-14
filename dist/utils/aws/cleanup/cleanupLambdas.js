@@ -17,6 +17,7 @@ const lambdaClient = new client_lambda_1.LambdaClient({ region: configHarrier_1.
 const cleanupLambdas = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
+        console.log("Start Lambda cleanup");
         const listFunctionsCommand = new client_lambda_1.ListFunctionsCommand({});
         const lambdaResponse = yield lambdaClient.send(listFunctionsCommand);
         const lambdaFunctions = lambdaResponse.Functions || [];
@@ -36,6 +37,7 @@ const cleanupLambdas = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
             }
         }
+        console.log("*** Lambda cleanup complete ***");
     }
     catch (error) {
         console.error("Error listing Lambda functions:", error);
