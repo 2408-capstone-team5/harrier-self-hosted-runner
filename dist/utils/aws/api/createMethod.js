@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createMethod = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
 const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
@@ -22,4 +23,4 @@ function createMethod(restApiId, resourceId, httpMethod) {
         }));
     });
 }
-exports.default = createMethod;
+exports.createMethod = createMethod;

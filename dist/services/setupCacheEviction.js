@@ -8,14 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupCacheEviction = void 0;
-const createAndDeployLambda_1 = __importDefault(require("../utils/aws/lambda/createAndDeployLambda"));
-const getLambdaArn_1 = __importDefault(require("../utils/aws/lambda/getLambdaArn"));
-const createSchedule_1 = __importDefault(require("../utils/aws/eventbridge/createSchedule"));
+const createAndDeployLambda_1 = require("../utils/aws/lambda/createAndDeployLambda");
+const getLambdaArn_1 = require("../utils/aws/lambda/getLambdaArn");
+const createDailySchedule_1 = require("../utils/aws/eventbridge/createDailySchedule");
 function setupCacheEviction() {
     return __awaiter(this, void 0, void 0, function* () {
         const lambdaName = "cache_test_lambda";
@@ -23,12 +20,12 @@ function setupCacheEviction() {
         const scheduleName = "test-schedule";
         const scheduleRole = "Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec";
         try {
-            yield (0, createAndDeployLambda_1.default)(lambdaName, lambdaRole);
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, lambdaRole);
             // TODO: lambda is using an existing role, need to make one programatically?
             console.log("lambda created with role to access s3, and deployed");
-            const lambdaArn = yield (0, getLambdaArn_1.default)(lambdaName);
+            const lambdaArn = yield (0, getLambdaArn_1.getLambdaArn)(lambdaName);
             // TODO: scheduler using an existing role, need to make one programatically?
-            const scheduleId = yield (0, createSchedule_1.default)(scheduleName, lambdaArn, scheduleRole);
+            const scheduleId = yield (0, createDailySchedule_1.createDailySchedule)(scheduleName, lambdaArn, scheduleRole);
             console.log("eventbridge schedule created with id: ", scheduleId);
             // TODO: skipping grantInvoke for now since I have a role already. OK? NO?
             // await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS

@@ -1,4 +1,3 @@
-
 import { configHarrier } from "../../../config/configHarrier";
 import {
   SchedulerClient,
@@ -6,9 +5,9 @@ import {
   CreateScheduleCommand,
 } from "@aws-sdk/client-scheduler"; // ES Modules import
 
-const client = new SchedulerClient({region: configHarrier.region});
+const client = new SchedulerClient({ region: configHarrier.region });
 
-export default async function createDailySchedule(
+export async function createDailySchedule(
   scheduleName: string,
   lambdaArn: string,
   scheduleRole: string

@@ -6,6 +6,9 @@ STILL NEED:
 */
 
 import { configHarrier } from "../../../config/configHarrier";
+import { apiResourcePolicyDocument as policy } from "../../../config/configHarrier";
+
+import { installationHash } from "../../../config/installationHash";
 import {
   APIGatewayClient,
   CreateRestApiCommand,
@@ -13,7 +16,7 @@ import {
 
 const client = new APIGatewayClient({ region: configHarrier.region });
 
-export default async function createRestApi() {
+export async function createRestApi() {
   const response = await client.send(
     new CreateRestApiCommand({
       name: `${configHarrier.tagValue}-api`,
@@ -27,6 +30,7 @@ export default async function createRestApi() {
       endpointConfiguration: {
         types: ["REGIONAL"],
       },
+      policy, // _should_ only allow traffic from github "hook" specific ip address ranges
       tags: {
         Name: configHarrier.tagValue,
       },
@@ -34,7 +38,7 @@ export default async function createRestApi() {
   );
 
   if (!response?.id) {
-    throw new Error("No id found in CreateApiResponse.");
+    throw new Error("❌ No id found in CreateApiResponse.");
   }
 
   return response.id;

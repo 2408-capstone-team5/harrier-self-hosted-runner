@@ -5,31 +5,15 @@ import {
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
 
-async function getPat() {
-  const org = "2408-capstone-team5";
-
-  const secretClient = new SecretsManagerClient({
-    region: configHarrier.region,
-  });
-
-  const secretResponse = await secretClient.send(
-    new GetSecretValueCommand({
-      SecretId: "github/pat/harrier",
-      VersionStage: "AWSCURRENT",
-    })
-  );
-
-  return { org, pat: secretResponse.SecretString };
-}
-
-export default async function setupOrgWebhook(
+export async function setupOrgWebhook(
   restApiId: string,
   stageName: "dev" | "prod" = "dev"
 ) {
   try {
-    const { org, pat } = await getPat();
+    const pat = await getPat();
+    const org = configHarrier.org;
 
-    const response = await axios.post(
+    await axios.post(
       `https://api.github.com/orgs/${org}/hooks`,
       {
         config: {
@@ -50,12 +34,31 @@ export default async function setupOrgWebhook(
       }
     );
 
-    console.log("✅ Organization webhook created successfully:", response.data);
+    console.log("✅ webhook CREATED");
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error("Error creating organization webhook:", error.response?.data);
+      console.error(
+        "❌ Error creating organization webhook:",
+        error.response?.data
+      );
     } else {
-      console.error("Unexpected error:", error);
+      console.error("❌ Unexpected error:", error);
     }
   }
+}
+
+async function getPat() {
+  const secretClient = new SecretsManagerClient({
+    region: configHarrier.region,
+  });
+
+  const secretResponse = await secretClient.send(
+    new GetSecretValueCommand({
+      SecretId: "github/pat/harrier",
+      VersionStage: "AWSCURRENT",
+    })
+  );
+
+  const pat = secretResponse.SecretString;
+  return pat;
 }

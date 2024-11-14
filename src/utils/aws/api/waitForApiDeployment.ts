@@ -25,7 +25,6 @@ export const waitForApiDeployment = async (
 
       // If deployment exists, assume it's successful and break the loop
       if (response.id) {
-        console.log("Deployment successful:", response);
         return response;
       }
     } catch (error) {
@@ -42,6 +41,5 @@ export const waitForApiDeployment = async (
     // Wait for the interval before the next attempt
     await new Promise((resolve) => setTimeout(resolve, interval * 1000));
   }
-
-  throw new Error("Timed out waiting for API Gateway deployment.");
+  throw new Error("❌ Timed out waiting for API Gateway deployment.");
 };

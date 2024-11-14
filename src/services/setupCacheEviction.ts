@@ -1,7 +1,7 @@
-import createAndDeployLambda from "../utils/aws/lambda/createAndDeployLambda";
-import getLambdaArn from "../utils/aws/lambda/getLambdaArn";
+import { createAndDeployLambda } from "../utils/aws/lambda/createAndDeployLambda";
+import { getLambdaArn } from "../utils/aws/lambda/getLambdaArn";
 
-import createSchedule from "../utils/aws/eventbridge/createSchedule";
+import { createDailySchedule } from "../utils/aws/eventbridge/createDailySchedule";
 
 export async function setupCacheEviction() {
   const lambdaName = "cache_test_lambda";
@@ -17,7 +17,7 @@ export async function setupCacheEviction() {
     const lambdaArn = await getLambdaArn(lambdaName);
 
     // TODO: scheduler using an existing role, need to make one programatically?
-    const scheduleId = await createSchedule(
+    const scheduleId = await createDailySchedule(
       scheduleName,
       lambdaArn,
       scheduleRole

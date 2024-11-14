@@ -9,22 +9,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.grantInvokePermission = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
-const lambdas_1 = require("../../../config/lambdas");
 const client_lambda_1 = require("@aws-sdk/client-lambda");
 const client = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
-function grantInvokePermission(lambdaArn, restApiId
-//   method: "POST" = "POST",
-//   resourcePath: "workflow" = "workflow"
-) {
+// This currently is NOT generalized and only applies to granting permission to the rest api to invoke the `workflow` lambda
+function grantInvokePermission(lambdaArn, restApiId) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const command = new client_lambda_1.AddPermissionCommand(Object.assign(Object.assign({}, lambdas_1.workflow), { FunctionName: lambdaArn, SourceArn: `arn:aws:execute-api:${configHarrier_1.configHarrier.region}:${configHarrier_1.configHarrier.awsAccountId}:${restApiId}/*/*/*` }));
-            yield client.send(command);
+            yield client.send(new client_lambda_1.AddPermissionCommand({
+                Action: "lambda:InvokeFunction",
+                Principal: "apigateway.amazonaws.com",
+                StatementId: "InvokePermission_RestApi_Execute_Lambda",
+                FunctionName: lambdaArn,
+                SourceArn: `arn:aws:execute-api:${configHarrier_1.configHarrier.region}:${configHarrier_1.configHarrier.awsAccountId}:${restApiId}/*/*/*`,
+            }));
         }
         catch (error) {
             console.error("Error granting invoke permission: ", error);
         }
     });
 }
-exports.default = grantInvokePermission;
+exports.grantInvokePermission = grantInvokePermission;

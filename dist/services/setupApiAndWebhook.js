@@ -8,30 +8,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupApiAndWebhook = void 0;
-// import createWorkflowLambdaServiceRole from "../utils/aws/iam/createWorkflowLambdaServiceRole";
-const createAndDeployLambda_1 = __importDefault(require("../utils/aws/lambda/createAndDeployLambda"));
-const setupRestApi_1 = __importDefault(require("../utils/aws/api/setupRestApi"));
-const integrateLambdaWithApi_1 = __importDefault(require("../utils/aws/api/integrateLambdaWithApi"));
-const deployApi_1 = __importDefault(require("../utils/aws/api/deployApi"));
-const setupWebhook_1 = __importDefault(require("../utils/github/setupWebhook"));
+const createServiceRole_1 = require("../utils/aws/iam/createServiceRole");
+const createAndDeployLambda_1 = require("../utils/aws/lambda/createAndDeployLambda");
+const setupRestApi_1 = require("../utils/aws/api/setupRestApi");
+const integrateLambdaWithApi_1 = require("../utils/aws/api/integrateLambdaWithApi");
+const deployApi_1 = require("../utils/aws/api/deployApi");
+const setupOrgWebhook_1 = require("../utils/github/setupOrgWebhook");
+const configHarrier_1 = require("../config/configHarrier");
 const lambdaName = "workflow"; // HARDCODED lambda name
 const stageName = "dev"; // HARDCODED
 function setupApiAndWebhook() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // const roleName = "_";
-            const serviceRoleArn = "arn:aws:iam::536697269866:role/service-role/joel_test-role-927gtd4h"; // await createWorkflowLambdaServiceRole(roleName);
-            yield (0, createAndDeployLambda_1.default)(lambdaName, serviceRoleArn);
-            const { restApiId, resourceId } = yield (0, setupRestApi_1.default)();
-            yield (0, integrateLambdaWithApi_1.default)(restApiId, resourceId, lambdaName);
-            yield (0, deployApi_1.default)(restApiId, stageName);
-            yield (0, setupWebhook_1.default)(restApiId, stageName);
-            console.log("✅ completed setupApiAndWebhook ");
+            const serviceRoleArn = yield (0, createServiceRole_1.createServiceRole)("_workflow_SR", configHarrier_1.workflowPolicyDocument);
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, serviceRoleArn);
+            const { restApiId, resourceId } = yield (0, setupRestApi_1.setupRestApi)();
+            yield (0, integrateLambdaWithApi_1.integrateLambdaWithApi)(restApiId, resourceId, lambdaName);
+            yield (0, deployApi_1.deployApi)(restApiId, stageName);
+            yield (0, setupOrgWebhook_1.setupOrgWebhook)(restApiId, stageName);
         }
         catch (error) {
             console.error("Error executing setupApiAndWebhook: ", error);

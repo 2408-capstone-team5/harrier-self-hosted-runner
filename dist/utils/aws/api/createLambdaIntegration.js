@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.createLambdaIntegration = void 0;
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
 const configHarrier_1 = require("../../../config/configHarrier");
 const client = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
@@ -44,4 +45,4 @@ function createLambdaIntegration(restApiId, resourceId, lambdaArn) {
         }));
     });
 }
-exports.default = createLambdaIntegration;
+exports.createLambdaIntegration = createLambdaIntegration;

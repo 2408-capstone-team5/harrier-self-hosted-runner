@@ -24,7 +24,6 @@ const waitForApiDeployment = (apiId, deploymentId, maxWaitTime = 60, interval = 
             const response = yield apiGatewayClient.send(command);
             // If deployment exists, assume it's successful and break the loop
             if (response.id) {
-                console.log("Deployment successful:", response);
                 return response;
             }
         }
@@ -39,6 +38,6 @@ const waitForApiDeployment = (apiId, deploymentId, maxWaitTime = 60, interval = 
         // Wait for the interval before the next attempt
         yield new Promise((resolve) => setTimeout(resolve, interval * 1000));
     }
-    throw new Error("Timed out waiting for API Gateway deployment.");
+    throw new Error("❌ Timed out waiting for API Gateway deployment.");
 });
 exports.waitForApiDeployment = waitForApiDeployment;

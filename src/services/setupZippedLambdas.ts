@@ -1,7 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as archiver from "archiver";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { LambdaName } from "../utils/aws/lambda/types";
+const projectRoot = path.resolve(__dirname, "..", "..", "static");
 
 export async function setupZippedLambdas() {
   try {
@@ -15,7 +18,6 @@ export async function setupZippedLambdas() {
 
 async function zipLambda(lambdaName: LambdaName) {
   try {
-    const projectRoot = path.resolve(__dirname, "..", "..", "static");
     const lambdaPath = path.join(projectRoot, "lambdas", lambdaName);
     const zipPath = path.join(
       projectRoot,
@@ -41,4 +43,13 @@ async function zipLambda(lambdaName: LambdaName) {
       `***zip operation***\nstatus: ❌ failed ❌\nname: "${lambdaName}"\nError: ${error}`
     );
   }
+}
+
+export function getLambda(lambdaName: LambdaName) {
+  const lambdaPath = path.join(
+    projectRoot,
+    "zippedLambdas",
+    `${lambdaName}.zip`
+  );
+  return readFileSync(resolve(lambdaPath));
 }
