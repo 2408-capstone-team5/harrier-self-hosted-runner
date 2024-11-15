@@ -17,23 +17,21 @@ const ROLE_NAME_IDENTIFIER = "-service-role";
 export const setupRoles = async () => {
   configHarrier.workflowServiceRoleArn = await createLambdaServiceRole(
     `${configHarrier.workflowServiceName}${ROLE_NAME_IDENTIFIER}`,
-    workflowLambdaPolicy,
+    workflowLambdaPolicy
   );
 
   configHarrier.cacheEvictionServiceRoleArn = await createLambdaServiceRole(
     `${configHarrier.cacheEvictionServiceName}${ROLE_NAME_IDENTIFIER}`,
-    cacheEvictionLambdaPolicy,
+    cacheEvictionLambdaPolicy
   );
 
   configHarrier.runnerInstanceServiceRoleArn = await createInstanceServiceRole(
     `${configHarrier.runnerInstanceServiceName}${ROLE_NAME_IDENTIFIER}`,
-    runnerInstancePolicy,
+    runnerInstancePolicy
   );
 
   configHarrier.schedulerServiceRoleArn = await createSchedulerServiceRole(
     `${configHarrier.schedulerServiceName}${ROLE_NAME_IDENTIFIER}`,
-    eventBridgeSchedulerPolicy,
+    eventBridgeSchedulerPolicy
   );
-
-  console.log(configHarrier);
 };
