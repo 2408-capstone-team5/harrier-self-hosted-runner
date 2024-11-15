@@ -8,6 +8,14 @@ export const getStartScript = () => {
     # echo "token: $ {token}"
     echo "url: ${configHarrier.githubUrl}"
 
+    # Give current user some permissions
+    echo "Give current user some permissions!!!!"
+    echo $USER
+    echo "*** CALL - sudo usermod -aG docker ec2-user ***"
+    sudo usermod -aG docker ec2-user
+    echo "*** ALSO TRY - usermod -aG docker ec2-user ***"
+    usermod -aG docker ec2-user
+
 
     echo "cd /home/"
     cd /home/
@@ -63,10 +71,7 @@ export const getStartScript = () => {
     # Install Docker
     echo "INSTALL DOCKER"
     sudo dnf install -y docker
-    # Give current user some permissions
-    echo $USER
-    echo "*** CALL - sudo usermod -aG docker $USER ***"
-    sudo usermod -aG docker $USER
+
     # Start Docker deamon and set to start-up on reboots
     echo "START DOCKER DAEMON AND SET TO START-UP AUTOMATICALLY ON REBOOTS"
     sudo systemctl start docker && sudo systemctl enable docker`;

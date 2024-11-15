@@ -85,7 +85,7 @@ export async function createSchedulerServiceRole(
 
     // previously, if the !roleExistsAndIsAssumable, throw an error
     console.log(
-      `🚦 ***waiting for scheculer service ${roleName} to PROPAGATE***`
+      `🚦 ***waiting for scheduler service ${roleName} to PROPAGATE***`
     );
     await new Promise((res) => setTimeout(res, 10_000));
     console.log(`✅ Permissions policy attached to ${roleName}\n`);
