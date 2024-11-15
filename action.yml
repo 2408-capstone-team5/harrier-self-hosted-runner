@@ -27,8 +27,8 @@ inputs:
 
 runs:
   using: "node20"
-  main: "/dist/index.js"
-  steps:
-    - name: Install Dependencies
-      run: npm install
-      working-directory: . # Adjust this if action files are in a subdirectory
+  main: "dist/index.js"
+  # steps:
+  #   - name: Install Dependencies
+  #     run: npm install
+  #     working-directory: . # Adjust this if action files are in a subdirectory
