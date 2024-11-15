@@ -6,9 +6,20 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 import { setupCacheEviction } from "./services/setupCacheEviction";
 
+const deleteHarrier = false;
+
 const main = async () => {
   try {
     await cleanupPrevInstall();
+
+    if (deleteHarrier) {
+      console.log(
+        "\n" +
+          "=> Only performing cleanup of previous installation, without installing a new Harrier setup.\n" +
+          "✅ Successfully deleted Harrier from AWS account."
+      );
+      return;
+    }
 
     await setupRoles(); // IAM
 
