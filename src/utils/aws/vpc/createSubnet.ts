@@ -33,7 +33,8 @@ export const createSubnet = async (
     const command = new CreateSubnetCommand(params);
     const response = await ec2Client.send(command);
 
-    console.log("Subnet Created ID:", response.Subnet);
+    // console.log("   Subnet Created ID:", response.Subnet, "\n");
+    console.log("   Subnet Created ID:", response.Subnet?.SubnetId, "\n");
 
     if (!response.Subnet || !response.Subnet.SubnetId) {
       throw new Error("Subnet Creation Failed!");
@@ -41,7 +42,7 @@ export const createSubnet = async (
     return response.Subnet.SubnetId;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Error:", error.message);
+      console.error("❌ Error:", error.message, "\n");
       return;
     } else {
       throw new Error(

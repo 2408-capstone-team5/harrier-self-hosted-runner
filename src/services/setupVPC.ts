@@ -16,14 +16,14 @@ const ec2Client = new EC2Client({ region: "us-east-1" });
 
 export const setupVPC = async () => {
   try {
-    console.log("Starting setupVPC...");
-    console.log(configHarrier);
+    console.log("** Starting setupVPC...");
+    // console.log(configHarrier);
 
     const vpcId = await createVpc(configHarrier);
     if (!vpcId) {
       throw new Error("Failed to return VPC ID");
     }
-    console.log(`VPC ID: ${vpcId}`);
+    console.log(`   VPC ID: ${vpcId}`);
     configHarrier.vpcId = vpcId;
     await enableDNSSettings(vpcId);
 
@@ -50,11 +50,11 @@ export const setupVPC = async () => {
 
     await createRoute(routeTableId, gatewayId);
 
-    console.log("*** VPC Setup Complete ***");
-    console.log(configHarrier);
+    console.log("✅ Successfully completed VPC Setup\n");
+    // console.log(configHarrier);
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Error:", error.message);
+      console.error("❌ Error:", error.message, "\n");
     } else {
       throw new Error(`Error setting up VPC!`);
     }

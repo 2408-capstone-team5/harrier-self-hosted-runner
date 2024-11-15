@@ -21,7 +21,7 @@ export const attachInternetGateway = async (
     await ec2Client.send(command); // Returned empty object {} on success, throws error on failure
 
     console.log(
-      `Internet Gateway ${internetGatewayId} attached to VPC ${vpcId}`
+      `   Internet Gateway ${internetGatewayId} attached to VPC ${vpcId}\n`
     );
   } catch (error) {
     throw new Error(`Error attaching Internet Gateway to VPC: ${error}`);

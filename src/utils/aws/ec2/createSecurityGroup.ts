@@ -24,8 +24,8 @@ export const createSecurityGroup = async () => {
     configHarrier.securityGroupName = securityGroupName;
     configHarrier.securityGroupIds = [securityGroupId];
 
-    console.log("*** Security group created:", securityGroupId);
+    console.log("   Security group created:", securityGroupId);
   } catch (error) {
-    console.error("Error creating security group:", error);
+    console.error("❌ Error creating security group:", error);
   }
 };

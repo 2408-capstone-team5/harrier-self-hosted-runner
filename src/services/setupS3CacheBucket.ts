@@ -7,5 +7,6 @@ const maxWaitTime = 60;
 
 export const setupS3CacheBucket = async () => {
   const bucketName = `${configHarrier.s3Name}`;
+  console.log("** Starting setupS3CacheBucket...");
   await createS3(client, bucketName, maxWaitTime);
 };

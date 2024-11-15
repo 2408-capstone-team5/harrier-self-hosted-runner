@@ -6,7 +6,7 @@ export const waitEC2StatusOk = async (instanceId: string) => {
   const client = new EC2Client({ region: "us-east-1" });
 
   try {
-    console.log("Polling `DescribeInstanceStatus` until STATUS OK...");
+    console.log("   Polling `DescribeInstanceStatus` until STATUS OK...");
     const startTime = new Date();
     await waitUntilInstanceStatusOk(
       {
@@ -17,7 +17,7 @@ export const waitEC2StatusOk = async (instanceId: string) => {
     );
     const endTime = new Date();
     console.log(
-      "*** STATUS OK Succeeded after time: ",
+      "   ✅ STATUS OK Succeeded after time: ",
       (endTime.getTime() - startTime.getTime()) / 1000
     );
   } catch (caught) {

@@ -30,14 +30,15 @@ export const createVpc = async (configHarrier: configHarrierType) => {
     const command = new CreateVpcCommand(params);
     const response = await ec2Client.send(command);
 
-    console.log("VPC Created:", response.Vpc);
+    console.log("✅ Successfully Created VPC\n");
+    // console.log("VPC Created:", response.Vpc);
     if (!response.Vpc?.VpcId) {
       throw new Error("VPC Creation Failed!");
     }
     return response.Vpc.VpcId;
   } catch (error: unknown) {
     if (error instanceof Error) {
-      console.error("Error:", error.message);
+      console.error("❌ Error:", error.message, "\n");
       return;
     } else {
       throw new Error("VPC Creation Failed!");

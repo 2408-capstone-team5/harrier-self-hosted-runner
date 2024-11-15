@@ -16,7 +16,7 @@ export const enableDNSSettings = async (vpcId: string): Promise<void> => {
     };
     const command = new ModifyVpcAttributeCommand(params);
     await ec2Client.send(command);
-    console.log(`DNS Resolution enabled for VPC ${vpcId}`);
+    console.log(`   DNS Resolution enabled for VPC ${vpcId}`);
   } catch (error) {
     throw new Error(`Error enabling DNS Resolution: ${error}`);
   }
@@ -28,7 +28,7 @@ export const enableDNSSettings = async (vpcId: string): Promise<void> => {
     };
     const command = new ModifyVpcAttributeCommand(params);
     await ec2Client.send(command);
-    console.log(`DNS Hostnames enabled for VPC ${vpcId}`);
+    console.log(`   DNS Hostnames enabled for VPC ${vpcId}\n`);
   } catch (error) {
     throw new Error(`Error enabling DNS Hostnames: ${error}`);
   }

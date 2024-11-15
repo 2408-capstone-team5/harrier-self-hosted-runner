@@ -27,7 +27,7 @@ export const findRouteTableId = async (vpcId: string): Promise<string> => {
       throw new Error("Route Table not found for the VPC!");
     }
 
-    console.log("Route Table ID:", routeTable.RouteTableId);
+    console.log("   Route Table ID:", routeTable.RouteTableId);
     return routeTable.RouteTableId;
   } catch (error) {
     throw new Error(`Error finding Route Table: ${error}`);

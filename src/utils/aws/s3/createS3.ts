@@ -30,16 +30,20 @@ export const createS3 = async (
         TagSet: [{ Key: "Agent", Value: "Harrier-Runner" }],
       },
     });
-    const putTagsResponse = await client.send(putBucketTaggingCommand);
+    await client.send(putBucketTaggingCommand);
+    // const putTagsResponse = await client.send(putBucketTaggingCommand);
     console.log(
-      `*** Bucket created with location ${Location} and tags: `,
-      putTagsResponse,
-      " ***"
+      `✅ Successfully created S3 Bucket with location ${Location}\n`
     );
+    // console.log(
+    //   `✅ Successfully created S3 Bucket with location ${Location} and tags: `,
+    //   putTagsResponse,
+    //   "\n"
+    // );
   } catch (error: unknown) {
     if (error instanceof BucketAlreadyExists) {
       console.error(
-        `The bucket "${bucketName}" already exists in another AWS account. Bucket names must be globally unique.`
+        `❌ Error: The bucket "${bucketName}" already exists in another AWS account - Bucket names must be globally unique.\n`
       );
     }
     // If you try to create and you already own a bucket in us-east-1 (and only us-east-1)
@@ -47,10 +51,10 @@ export const createS3 = async (
     // call will return successfully and the ACL on that bucket will be reset.
     else if (error instanceof BucketAlreadyOwnedByYou) {
       console.error(
-        `The bucket "${bucketName}" already exists in this AWS account.`
+        `❌ Error: The bucket "${bucketName}" already exists in this AWS account.\n`
       );
     } else {
-      console.error("Error creating bucket: ", error);
+      console.error("❌ Error creating bucket: ", error, "\n");
     }
   }
 };

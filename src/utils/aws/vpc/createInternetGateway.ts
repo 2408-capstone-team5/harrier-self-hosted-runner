@@ -33,7 +33,7 @@ export const createInternetGateway = async (): Promise<string> => {
     }
 
     console.log(
-      `Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier.vpcId}`
+      `   Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier.vpcId}`
     );
     return response.InternetGateway.InternetGatewayId;
   } catch (error: unknown) {

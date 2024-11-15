@@ -34,7 +34,7 @@ export const createEC2 = async () => {
 
   // const userDataScript = startScript;
   const userDataScript = getStartScript();
-  console.log(userDataScript);
+  // console.log(userDataScript);
 
   // Encode the script in base64 as required by AWS
   const userData = Buffer.from(userDataScript).toString("base64");
@@ -62,7 +62,7 @@ export const createEC2 = async () => {
       instanceId = instanceData.Instances[0].InstanceId;
     }
 
-    console.log(`*** Created instance with ID: ${instanceId} ***`);
+    console.log(`✅ Successfully created instance with ID: ${instanceId}\n`);
     return instanceId;
   } catch (error) {
     throw new Error(`Error creating EC2 instance: ${error}`);

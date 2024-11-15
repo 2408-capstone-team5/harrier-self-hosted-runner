@@ -37,9 +37,11 @@ export const addSecurityGroupRules = async () => {
     };
 
     const addIngressCommand = new AuthorizeSecurityGroupIngressCommand(params);
-    const result = await ec2Client.send(addIngressCommand);
+    await ec2Client.send(addIngressCommand);
+    // const result = await ec2Client.send(addIngressCommand);
 
-    console.log("*** Security group rules for SSH and HTTPS addes:", result);
+    console.log("   Security group rules added for SSH and HTTPS\n");
+    // console.log("*** Security group rules for SSH and HTTPS addes:", result);
   } catch (error) {
     console.log("Error adding security ingress rules:", error);
   }

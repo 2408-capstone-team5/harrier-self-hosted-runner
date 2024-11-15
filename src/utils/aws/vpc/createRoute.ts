@@ -23,7 +23,7 @@ export const createRoute = async (
     await ec2Client.send(command);
 
     console.log(
-      `Route to Internet Gateway ${internetGatewayId} created in Route Table ${routeTableId}`
+      `   Route to Internet Gateway ${internetGatewayId} created in Route Table ${routeTableId}\n`
     );
   } catch (error) {
     throw new Error(`Error creating route: ${error}`);

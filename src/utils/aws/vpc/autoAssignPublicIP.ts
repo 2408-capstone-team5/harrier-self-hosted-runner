@@ -19,7 +19,11 @@ export const autoAssignPublicIp = async (subnetId: string) => {
     const command = new ModifySubnetAttributeCommand(params);
     await ec2Client.send(command); // Returns empty {} on success or throws reject error if fails
 
-    console.log("Auto-assign public IPv4 enabled for Subnet:", subnetId);
+    console.log(
+      "   Auto-assign public IPv4 enabled for Subnet:",
+      subnetId,
+      "\n"
+    );
   } catch (error: unknown) {
     throw new Error(
       `Error enabling auto-assign public IPv4 on ${subnetId}: ${error}`
