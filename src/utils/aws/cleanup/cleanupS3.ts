@@ -48,12 +48,12 @@ const emptyBucket = async (bucketName: string) => {
       // Delete objects in the bucket
       const deleteCommand = new DeleteObjectsCommand(deleteParams);
       await s3Client.send(deleteCommand);
-      console.log(`All objects in ${bucketName} have been deleted.`);
+      console.log(`   All objects in ${bucketName} have been deleted.`);
     } else {
-      console.log(`${bucketName} is already empty.`);
+      console.log(`   ${bucketName} is already empty.`);
     }
   } catch (error) {
-    console.error(`Error emptying bucket ${bucketName}:`, error);
+    console.error(`❌ Error emptying bucket ${bucketName}:`, error);
   }
 };
 
@@ -64,35 +64,34 @@ const deleteBucket = async (bucketName: string) => {
       Bucket: bucketName,
     });
     await s3Client.send(deleteCommand);
-    console.log(`Bucket ${bucketName} has been deleted.`);
+    console.log(`   Bucket ${bucketName} has been deleted.`);
   } catch (error) {
-    console.error(`Error deleting bucket ${bucketName}:`, error);
+    console.error(`❌ Error deleting bucket ${bucketName}:`, error);
   }
 };
 
 // Main function to find, empty, and delete S3 buckets with prefix "Harrier"
 export const cleanupS3 = async () => {
   try {
-    console.log("Start S3 cleanup");
+    console.log("** Start S3 cleanup");
 
     const buckets = await findBucketsWithPrefix("harrier");
     if (buckets.length === 0) {
-      console.log('No buckets found with the prefix "harrier".');
-      return;
+      console.log('   No buckets found with the prefix "harrier".');
+    } else {
+      for (const bucket of buckets) {
+        console.log(`   Processing bucket: ${bucket}`);
+
+        // Empty the bucket first
+        await emptyBucket(bucket);
+
+        // After emptying, delete the bucket
+        await deleteBucket(bucket);
+      }
     }
 
-    for (const bucket of buckets) {
-      console.log(`Processing bucket: ${bucket}`);
-
-      // Empty the bucket first
-      await emptyBucket(bucket);
-
-      // After emptying, delete the bucket
-      await deleteBucket(bucket);
-    }
-
-    console.log("*** S3 cleanup complete ***");
+    console.log("✅ Successfully completed S3 cleanup.\n");
   } catch (error) {
-    console.error("Error in processing S3 buckets:", error);
+    console.error("❌ Error in processing S3 buckets:", error, "\n");
   }
 };

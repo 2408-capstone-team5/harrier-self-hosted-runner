@@ -24,18 +24,18 @@ async function detachManagedPolicies(roleName: string) {
 
     for (const policy of attachedPolicies) {
       console.log(
-        `Detaching managed policy: ${policy.PolicyArn} from role: ${roleName}`
+        `   Detaching managed policy: ${policy.PolicyArn} from role: ${roleName}`
       );
       const detachRolePolicyCommand = new DetachRolePolicyCommand({
         RoleName: roleName,
         PolicyArn: policy.PolicyArn,
       });
       await iamClient.send(detachRolePolicyCommand);
-      console.log(`Successfully detached policy: ${policy.PolicyArn}`);
+      console.log(`   Successfully detached policy: ${policy.PolicyArn}`);
     }
   } catch (error) {
     console.error(
-      `Error detaching managed policies for role ${roleName}:`,
+      `❌ Error detaching managed policies for role ${roleName}:`,
       error
     );
   }
@@ -55,18 +55,18 @@ async function deleteInlinePolicies(roleName: string) {
 
     for (const policyName of inlinePolicies) {
       console.log(
-        `Deleting inline policy: ${policyName} from role: ${roleName}`
+        `   Deleting inline policy: ${policyName} from role: ${roleName}`
       );
       const deleteRolePolicyCommand = new DeleteRolePolicyCommand({
         RoleName: roleName,
         PolicyName: policyName,
       });
       await iamClient.send(deleteRolePolicyCommand);
-      console.log(`Successfully deleted inline policy: ${policyName}`);
+      console.log(`   Successfully deleted inline policy: ${policyName}`);
     }
   } catch (error) {
     console.error(
-      `Error deleting inline policies for role ${roleName}:`,
+      `❌ Error deleting inline policies for role ${roleName}:`,
       error
     );
   }
@@ -75,7 +75,7 @@ async function deleteInlinePolicies(roleName: string) {
 // Function to delete IAM roles with names starting with "harrier"
 export const cleanupIamRoles = async () => {
   try {
-    console.log("Start IAM role cleanup");
+    console.log("** Start IAM role cleanup");
 
     const listRolesCommand = new ListRolesCommand({});
     const rolesResponse = await iamClient.send(listRolesCommand);
@@ -93,19 +93,19 @@ export const cleanupIamRoles = async () => {
           await deleteInlinePolicies(role.RoleName);
 
           // Step 3: Delete role
-          console.log(`Deleting IAM Role: ${role.RoleName}`);
+          console.log(`   Deleting IAM Role: ${role.RoleName}`);
           const deleteRoleCommand = new DeleteRoleCommand({
             RoleName: role.RoleName,
           });
           await iamClient.send(deleteRoleCommand);
-          console.log(`IAM Role deleted: ${role.RoleName}`);
+          console.log(`   IAM Role deleted: ${role.RoleName}`);
         } catch (error) {
-          console.error(`Error deleting IAM Role ${role.RoleName}:`, error);
+          console.error(`❌ Error deleting IAM Role ${role.RoleName}:`, error);
         }
       }
     }
-    console.log("*** IAM role cleanup complete ***");
+    console.log("✅ Successfully completed IAM role cleanup.\n");
   } catch (error) {
-    console.error("Error listing IAM roles:", error);
+    console.error("❌ Error listing IAM roles:", error, "\n");
   }
 };

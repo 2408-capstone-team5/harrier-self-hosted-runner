@@ -16,8 +16,8 @@ export const cleanupPrevInstall = async () => {
     await cleanupS3();
     await cleanupVpc();
 
-    console.log("Cleanup complete!");
+    console.log("✅ Harrier Cleanup complete.\n");
   } catch (error) {
-    console.error("Error during cleanup:", error);
+    console.error("❌ Error during cleanup:", error, "\n");
   }
 };

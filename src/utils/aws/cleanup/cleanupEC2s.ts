@@ -23,7 +23,7 @@ const getInstancesByNamePrefix = async (prefix: string) => {
   });
 
   const response = await ec2Client.send(command);
-  console.log("EC2 instance query response filtered by prefix received.");
+  console.log("   EC2 instance query response filtered by prefix received.");
 
   // Extract instance IDs and security groups from the response
   const instanceIds: string[] = [];
@@ -34,13 +34,13 @@ const getInstancesByNamePrefix = async (prefix: string) => {
       if (reservation.Instances) {
         reservation.Instances.forEach((instance) => {
           if (instance.InstanceId) {
-            console.log("Found EC2 instance: ", instance.InstanceId);
+            console.log("      Found EC2 instance: ", instance.InstanceId);
             instanceIds.push(instance.InstanceId);
           }
           if (instance.SecurityGroups) {
             instance.SecurityGroups.forEach((group) => {
               if (group.GroupId) {
-                console.log("Found security group: ", group.GroupId);
+                console.log("      Found security group: ", group.GroupId);
                 securityGroups.push(group.GroupId);
               }
             });
@@ -50,28 +50,24 @@ const getInstancesByNamePrefix = async (prefix: string) => {
     });
   }
 
-  console.log("EC2 instance query response parsing completed.");
+  console.log("   EC2 instance query response parsing completed.");
   const harrierInstances = { instanceIds, securityGroups };
   return harrierInstances;
 };
 
 const terminateInstances = async (instanceIds: string[]) => {
-  // if (!instanceIds) {
-  //   console.log("No instances to terminate.");
-  //   return;
-  // }
-
   const command = new TerminateInstancesCommand({
     InstanceIds: instanceIds,
   });
 
   const response = await ec2Client.send(command);
-  console.log("Terminating instances:", response.TerminatingInstances);
+  console.log("   Terminating instances:", response.TerminatingInstances);
 };
 
 // Function to check the status of the instance
 const waitForInstanceTermination = async (instanceIds: string[]) => {
   let terminated = false;
+  console.log("   ... Waiting for instances to terminate ...");
 
   while (!terminated) {
     // Describe the instance to get its current state
@@ -92,13 +88,9 @@ const waitForInstanceTermination = async (instanceIds: string[]) => {
       instanceState = response.Reservations[0].Instances[0].State.Name;
     }
 
-    console.log(
-      `One or more of the instances ${instanceIds} is currently: ${instanceState}`
-    );
-
     if (instanceState === "terminated") {
       console.log(
-        `One or more of the instances ${instanceIds} has been terminated.`
+        `   One or more of the instances ${instanceIds} has been terminated.`
       );
       terminated = true;
     } else {
@@ -148,16 +140,16 @@ const deleteSecurityGroups = async (securityGroups: string[]) => {
     const associatedInstances = await getInstancesUsingSecurityGroup(groupId);
 
     if (associatedInstances.length === 0) {
-      console.log(`Deleting security group: ${groupId}`);
+      console.log(`   Deleting security group: ${groupId}`);
       const deleteSgCommand = new DeleteSecurityGroupCommand({
         GroupId: groupId,
       });
       await ec2Client.send(deleteSgCommand);
 
-      console.log(`Security group ${groupId} deleted.`);
+      console.log(`   Security group ${groupId} deleted.`);
     } else {
       console.log(
-        `Security group ${groupId} is still in use by other instances.`
+        `❌ Error: Security group ${groupId} is still in use by other instances.`
       );
     }
   }
@@ -165,13 +157,13 @@ const deleteSecurityGroups = async (securityGroups: string[]) => {
 
 export const cleanupEC2s = async () => {
   try {
-    console.log("Start EC2 cleanup");
+    console.log("** Start EC2 cleanup");
 
     // Step 1: Find all Harrier EC2 instances and security groups
     const harrierInstances = await getInstancesByNamePrefix("harrier");
 
     if (harrierInstances.instanceIds.length === 0) {
-      console.log("No instances to terminate.");
+      console.log("   No instances to terminate.");
     } else {
       // Step 2: Terminate all Harrier EC2 instances
       await terminateInstances(harrierInstances.instanceIds);
@@ -181,14 +173,14 @@ export const cleanupEC2s = async () => {
     }
 
     if (harrierInstances.securityGroups.length === 0) {
-      console.log("No security groups to delete.");
+      console.log("   No security groups to delete.");
     } else {
       // Step 3: Delete all Security groups associated with Harrier EC2 instances
       await deleteSecurityGroups(harrierInstances.securityGroups);
     }
 
-    console.log("*** EC2 cleanup complete ***");
+    console.log("✅ Successfully completed EC2 cleanup.\n");
   } catch (error) {
-    console.error("Error:", error);
+    console.error("❌ Error cleaning up EC2: ", error, "\n");
   }
 };

@@ -6,7 +6,7 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 import { setupCacheEviction } from "./services/setupCacheEviction";
 
-const deleteHarrier = false;
+const deleteHarrier = true;
 
 const main = async () => {
   try {
@@ -14,9 +14,8 @@ const main = async () => {
 
     if (deleteHarrier) {
       console.log(
-        "\n" +
-          "=> Only performing cleanup of previous installation, without installing a new Harrier setup.\n" +
-          "✅ Successfully deleted Harrier from AWS account."
+        "=> Only performing cleanup of previous installation, without installing a new Harrier setup.\n" +
+          "✅ Successfully deleted Harrier from AWS account.\n"
       );
       return;
     }
