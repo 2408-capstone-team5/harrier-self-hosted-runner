@@ -15,6 +15,10 @@ const getInstancesByNamePrefix = async (prefix: string) => {
         Name: "tag:Name",
         Values: [`${prefix}*`],
       },
+      {
+        Name: "instance-state-name",
+        Values: ["pending", "running", "stopping", "stopped"], // Excludes "terminated" state
+      },
     ],
   });
 
