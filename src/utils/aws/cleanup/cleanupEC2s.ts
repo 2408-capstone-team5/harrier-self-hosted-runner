@@ -170,7 +170,7 @@ export const cleanupEC2s = async () => {
     // Step 1: Find all Harrier EC2 instances and security groups
     const harrierInstances = await getInstancesByNamePrefix("harrier");
 
-    if (!harrierInstances.instanceIds) {
+    if (harrierInstances.instanceIds.length === 0) {
       console.log("No instances to terminate.");
     } else {
       // Step 2: Terminate all Harrier EC2 instances
@@ -180,7 +180,7 @@ export const cleanupEC2s = async () => {
       await waitForInstanceTermination(harrierInstances.instanceIds);
     }
 
-    if (!harrierInstances.securityGroups) {
+    if (harrierInstances.securityGroups.length === 0) {
       console.log("No security groups to delete.");
     } else {
       // Step 3: Delete all Security groups associated with Harrier EC2 instances
