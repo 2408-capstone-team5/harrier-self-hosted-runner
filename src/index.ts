@@ -6,7 +6,7 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 import { setupCacheEviction } from "./services/setupCacheEviction";
 
-const deleteHarrier = true;
+const deleteHarrier = false;
 
 const main = async () => {
   try {
