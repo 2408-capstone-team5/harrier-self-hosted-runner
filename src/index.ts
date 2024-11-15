@@ -1,7 +1,4 @@
 import { cleanupPrevInstall } from "./services/cleanupPrevInstall";
-
-// import { setupZippedLambdas } from "./services/setupZippedLambdas";
-
 import { setupVPC } from "./services/setupVPC";
 import { setupS3CacheBucket } from "./services/setupS3CacheBucket";
 import { setupEC2Runner } from "./services/setupEC2Runner";

@@ -8,7 +8,7 @@ import { configHarrier } from "../../../config/configHarrier";
 
 const client = new APIGatewayClient({ region: configHarrier.region });
 
-export async function deployApi(restApiId: string, stageName: "dev" | "prod") {
+export async function deployApi(restApiId: string, stageName: string) {
   const response = await client.send(
     new CreateDeploymentCommand({
       restApiId,

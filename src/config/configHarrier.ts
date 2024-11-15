@@ -55,6 +55,7 @@ export const configHarrier: configHarrierType = {
   cacheEvictionServiceRoleArn: "",
   runnerInstanceServiceRoleArn: "",
   schedulerServiceRoleArn: "",
+  stageName: "dev",
 };
 
 export const harrierVPC = {};

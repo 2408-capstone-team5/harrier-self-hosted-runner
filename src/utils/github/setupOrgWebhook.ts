@@ -5,10 +5,7 @@ import {
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
 
-export async function setupOrgWebhook(
-  restApiId: string,
-  stageName: "dev" | "prod" = "dev"
-) {
+export async function setupOrgWebhook(restApiId: string, stageName: string) {
   try {
     const pat = await getPat();
     const ghOwnerName = configHarrier.ghOwnerName;

@@ -6,21 +6,13 @@ import { setupOrgWebhook } from "../utils/github/setupOrgWebhook";
 
 import { configHarrier } from "../config/configHarrier";
 
-const stageName = "dev"; // HARDCODED
+const stageName = configHarrier.stageName;
 
 export async function setupApiAndWebhook() {
-  const lambdaName = configHarrier.workflowServiceName;
-  const stageName = "dev"; // HARDCODED
-
   try {
     await createAndDeployLambda(
       configHarrier.workflowServiceName,
-      configHarrier.workflowServiceRoleArn,
-    );
-
-    await createAndDeployLambda(
-      configHarrier.cacheEvictionServiceName,
-      configHarrier.cacheEvictionServiceRoleArn,
+      configHarrier.workflowServiceRoleArn
     );
 
     const { restApiId, resourceId } = await setupRestApi();
@@ -28,7 +20,7 @@ export async function setupApiAndWebhook() {
     await integrateLambdaWithApi(
       restApiId,
       resourceId,
-      configHarrier.workflowServiceName,
+      configHarrier.workflowServiceName
     );
 
     await deployApi(restApiId, stageName);

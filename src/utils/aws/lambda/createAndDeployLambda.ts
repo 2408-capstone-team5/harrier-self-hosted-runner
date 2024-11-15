@@ -25,7 +25,7 @@ export async function createAndDeployLambda(
         Role: lambdaRoleArn,
         Handler: "index.handler",
         Code: { ZipFile: zipFile },
-        Description: "the workflow lambda",
+        Description: `the ${lambdaName} lambda`,
         Publish: true,
         PackageType: "Zip",
         Tags: {

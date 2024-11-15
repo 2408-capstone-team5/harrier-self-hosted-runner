@@ -9,7 +9,7 @@ import { configHarrier } from "../../../config/configHarrier";
 import { getStartScript } from "../../../scripts/setup";
 
 export const createEC2 = async () => {
-  const client = new EC2Client({ region: "us-east-1" });
+  const client = new EC2Client({ region: configHarrier.region });
 
   const amiId = configHarrier.imageId;
   const instanceType: _InstanceType =
