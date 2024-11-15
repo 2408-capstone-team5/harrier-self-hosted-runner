@@ -6,7 +6,11 @@ const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static");
 
 export async function zipLambda(lambdaName: string) {
   try {
-    const lambdaPath = path.join(projectRoot, "lambdas", lambdaName);
+    const lambdaPath = path.join(
+      projectRoot,
+      "lambdas",
+      lambdaName.split("-")[2]
+    );
     const zipPath = path.join(
       projectRoot,
       "zippedLambdas",
