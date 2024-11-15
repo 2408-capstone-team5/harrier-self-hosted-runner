@@ -15,8 +15,10 @@ export async function createAndDeployLambda(
 ) {
   try {
     await zipLambda(lambdaName);
+
+    await new Promise((res) => setTimeout(res, 10_000)); // artificial wait
+
     const zipFile = getLambda(lambdaName);
-    console.log({ zipFile });
 
     await lambdaClient.send(
       new CreateFunctionCommand({
