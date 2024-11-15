@@ -214,11 +214,17 @@ async function runCommand(params) {
 
 const getScript = (secret, owner, s3BucketName) => {
   const script = `#!/bin/bash
+  echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  
+  sudo usermod -aG docker ec2-user
+  usermod -aG docker ec2-user
 
   cd /home/ec2-user/actions-runner
 
   unique_value=$(date +%s)
   name="Harrier Runner-$unique_value"
+
+  echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
   response=$(curl -L \
     -X POST \
@@ -229,6 +235,7 @@ const getScript = (secret, owner, s3BucketName) => {
     -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted"],"work_folder":"_work"}')
 
   # echo $response
+  echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
   runner_id=$(echo "$response" | jq '.runner.id')
   runner_name=$(echo "$response" | jq -r '.runner.name')
@@ -238,14 +245,22 @@ const getScript = (secret, owner, s3BucketName) => {
   echo "Runner Name: $runner_name"
   #echo "Encoded JIT Config: $encoded_jit_config"
 
+  echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   cd ..
   sudo chown ec2-user:ec2-user ./actions-runner
   cd actions-runner
   sudo chown ec2-user:ec2-user ./s3bucket
 
-  su - ec2-user -c "mount-s3 ${s3BucketName} /home/ec2-user/actions-runner/s3bucket --allow-overwrite"
-  su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
+  echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
+  su - ec2-user -c "mount-s3 ${s3BucketName} /home/ec2-user/actions-runner/s3bucket --allow-overwrite"
+
+  echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  # su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
+  su - ec2-user -c "newgrp docker && /home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
+
+  echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   echo "Done..."`;
 
   return script;
