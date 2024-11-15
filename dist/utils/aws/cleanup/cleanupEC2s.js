@@ -20,6 +20,10 @@ const getInstancesByNamePrefix = (prefix) => __awaiter(void 0, void 0, void 0, f
                 Name: "tag:Name",
                 Values: [`${prefix}*`],
             },
+            {
+                Name: "instance-state-name",
+                Values: ["pending", "running", "stopping", "stopped"], // Excludes "terminated" state
+            },
         ],
     });
     const response = yield ec2Client.send(command);

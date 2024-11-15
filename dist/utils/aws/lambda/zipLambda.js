@@ -40,7 +40,7 @@ const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static");
 function zipLambda(lambdaName) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const lambdaPath = path.join(projectRoot, "lambdas", lambdaName);
+            const lambdaPath = path.join(projectRoot, "lambdas", lambdaName.split("-")[2]);
             const zipPath = path.join(projectRoot, "zippedLambdas", `${lambdaName}.zip`);
             fs.mkdirSync(path.dirname(zipPath), { recursive: true });
             const output = fs.createWriteStream(zipPath);

@@ -11,14 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createSchedulerServiceRole = exports.createInstanceServiceRole = exports.createLambdaServiceRole = void 0;
 const client_iam_1 = require("@aws-sdk/client-iam");
-// import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
-// import { STSClient } from "@aws-sdk/client-sts";
 const configHarrier_1 = require("../../../config/configHarrier");
 const trustPolicies_1 = require("../../../config/trustPolicies");
 const trustPolicies_2 = require("../../../config/trustPolicies");
 const trustPolicies_3 = require("../../../config/trustPolicies");
 const iamClient = new client_iam_1.IAMClient({ region: configHarrier_1.configHarrier.region });
-// const stsClient = new STSClient({ region: configHarrier.region });
 function createLambdaServiceRole(roleName, policyDocument) {
     return __awaiter(this, void 0, void 0, function* () {
         try {

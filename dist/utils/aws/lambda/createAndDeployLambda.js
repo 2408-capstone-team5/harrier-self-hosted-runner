@@ -20,6 +20,7 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
         try {
             yield (0, zipLambda_1.zipLambda)(lambdaName);
             const zipFile = (0, getLambda_1.getLambda)(lambdaName);
+            console.log({ zipFile });
             yield lambdaClient.send(new client_lambda_1.CreateFunctionCommand({
                 Timeout: 900,
                 FunctionName: lambdaName,
@@ -27,7 +28,7 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                 Role: lambdaRoleArn,
                 Handler: "index.handler",
                 Code: { ZipFile: zipFile },
-                Description: "the workflow lambda",
+                Description: `the ${lambdaName} lambda`,
                 Publish: true,
                 PackageType: "Zip",
                 Tags: {

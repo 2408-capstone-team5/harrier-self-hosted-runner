@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-
-exports.apiResourcePolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
-
+exports.apiResourcePolicyDocument = exports.evictionPolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 // import { getInput } from "@actions/core";
 // const awsRegion = getInput("region");
@@ -54,6 +52,7 @@ exports.configHarrier = {
     cacheEvictionServiceRoleArn: "",
     runnerInstanceServiceRoleArn: "",
     schedulerServiceRoleArn: "",
+    stageName: "dev",
 };
 exports.harrierVPC = {};
 exports.harrierEC2 = {};
@@ -109,6 +108,7 @@ exports.harrierRestApi = {};
 //     },
 //   ],
 // });
+exports.evictionPolicyDocument = JSON.stringify({});
 exports.apiResourcePolicyDocument = JSON.stringify({
     Version: "2012-10-17",
     Statement: [

@@ -12,26 +12,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupCacheEviction = void 0;
 const createAndDeployLambda_1 = require("../utils/aws/lambda/createAndDeployLambda");
 const getLambdaArn_1 = require("../utils/aws/lambda/getLambdaArn");
+const configHarrier_1 = require("../config/configHarrier");
 const createDailySchedule_1 = require("../utils/aws/eventbridge/createDailySchedule");
 function setupCacheEviction() {
     return __awaiter(this, void 0, void 0, function* () {
-        const lambdaName = "cache_test_lambda";
-        const lambdaRole = "s3CacheCleanupLambda-role-zp58dx91";
-        const scheduleName = "test-schedule";
-        const scheduleRole = "Amazon_EventBridge_Scheduler_LAMBDA_da0ae2eeec";
+        const lambdaName = configHarrier_1.configHarrier.cacheEvictionServiceName;
+        const scheduleName = configHarrier_1.configHarrier.schedulerServiceName;
         try {
-            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, lambdaRole);
-            // TODO: lambda is using an existing role, need to make one programatically?
-            console.log("lambda created with role to access s3, and deployed");
+            const evictionRoleArn = configHarrier_1.configHarrier.cacheEvictionServiceRoleArn;
+            const scheduleRoleArn = configHarrier_1.configHarrier.schedulerServiceRoleArn;
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(lambdaName, evictionRoleArn);
             const lambdaArn = yield (0, getLambdaArn_1.getLambdaArn)(lambdaName);
-            // TODO: scheduler using an existing role, need to make one programatically?
-            const scheduleId = yield (0, createDailySchedule_1.createDailySchedule)(scheduleName, lambdaArn, scheduleRole);
-            console.log("eventbridge schedule created with id: ", scheduleId);
-            // TODO: skipping grantInvoke for now since I have a role already. OK? NO?
-            // await grantInvokePermission(lambdaArn, restApiId); // ASK JESSE ABOUT S3 CLEANUP LAMBDA PERMISSIONS
+            yield (0, createDailySchedule_1.createDailySchedule)(scheduleName, lambdaArn, scheduleRoleArn);
         }
         catch (error) {
-            console.error("Error executing setupWorkflowWebhook: ", error);
+            console.error("Error executing setupCacheEviction: ", error);
+            throw new Error("❌");
         }
     });
 }

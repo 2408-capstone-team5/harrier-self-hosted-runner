@@ -14,7 +14,7 @@ const client_ec2_1 = require("@aws-sdk/client-ec2");
 const configHarrier_1 = require("../../../config/configHarrier");
 const setup_1 = require("../../../scripts/setup");
 const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
-    const client = new client_ec2_1.EC2Client({ region: "us-east-1" });
+    const client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
     const amiId = configHarrier_1.configHarrier.imageId;
     const instanceType = configHarrier_1.configHarrier.instanceType === "m7a.medium"
         ? configHarrier_1.configHarrier.instanceType

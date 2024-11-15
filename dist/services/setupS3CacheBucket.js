@@ -10,16 +10,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupS3CacheBucket = void 0;
-// import { config } from "../config/client";
 const createS3_1 = require("../utils/aws/s3/createS3");
-// import { installationHash } from "../config/installationHash";
 const client_s3_1 = require("@aws-sdk/client-s3");
 const configHarrier_1 = require("../config/configHarrier");
-const client = new client_s3_1.S3Client({ region: "us-east-1" });
+const client = new client_s3_1.S3Client({ region: configHarrier_1.configHarrier.region });
 const maxWaitTime = 60;
 const setupS3CacheBucket = () => __awaiter(void 0, void 0, void 0, function* () {
     const bucketName = `${configHarrier_1.configHarrier.s3Name}`;
-    // configHarrier.s3Name = bucketName;
     yield (0, createS3_1.createS3)(client, bucketName, maxWaitTime);
 });
 exports.setupS3CacheBucket = setupS3CacheBucket;

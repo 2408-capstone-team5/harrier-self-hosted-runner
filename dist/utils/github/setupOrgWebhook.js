@@ -16,7 +16,7 @@ exports.setupOrgWebhook = void 0;
 const axios_1 = __importDefault(require("axios"));
 const configHarrier_1 = require("../../config/configHarrier");
 const client_secrets_manager_1 = require("@aws-sdk/client-secrets-manager");
-function setupOrgWebhook(restApiId, stageName = "dev") {
+function setupOrgWebhook(restApiId, stageName) {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {

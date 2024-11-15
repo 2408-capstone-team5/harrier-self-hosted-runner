@@ -19,6 +19,5 @@ const setupRoles = () => __awaiter(void 0, void 0, void 0, function* () {
     configHarrier_1.configHarrier.cacheEvictionServiceRoleArn = yield (0, createServiceRole_1.createLambdaServiceRole)(`${configHarrier_1.configHarrier.cacheEvictionServiceName}${ROLE_NAME_IDENTIFIER}`, servicePolicies_1.cacheEvictionLambdaPolicy);
     configHarrier_1.configHarrier.runnerInstanceServiceRoleArn = yield (0, createServiceRole_1.createInstanceServiceRole)(`${configHarrier_1.configHarrier.runnerInstanceServiceName}${ROLE_NAME_IDENTIFIER}`, servicePolicies_1.runnerInstancePolicy);
     configHarrier_1.configHarrier.schedulerServiceRoleArn = yield (0, createServiceRole_1.createSchedulerServiceRole)(`${configHarrier_1.configHarrier.schedulerServiceName}${ROLE_NAME_IDENTIFIER}`, servicePolicies_1.eventBridgeSchedulerPolicy);
-    console.log(configHarrier_1.configHarrier);
 });
 exports.setupRoles = setupRoles;

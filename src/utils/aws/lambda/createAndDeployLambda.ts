@@ -16,6 +16,7 @@ export async function createAndDeployLambda(
   try {
     await zipLambda(lambdaName);
     const zipFile = getLambda(lambdaName);
+    console.log({ zipFile });
 
     await lambdaClient.send(
       new CreateFunctionCommand({
