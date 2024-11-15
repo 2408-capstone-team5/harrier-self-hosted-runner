@@ -216,8 +216,11 @@ const getScript = (secret, owner, s3BucketName) => {
   const script = `#!/bin/bash
   echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   
-  #sudo usermod -aG docker ec2-user
-  #usermod -aG docker ec2-user
+  echo $USER
+  echo "Is user in docker group??"
+  groups
+  getent group docker
+
 
   cd /home/ec2-user/actions-runner
 
