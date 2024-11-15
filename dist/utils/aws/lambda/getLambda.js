@@ -29,7 +29,9 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static");
 function getLambda(lambdaName) {
-    const lambdaPath = path.join(projectRoot, "zippedLambdas", `${lambdaName}.zip`);
+    const lambdaPath = path.join(projectRoot, // '/Users/joelbarton/Desktop/Capstone/harrier-dev/static/zippedLambdas/harrier-m3i1vc7w-eviction.zip'
+    "zippedLambdas", `${lambdaName}.zip`);
+    console.log({ lambdaName, projectRoot, lambdaPath, dirname: __dirname });
     console.log(`✅ zipped lambda RETRIEVED`);
     return (0, fs_1.readFileSync)((0, path_1.resolve)(lambdaPath));
 }

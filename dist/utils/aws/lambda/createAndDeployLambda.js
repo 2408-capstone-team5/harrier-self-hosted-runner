@@ -19,8 +19,8 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield (0, zipLambda_1.zipLambda)(lambdaName);
+            yield new Promise((res) => setTimeout(res, 10000)); // artificial wait
             const zipFile = (0, getLambda_1.getLambda)(lambdaName);
-            console.log({ zipFile });
             yield lambdaClient.send(new client_lambda_1.CreateFunctionCommand({
                 Timeout: 900,
                 FunctionName: lambdaName,
