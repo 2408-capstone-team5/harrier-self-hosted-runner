@@ -8,15 +8,6 @@ export const getStartScript = () => {
     # echo "token: $ {token}"
     echo "url: ${configHarrier.githubUrl}"
 
-    # Give current user some permissions
-    echo "Give current user some permissions!!!!"
-    echo $USER
-    echo "*** CALL - sudo usermod -aG docker ec2-user ***"
-    sudo usermod -aG docker ec2-user
-    echo "*** ALSO TRY - usermod -aG docker ec2-user ***"
-    usermod -aG docker ec2-user
-
-
     echo "cd /home/"
     cd /home/
     echo "cd ec2-user"
@@ -68,9 +59,25 @@ export const getStartScript = () => {
     sudo cp starter_file.txt ./s3bucket/node_modules_cached_tar/
     sudo cp starter_file.txt ./s3bucket/npm_cache/
 
+    echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
     # Install Docker
     echo "INSTALL DOCKER"
     sudo dnf install -y docker
+    echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+
+    # Give current user some permissions
+    echo "Give current user some permissions!!!!"
+    echo $USER
+    echo "*** CALL - sudo usermod -aG docker ec2-user ***"
+    sudo usermod -aG docker ec2-user
+    echo "*** ALSO TRY - usermod -aG docker ec2-user ***"
+    usermod -aG docker ec2-user
+    echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+    echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+
+
 
     # Start Docker deamon and set to start-up on reboots
     echo "START DOCKER DAEMON AND SET TO START-UP AUTOMATICALLY ON REBOOTS"
