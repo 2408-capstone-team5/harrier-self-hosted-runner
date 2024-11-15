@@ -1,23 +1,15 @@
 import { configHarrierType } from "../types/typesConfig";
 import { installationHash } from "./installationHash";
 
-// import { getInput } from "@actions/core";
+import { getInput } from "@actions/core";
 
-// const awsRegion = getInput("region");
-// const ghOwnerName = getInput("ghOwnerName");
-// const awsAccountId = getInput("awsAccountId");
-// const instanceType = getInput("instanceType");
-// const cacheTtlHours = getInput("cacheTtlHours");
-// const cidrBlockVPC = getInput("cidrBlockVPC");
-// const cidrBlockSubnet = getInput("cidrBlockSubnet");
-
-const awsRegion = "us-east-1";
-const ghOwnerName = "2408-capstone-team5";
-const awsAccountId = "536697269866";
-const instanceType = "t2.micro";
-const cacheTtlHours = "72";
-const cidrBlockVPC = "10.0.0.0/16";
-const cidrBlockSubnet = "10.0.0.0/24";
+const awsRegion = getInput("region") || "us-east-1";
+const ghOwnerName = getInput("ghOwnerName") || "2408-capstone-team5";
+const awsAccountId = getInput("awsAccountId") || "536697269866";
+const instanceType = getInput("instanceType") || "t2.micro";
+const cacheTtlHours = getInput("cacheTtlHours") || "72";
+const cidrBlockVPC = getInput("cidrBlockVPC") || "10.0.0.0/16";
+const cidrBlockSubnet = getInput("cidrBlockSubnet") || "10.0.0.0/24";
 
 export const configHarrier: configHarrierType = {
   vpcId: "",
