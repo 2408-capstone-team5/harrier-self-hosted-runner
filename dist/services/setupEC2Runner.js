@@ -14,7 +14,7 @@ const createSecurityGroup_1 = require("../utils/aws/ec2/createSecurityGroup");
 const addSecurityGroupRules_1 = require("../utils/aws/ec2/addSecurityGroupRules");
 const createEC2_1 = require("../utils/aws/ec2/createEC2");
 const waitEC2StatusOk_1 = require("../utils/aws/ec2/waitEC2StatusOk");
-const describeEC2Instances_1 = require("../utils/aws/ec2/describeEC2Instances");
+// import { describeEC2s } from "../utils/aws/ec2/describeEC2Instances";
 const stopEC2_1 = require("../utils/aws/ec2/stopEC2");
 const wait = (ms) => {
     const start = Date.now();
@@ -24,12 +24,24 @@ const wait = (ms) => {
     }
 };
 const setupEC2Runner = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield (0, createSecurityGroup_1.createSecurityGroup)();
-    yield (0, addSecurityGroupRules_1.addSecurityGroupRules)();
-    const instanceId = yield (0, createEC2_1.createEC2)();
-    wait(500);
-    yield (0, describeEC2Instances_1.describeEC2s)(instanceId);
-    yield (0, waitEC2StatusOk_1.waitEC2StatusOk)(instanceId);
-    yield (0, stopEC2_1.stopInstance)(instanceId);
+    try {
+        console.log("** Starting setupEC2Runner...");
+        yield (0, createSecurityGroup_1.createSecurityGroup)();
+        yield (0, addSecurityGroupRules_1.addSecurityGroupRules)();
+        const instanceId = yield (0, createEC2_1.createEC2)();
+        wait(500);
+        // await describeEC2s(instanceId);
+        yield (0, waitEC2StatusOk_1.waitEC2StatusOk)(instanceId);
+        yield (0, stopEC2_1.stopInstance)(instanceId);
+        console.log("✅ Successfully set up EC2.\n");
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.error("❌ Error:", error.message, "\n");
+        }
+        else {
+            throw new Error(`Error setting up EC2!`);
+        }
+    }
 });
 exports.setupEC2Runner = setupEC2Runner;

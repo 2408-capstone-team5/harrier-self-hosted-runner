@@ -16,7 +16,7 @@ const setup_1 = require("../../../scripts/setup");
 const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
     const client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
     const amiId = configHarrier_1.configHarrier.imageId;
-    const instanceType = configHarrier_1.configHarrier.instanceType === "m7a.medium"
+    const instanceType = configHarrier_1.configHarrier.instanceType === "m7a.large"
         ? configHarrier_1.configHarrier.instanceType
         : "t2.micro";
     const keyName = configHarrier_1.configHarrier.keyName;
@@ -36,7 +36,7 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
     ];
     // const userDataScript = startScript;
     const userDataScript = (0, setup_1.getStartScript)();
-    console.log(userDataScript);
+    // console.log(userDataScript);
     // Encode the script in base64 as required by AWS
     const userData = Buffer.from(userDataScript).toString("base64");
     const params = {
@@ -58,7 +58,7 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         if (instanceData.Instances && instanceData.Instances[0].InstanceId) {
             instanceId = instanceData.Instances[0].InstanceId;
         }
-        console.log(`*** Created instance with ID: ${instanceId} ***`);
+        console.log(`✅ Successfully created instance with ID: ${instanceId}\n`);
         return instanceId;
     }
     catch (error) {

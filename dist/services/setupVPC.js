@@ -24,13 +24,13 @@ const enableDNSSettings_1 = require("../utils/aws/vpc/enableDNSSettings");
 const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" });
 const setupVPC = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("Starting setupVPC...");
-        console.log(configHarrier_1.configHarrier);
+        console.log("** Starting setupVPC...");
+        // console.log(configHarrier);
         const vpcId = yield (0, createVPC_1.createVpc)(configHarrier_1.configHarrier);
         if (!vpcId) {
             throw new Error("Failed to return VPC ID");
         }
-        console.log(`VPC ID: ${vpcId}`);
+        console.log(`   VPC ID: ${vpcId}`);
         configHarrier_1.configHarrier.vpcId = vpcId;
         yield (0, enableDNSSettings_1.enableDNSSettings)(vpcId);
         const subnetId = yield (0, createSubnet_1.createSubnet)(configHarrier_1.configHarrier, vpcId);
@@ -51,12 +51,12 @@ const setupVPC = () => __awaiter(void 0, void 0, void 0, function* () {
         });
         yield ec2Client.send(command); // Add tag to route table that was already out there
         yield (0, createRoute_1.createRoute)(routeTableId, gatewayId);
-        console.log("*** VPC Setup Complete ***");
-        console.log(configHarrier_1.configHarrier);
+        console.log("✅ Successfully completed VPC Setup\n");
+        // console.log(configHarrier);
     }
     catch (error) {
         if (error instanceof Error) {
-            console.error("Error:", error.message);
+            console.error("❌ Error:", error.message, "\n");
         }
         else {
             throw new Error(`Error setting up VPC!`);

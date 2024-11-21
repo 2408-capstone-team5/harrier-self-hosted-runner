@@ -2,21 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.apiResourcePolicyDocument = exports.evictionPolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
-// import { getInput } from "@actions/core";
-// const awsRegion = getInput("region");
-// const ghOwnerName = getInput("ghOwnerName");
-// const awsAccountId = getInput("awsAccountId");
-// const instanceType = getInput("instanceType");
-// const cacheTtlHours = getInput("cacheTtlHours");
-// const cidrBlockVPC = getInput("cidrBlockVPC");
-// const cidrBlockSubnet = getInput("cidrBlockSubnet");
-const awsRegion = "us-east-1";
-const ghOwnerName = "2408-capstone-team5";
-const awsAccountId = "536697269866";
-const instanceType = "t2.micro";
-const cacheTtlHours = "72";
-const cidrBlockVPC = "10.0.0.0/16";
-const cidrBlockSubnet = "10.0.0.0/24";
+const core_1 = require("@actions/core");
+const awsRegion = (0, core_1.getInput)("region") || "us-east-1";
+const ghOwnerName = (0, core_1.getInput)("ghOwnerName") || "2408-capstone-team5";
+const awsAccountId = (0, core_1.getInput)("awsAccountId") || "536697269866";
+const instanceType = (0, core_1.getInput)("instanceType") || "m7a.large";
+const cacheTtlHours = (0, core_1.getInput)("cacheTtlHours") || "72";
+const cidrBlockVPC = (0, core_1.getInput)("cidrBlockVPC") || "10.0.0.0/16";
+const cidrBlockSubnet = (0, core_1.getInput)("cidrBlockSubnet") || "10.0.0.0/24";
 exports.configHarrier = {
     vpcId: "",
     tagValue: `harrier-${installationHash_1.installationHash}`,
@@ -30,7 +23,8 @@ exports.configHarrier = {
     //   logGroup: "/aws/lambda/joel_test",
     region: awsRegion,
     awsAccountId: awsAccountId,
-    imageId: "ami-063d43db0594b521b",
+    // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
+    imageId: "ami-005fc0f236362e99f",
     // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
     instanceType: instanceType,
     keyName: "test-1-ubuntu-64x86-241022",

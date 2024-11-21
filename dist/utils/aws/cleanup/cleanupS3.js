@@ -45,14 +45,14 @@ const emptyBucket = (bucketName) => __awaiter(void 0, void 0, void 0, function* 
             // Delete objects in the bucket
             const deleteCommand = new client_s3_1.DeleteObjectsCommand(deleteParams);
             yield s3Client.send(deleteCommand);
-            console.log(`All objects in ${bucketName} have been deleted.`);
+            console.log(`   All objects in ${bucketName} have been deleted.`);
         }
         else {
-            console.log(`${bucketName} is already empty.`);
+            console.log(`   ${bucketName} is already empty.`);
         }
     }
     catch (error) {
-        console.error(`Error emptying bucket ${bucketName}:`, error);
+        console.error(`❌ Error emptying bucket ${bucketName}:`, error);
     }
 });
 // Function to delete a bucket after it's emptied
@@ -62,32 +62,33 @@ const deleteBucket = (bucketName) => __awaiter(void 0, void 0, void 0, function*
             Bucket: bucketName,
         });
         yield s3Client.send(deleteCommand);
-        console.log(`Bucket ${bucketName} has been deleted.`);
+        console.log(`   Bucket ${bucketName} has been deleted.`);
     }
     catch (error) {
-        console.error(`Error deleting bucket ${bucketName}:`, error);
+        console.error(`❌ Error deleting bucket ${bucketName}:`, error);
     }
 });
 // Main function to find, empty, and delete S3 buckets with prefix "Harrier"
 const cleanupS3 = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("Start S3 cleanup");
+        console.log("** Start S3 cleanup");
         const buckets = yield findBucketsWithPrefix("harrier");
         if (buckets.length === 0) {
-            console.log('No buckets found with the prefix "harrier".');
-            return;
+            console.log('   No buckets found with the prefix "harrier".');
         }
-        for (const bucket of buckets) {
-            console.log(`Processing bucket: ${bucket}`);
-            // Empty the bucket first
-            yield emptyBucket(bucket);
-            // After emptying, delete the bucket
-            yield deleteBucket(bucket);
+        else {
+            for (const bucket of buckets) {
+                console.log(`   Processing bucket: ${bucket}`);
+                // Empty the bucket first
+                yield emptyBucket(bucket);
+                // After emptying, delete the bucket
+                yield deleteBucket(bucket);
+            }
         }
-        console.log("*** S3 cleanup complete ***");
+        console.log("✅ Successfully completed S3 cleanup.\n");
     }
     catch (error) {
-        console.error("Error in processing S3 buckets:", error);
+        console.error("❌ Error in processing S3 buckets:", error, "\n");
     }
 });
 exports.cleanupS3 = cleanupS3;

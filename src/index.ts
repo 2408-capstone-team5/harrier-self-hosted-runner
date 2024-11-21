@@ -6,10 +6,29 @@ import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 import { setupCacheEviction } from "./services/setupCacheEviction";
 
-const deleteHarrier = false;
+let deleteHarrier = false;
+
+const processCmdLineArgs = () => {
+  const args = process.argv.slice(2);
+  let clean = false;
+
+  let nameArgIndex = args.indexOf("--clean");
+  if (nameArgIndex !== -1) {
+    clean = true;
+    console.log(`*** Clean Only!***`);
+  }
+
+  const options = {
+    clean,
+  };
+  return options;
+};
 
 const main = async () => {
   try {
+    const cmdLineOptions = processCmdLineArgs();
+    deleteHarrier = cmdLineOptions.clean;
+
     await cleanupPrevInstall();
 
     if (deleteHarrier) {

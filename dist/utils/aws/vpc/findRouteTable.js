@@ -30,7 +30,7 @@ const findRouteTableId = (vpcId) => __awaiter(void 0, void 0, void 0, function* 
         if (!routeTable || !routeTable.RouteTableId) {
             throw new Error("Route Table not found for the VPC!");
         }
-        console.log("Route Table ID:", routeTable.RouteTableId);
+        console.log("   Route Table ID:", routeTable.RouteTableId);
         return routeTable.RouteTableId;
     }
     catch (error) {

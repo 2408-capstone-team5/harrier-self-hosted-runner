@@ -21,7 +21,7 @@ const attachInternetGateway = (internetGatewayId, vpcId) => __awaiter(void 0, vo
         };
         const command = new client_ec2_1.AttachInternetGatewayCommand(internetGatewayParams);
         yield ec2Client.send(command); // Returned empty object {} on success, throws error on failure
-        console.log(`Internet Gateway ${internetGatewayId} attached to VPC ${vpcId}`);
+        console.log(`   Internet Gateway ${internetGatewayId} attached to VPC ${vpcId}\n`);
     }
     catch (error) {
         throw new Error(`Error attaching Internet Gateway to VPC: ${error}`);

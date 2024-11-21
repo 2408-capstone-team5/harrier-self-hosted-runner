@@ -26,10 +26,10 @@ const cleanupPrevInstall = () => __awaiter(void 0, void 0, void 0, function* () 
         yield (0, cleanupIamRoles_1.cleanupIamRoles)();
         yield (0, cleanupS3_1.cleanupS3)();
         yield (0, cleanupVpc_1.cleanupVpc)();
-        console.log("Cleanup complete!");
+        console.log("✅ Harrier Cleanup complete.\n");
     }
     catch (error) {
-        console.error("Error during cleanup:", error);
+        console.error("❌ Error during cleanup:", error, "\n");
     }
 });
 exports.cleanupPrevInstall = cleanupPrevInstall;

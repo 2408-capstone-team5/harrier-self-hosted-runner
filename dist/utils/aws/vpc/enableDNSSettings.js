@@ -21,7 +21,7 @@ const enableDNSSettings = (vpcId) => __awaiter(void 0, void 0, void 0, function*
         };
         const command = new client_ec2_1.ModifyVpcAttributeCommand(params);
         yield ec2Client.send(command);
-        console.log(`DNS Resolution enabled for VPC ${vpcId}`);
+        console.log(`   DNS Resolution enabled for VPC ${vpcId}`);
     }
     catch (error) {
         throw new Error(`Error enabling DNS Resolution: ${error}`);
@@ -33,7 +33,7 @@ const enableDNSSettings = (vpcId) => __awaiter(void 0, void 0, void 0, function*
         };
         const command = new client_ec2_1.ModifyVpcAttributeCommand(params);
         yield ec2Client.send(command);
-        console.log(`DNS Hostnames enabled for VPC ${vpcId}`);
+        console.log(`   DNS Hostnames enabled for VPC ${vpcId}\n`);
     }
     catch (error) {
         throw new Error(`Error enabling DNS Hostnames: ${error}`);
