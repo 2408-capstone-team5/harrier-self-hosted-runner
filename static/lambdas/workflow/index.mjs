@@ -1,4 +1,10 @@
-import { SSMClient, SendCommandCommand } from "@aws-sdk/client-ssm";
+// SEED THE S3 instance-status tracking data DURING SETUP ACTION!
+
+import {
+  SSMClient,
+  SendCommandCommand,
+  StartAutomationExecutionCommand,
+} from "@aws-sdk/client-ssm";
 import {
   EC2Client,
   DescribeInstancesCommand,
@@ -32,58 +38,106 @@ const [secretClient, ssmClient, ec2Client, s3Client] = [
   S3Client,
 ].map((client) => new client({ region: REGION }));
 
-const makeStartScript = (secret, owner, s3BucketName, instanceId) =>
+const makeScriptForStandbyEC2 = (secret, owner, instanceId) =>
   `#!/bin/bash
     echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    
+
     echo $USER
     echo "Is user in docker group??"
     groups
     getent group docker
-  
-  
+
     cd /home/ec2-user/actions-runner
-  
-    unique_value=$(date +%s)
-    name="Harrier Runner-$unique_value"
-  
+
+    unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
+    name="Harrier Runner-$unique_value" 
+
     echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
+
     response=$(curl -L -X POST \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${secret}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
         https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted"],"work_folder":"_work", "instance_id":"${instanceId}"}')
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
 
     # echo $response
     echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
+
     runner_id=$(echo "$response" | jq '.runner.id')
     runner_name=$(echo "$response" | jq -r '.runner.name')
     encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
-  
+
     echo "Runner ID: $runner_id"
     echo "Runner Name: $runner_name"
     #echo "Encoded JIT Config: $encoded_jit_config"
-  
+
     echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
     cd ..
     sudo chown ec2-user:ec2-user ./actions-runner
     cd actions-runner
     sudo chown ec2-user:ec2-user ./s3bucket
-  
-    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-    su - ec2-user -c "mount-s3 ${s3BucketName} /home/ec2-user/actions-runner/s3bucket --allow-overwrite"
-  
-    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
+
+   
+
+    # **removed s3 mount**
+
+
+
     # su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
     su - ec2-user -c "newgrp docker && /home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
 
-    # update status + expirationTime on s3.states.instance_id
-    # 
+    echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Done..."`;
+
+const makeScriptForStoppedEC2 = (secret, owner, instanceId, s3BucketName) =>
+  `#!/bin/bash
+    echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    echo $USER
+    echo "Is user in docker group??"
+    groups
+    getent group docker
+
+    cd /home/ec2-user/actions-runner
+
+    unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
+    name="Harrier Runner-$unique_value" 
+
+    echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    response=$(curl -L -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${secret}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
+
+    # echo $response
+    echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    runner_id=$(echo "$response" | jq '.runner.id')
+    runner_name=$(echo "$response" | jq -r '.runner.name')
+    encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+
+    echo "Runner ID: $runner_id"
+    echo "Runner Name: $runner_name"
+    #echo "Encoded JIT Config: $encoded_jit_config"
+
+    echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    cd ..
+    sudo chown ec2-user:ec2-user ./actions-runner
+    cd actions-runner
+    sudo chown ec2-user:ec2-user ./s3bucket
+
+    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    su - ec2-user -c "mount-s3 ${s3BucketName} /home/ec2-user/actions-runner/s3bucket --allow-overwrite"
+
+    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    # su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
+    su - ec2-user -c "newgrp docker && /home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
 
     echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
     echo "Done..."`;
@@ -125,32 +179,6 @@ async function findS3Bucket() {
     } catch (error) {
       console.error(`❌ Error fetching bucket ${bucket.Name}: `, error);
     }
-  }
-}
-
-async function findInstance(state) {
-  try {
-    const describe = new DescribeInstancesCommand({
-      Filters: [
-        { Name: "instance-state-name", Values: [state] },
-        { Name: `tag:${HARRIER_TAG_KEY}`, Values: [HARRIER_TAG_VALUE] },
-      ],
-    });
-
-    const data = await ec2Client.send(describe);
-
-    if (data.Reservations?.length) {
-      const instanceId = data.Reservations[0].Instances[0].InstanceId;
-      console.log("✅ Found instance:", instanceId);
-      return instanceId;
-    } else {
-      console.log("❌ No instances found with the specified state and tag.");
-    }
-  } catch (error) {
-    console.error(
-      "❌ Error finding instance:",
-      error instanceof Error ? error.message : error
-    );
   }
 }
 
@@ -217,11 +245,172 @@ job is queued from github...
     - ec2 instance executes run.sh, becoming available for a workflow run
 
 after a successful job is run (receiving 'completed' event)... 
-    - invoke timed-termination lambda and stop the instance programmatically 
+    - invoke timed-termination lambda and stop the instance programmatically
     - has instance_id
 
-
 */
+async function findInstance(state) {
+  try {
+    const describe = new DescribeInstancesCommand({
+      Filters: [
+        { Name: `tag:${HARRIER_TAG_KEY}`, Values: [HARRIER_TAG_VALUE] },
+        // { Name: "instance-state-name", Values: [state] },
+      ],
+    });
+
+    const data = await ec2Client.send(describe);
+
+    if (data.Reservations?.length) {
+      const instanceId = data.Reservations[0].Instances[0].InstanceId;
+      console.log("✅ Found instance:", instanceId);
+      return instanceId;
+    } else {
+      console.log("❌ No instances found with the specified state and tag.");
+    }
+  } catch (error) {
+    console.error(
+      "❌ Error finding instance:",
+      error instanceof Error ? error.message : error
+    );
+  }
+}
+
+async function getAllHarrierRunners() {
+  try {
+    const describe = new DescribeInstancesCommand({
+      Filters: [
+        { Name: `tag:${HARRIER_TAG_KEY}`, Values: [HARRIER_TAG_VALUE] },
+      ],
+    });
+    const response = await ec2Client.send(describe);
+
+    const instanceIds = response.Reservations.flatMap((res) =>
+      res.Instances.map((instance) => instance.InstanceId)
+    );
+
+    if (!instanceIds.length) {
+      throw new Error(`❌ 0 Harrier-tagged instances located`);
+    }
+
+    console.log(`${instanceIds.length} Harrier-tagged instances located`);
+    return instanceIds;
+  } catch (error) {
+    console.error(`❌ Error fetching Harrier-tagged instance ids: `, error);
+    throw new Error(`❌ the getAllHarrierRunners function failed`);
+  }
+}
+
+async function findSuitableRunner(instanceIds) {
+  try {
+    for (const id of instanceIds) {
+      const isStandby = await checkInstanceStatus(id, "standby");
+      if (isStandby) {
+        return { standbyInstanceId: id };
+      }
+    }
+
+    for (const id of instanceIds) {
+      const isStopped = await checkInstanceStatus(id, "stopped");
+      if (isStopped) {
+        return { stoppedInstanceId: id };
+      }
+    }
+
+    console.log(`⚠️ no suitable harrier runners were found`);
+    return null;
+  } catch (error) {
+    console.error(`❌ an error occurred when seeking a suitable runner`, error);
+    throw new Error(`❌ findSuitableRunner failed`);
+  }
+}
+
+const newHandler = async (event) => {
+  if (event.zen) {
+    return {
+      statusCode: 200,
+      body: JSON.stringify(`✅ Successful ping: ${event.zen}`),
+    };
+  }
+
+  try {
+    const action = event.action;
+
+    switch (action) {
+      case "queued":
+        const harrierInstanceIds = await getAllHarrierRunners();
+        const response = await findSuitableRunner(harrierInstanceIds);
+
+        if (response === null) {
+          /* 
+            if there are no available instances (all are 'running')...
+                coldstart new ec2 and deliver JIT config request & s3 mount script once the instance is ready
+            */
+        }
+
+        if ("standbyInstanceId" in response) {
+          /* 
+            deliver the abbreviated JIT config script to that instance via SSM 
+            & 
+            update status of standing-by instance to status: 'running' in the s3 folder based on instance_id
+            */
+        }
+
+        if ("stoppedInstanceId" in response) {
+          // previous default scenario
+          // send ssm command with the JIT request & s3 mount script to the located stopped instance
+        }
+
+        /* 
+        filter harrierInstanceIds based on their "state" (based on each instance's status flag, in s3 or paramsmanager)
+
+
+        if there are no available instances (all are 'running')...
+            coldstart new ec2 and deliver JIT config request & s3 mount script once the instance is ready
+
+
+        if a 'standing-by' ec2 is found then...
+            deliver the abbreviated JIT config script to that instance via SSM 
+            & 
+            update status of standing-by instance to status: 'running' in the s3 folder based on instance_id
+          
+
+        if stopped... (current way)
+            previous default scenario
+            send ssm command with the JIT request & s3 mount script to the located stopped instance
+        
+
+        if stopping... 
+            - timed retry mechanism for script delivery or X??
+    */
+        break;
+      case "completed":
+        /* 
+        JIT self-hosted runner server has finished execution...
+
+        execute lambdaZ(instance_id, time) which...
+            - in `time`, check the 'status' flag of the instance in parameterManager/s3
+            - if it is still in standby...stop the instance & set status flag to 'stopped'
+
+        */
+        break;
+      case "in_progress":
+        /* 
+            grab instance_id info from event and check that instance's status
+            some sort of modification of the state flagging values?
+        */
+        break;
+      default:
+        /* 
+        some unknown event action was received...this should never occur
+        */
+        break;
+    }
+    return {
+      statusCode: 200,
+      body: JSON.stringify(`✅ received and processed: ${action} action`),
+    };
+  } catch (error) {}
+};
 
 export const handler = async (event) => {
   if (event.zen) {
@@ -234,74 +423,59 @@ export const handler = async (event) => {
   try {
     const action = event.action;
 
-    if (action === "queued") {
-      const s3BucketName = await findS3Bucket();
+    // if (action === "queued") {
 
-      if ("instance_id" in action) {
-        /* 
-        - there's an instance_id, so that means there was a run previously and we can potentially use
-        that existing, running ec2
+    //   const instanceId = await findInstance("stopped");
+    //   if (!instanceId) {
+    //     throw new Error("❌ Instance not found!");
+    //   }
 
-        - check instance status (is it still running?  has it expired yet?)
+    //   const s3BucketName = await findS3Bucket();
+    //   await startInstance(instanceId);
+    //   await waitUntilInstanceRunning(
+    //     { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
+    //     { InstanceIds: [instanceId] }
+    //   );
 
-        - if it hasn't expired yet, we can use it
-            - need to deliver the github runner registration token script to the ec2... 
-            - upon 
-        */
-        // remember to return early
-      }
+    //   const secret = await getSecret();
+    //   const owner = event.repository.owner.login;
+    //   const startScript = makeScriptForStoppedEC2(
+    //     secret,
+    //     owner,
+    //     instanceId
+    //     s3BucketName,
+    //   );
 
-      // otherwise, business as usual...
-      const instanceId = await findInstance("stopped");
-      if (!instanceId) {
-        throw new Error("❌ Instance not found!");
-      }
+    //   await runCommand({
+    //     DocumentName: "AWS-RunShellScript",
+    //     InstanceIds: [instanceId],
+    //     Parameters: { commands: [startScript] },
+    //   });
 
-      await startInstance(instanceId);
-      await waitUntilInstanceRunning(
-        { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
-        { InstanceIds: [instanceId] }
-      );
+    //   return {
+    //     statusCode: 200,
+    //     body: JSON.stringify(`✅ Successful handled ${action} action`),
+    //   };
+    // }
 
-      const secret = await getSecret();
-      const owner = event.repository.owner.login;
-      const startScript = makeStartScript(
-        secret,
-        owner,
-        s3BucketName,
-        instanceId
-      );
+    // if (action === "completed") {
+    //   const instanceId = await findInstance("running");
+    //   if (!instanceId) {
+    //     throw new Error("❌ Instance not found!");
+    //   }
+    //   // update instanceId's state (status and expirationTime)
+    //   // trigger other and pass the instanceId
+    //   await stopInstance(instanceId);
+    //   return {
+    //     statusCode: 200,
+    //     body: JSON.stringify(`✅ Successful handled ${action} action`),
+    //   };
+    // }
 
-      await runCommand({
-        DocumentName: "AWS-RunShellScript",
-        InstanceIds: [instanceId],
-        Parameters: { commands: [startScript] },
-      });
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify(`✅ Successful handled ${action} action`),
-      };
-    }
-
-    if (action === "completed") {
-      const instanceId = await findInstance("running");
-      if (!instanceId) {
-        throw new Error("❌ Instance not found!");
-      }
-      // update instanceId's state (status and expirationTime)
-      // trigger other and pass the instanceId
-      await stopInstance(instanceId);
-      return {
-        statusCode: 200,
-        body: JSON.stringify(`✅ Successful handled ${action} action`),
-      };
-    }
-
-    return {
-      status: 200,
-      body: JSON.stringify("unknown event received by lambda"),
-    };
+    // return {
+    //   status: 200,
+    //   body: JSON.stringify("unknown event received by lambda"),
+    // };
   } catch (error) {
     console.error(`❌ Error invoking index.handler: `, error);
     throw error;
