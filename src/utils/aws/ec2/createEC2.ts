@@ -45,6 +45,15 @@ export const createEC2 = async () => {
     KeyName: keyName,
     MinCount: minCount, // Minimum instances to launch
     MaxCount: maxCount, // Maximum instances to launch
+     BlockDeviceMappings: [
+      {
+        DeviceName: "/dev/sda1",
+        Ebs: {
+          VolumeSize: 16, // Size of the volume in GB
+          VolumeType: "gp3",
+        },
+      },
+    ],
     SecurityGroupIds: securityGroupIds, // Security group IDs
     SubnetId: subnetId, // Subnet ID (optional)
     IamInstanceProfile: iamInstanceProfile, // IAM resource profile
