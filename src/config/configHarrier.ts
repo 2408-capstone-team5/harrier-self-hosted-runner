@@ -6,7 +6,7 @@ import { getInput } from "@actions/core";
 const awsRegion = getInput("region") || "us-east-1";
 const ghOwnerName = getInput("ghOwnerName") || "2408-capstone-team5";
 const awsAccountId = getInput("awsAccountId") || "536697269866";
-const instanceType = getInput("instanceType") || "t2.micro";
+const instanceType = getInput("instanceType") || "m7a.large";
 const cacheTtlHours = getInput("cacheTtlHours") || "72";
 const cidrBlockVPC = getInput("cidrBlockVPC") || "10.0.0.0/16";
 const cidrBlockSubnet = getInput("cidrBlockSubnet") || "10.0.0.0/24";
@@ -25,7 +25,8 @@ export const configHarrier: configHarrierType = {
   //   logGroup: "/aws/lambda/joel_test",
   region: awsRegion,
   awsAccountId: awsAccountId,
-  imageId: "ami-063d43db0594b521b", // AMI ID for the instance
+  // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
+  imageId: "ami-005fc0f236362e99f",  // AMI Ubuntu 22.04
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
   instanceType: instanceType, // EC2 instance type, default from workflow is t2.micro
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access

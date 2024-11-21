@@ -13,7 +13,7 @@ export const createEC2 = async () => {
 
   const amiId = configHarrier.imageId;
   const instanceType: _InstanceType =
-    configHarrier.instanceType === "m7a.medium"
+    configHarrier.instanceType === "m7a.large"
       ? configHarrier.instanceType
       : "t2.micro";
   const keyName = configHarrier.keyName;

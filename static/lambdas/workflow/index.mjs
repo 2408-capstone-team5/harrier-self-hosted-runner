@@ -221,8 +221,18 @@ const getScript = (secret, owner, s3BucketName) => {
   groups
   getent group docker
 
+  # Install jq
+  # echo "%%%% before jq install %%%%";
+  # sudo apt install -y jq
+  # echo "%%%% after jq install %%%%";
 
-  cd /home/ec2-user/actions-runner
+  # Install build-essentials
+  # echo "%%%% before build-essentials install %%%%";
+  # sudo apt install -y build-essential
+  # echo "%%%% after build-essentials install %%%%";
+
+  #cd /home/ec2-user/actions-runner
+  cd /home/ubuntu/actions-runner
 
   unique_value=$(date +%s)
   name="Harrier Runner-$unique_value"
@@ -250,18 +260,17 @@ const getScript = (secret, owner, s3BucketName) => {
 
   echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   cd ..
-  sudo chown ec2-user:ec2-user ./actions-runner
+  sudo chown ubuntu:ubuntu ./actions-runner
   cd actions-runner
-  sudo chown ec2-user:ec2-user ./s3bucket
+  sudo chown ubuntu:ubuntu ./s3bucket
 
   echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  su - ec2-user -c "mount-s3 ${s3BucketName} /home/ec2-user/actions-runner/s3bucket --allow-overwrite"
+  su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
 
   echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  # su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
-  su - ec2-user -c "newgrp docker && /home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
+  su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
 
   echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   echo "Done..."`;
