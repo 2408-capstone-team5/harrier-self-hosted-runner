@@ -45,6 +45,15 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         KeyName: keyName,
         MinCount: minCount,
         MaxCount: maxCount,
+        BlockDeviceMappings: [
+            {
+                DeviceName: "/dev/sda1",
+                Ebs: {
+                    VolumeSize: 16,
+                    VolumeType: "gp3",
+                },
+            },
+        ],
         SecurityGroupIds: securityGroupIds,
         SubnetId: subnetId,
         IamInstanceProfile: iamInstanceProfile,
