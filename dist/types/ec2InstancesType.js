@@ -1,6 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validInstanceTypes = void 0;
+exports.validInstanceTypes = exports.toInstanceType = void 0;
+function isInstanceType(value) {
+    return exports.validInstanceTypes.has(value);
+}
+const toInstanceType = (value) => {
+    if (isInstanceType(value)) {
+        return value;
+    }
+    console.error(`Invalid instance type: ${value}`);
+    return undefined;
+};
+exports.toInstanceType = toInstanceType;
 exports.validInstanceTypes = new Set([
     "a1.2xlarge", "a1.4xlarge", "a1.large", "a1.medium", "a1.metal", "a1.xlarge",
     "c1.medium", "c1.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c3.large",

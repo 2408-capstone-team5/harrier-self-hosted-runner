@@ -1,3 +1,5 @@
+import { _InstanceType } from "@aws-sdk/client-ec2";
+
 export interface configHarrierType {
   logGroupName: string;
   tagValue: string;
@@ -9,7 +11,7 @@ export interface configHarrierType {
   region: string;
   awsAccountId: string;
   imageId: string; // AMI ID for the instance
-  instanceType: string; // EC2 instance type
+  instanceType: _InstanceType; // EC2 instance type
   keyName: string;
   minInstanceCount: number; // Minimum instances to launch
   maxInstanceCount: number; // Maximum instances to launch
