@@ -15,7 +15,7 @@ const instanceType = possibleInstanceType
   ? possibleInstanceType
   : DEFAULT_INSTANCE_TYPE;
 
-console.log(`@@@@@@@@@@@@@ getInput: ${getInput("instanceType")}  possible: ${possibleInstanceType}   instanceType: ${instanceType}`);
+console.log(`Using instanceType: ${instanceType}`);
 
 const cacheTtlHours = getInput("cacheTtlHours") || "72";
 const cidrBlockVPC = getInput("cidrBlockVPC") || "10.0.0.0/16";
