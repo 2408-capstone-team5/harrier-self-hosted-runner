@@ -1,7 +1,7 @@
 import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import { configHarrier } from "../../../config/configHarrier";
 
-export const stopInstance = async (instanceId: string) => {
+export const stopEC2s = async (instanceId: string) => {
   try {
     const ec2Client = new EC2Client({ region: configHarrier.region });
     const command = new StopInstancesCommand({ InstanceIds: [instanceId] });

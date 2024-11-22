@@ -3,7 +3,7 @@ import { addSecurityGroupRules } from "../utils/aws/ec2/addSecurityGroupRules";
 import { createEC2 } from "../utils/aws/ec2/createEC2";
 import { waitEC2StatusOk } from "../utils/aws/ec2/waitEC2StatusOk";
 // import { describeEC2s } from "../utils/aws/ec2/describeEC2Instances";
-import { stopInstance } from "../utils/aws/ec2/stopEC2";
+import { stopEC2s } from "../utils/aws/ec2/stopEC2s";
 import { configHarrier } from "../config/configHarrier";
 
 export const setupEC2Runner = async () => {
@@ -28,7 +28,7 @@ export const setupEC2Runner = async () => {
 
     // change argument from instanceId to instanceIds when creating a pool of EC2s
     await waitEC2StatusOk(instanceIds);
-    await stopInstance(instanceIds);
+    await stopEC2s(instanceIds);
 
     console.log("✅ Successfully set up EC2.\n");
   } catch (error: unknown) {
