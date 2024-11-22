@@ -12,10 +12,7 @@ export const createEC2 = async () => {
   const client = new EC2Client({ region: configHarrier.region });
 
   const amiId = configHarrier.imageId;
-  const instanceType: _InstanceType =
-    configHarrier.instanceType === "m7a.large"
-      ? configHarrier.instanceType
-      : "t2.micro";
+  const instanceType = configHarrier.instanceType;
   const keyName = configHarrier.keyName;
   const minCount = configHarrier.minInstanceCount;
   const maxCount = configHarrier.maxInstanceCount;
@@ -32,9 +29,7 @@ export const createEC2 = async () => {
     },
   ];
 
-  // const userDataScript = startScript;
   const userDataScript = getStartScript();
-  // console.log(userDataScript);
 
   // Encode the script in base64 as required by AWS
   const userData = Buffer.from(userDataScript).toString("base64");

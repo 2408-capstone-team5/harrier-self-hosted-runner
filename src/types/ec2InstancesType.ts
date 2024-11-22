@@ -1,5 +1,17 @@
 import { _InstanceType } from "@aws-sdk/client-ec2";
 
+function isInstanceType(value: string): value is _InstanceType {
+  return validInstanceTypes.has(value as _InstanceType);
+}
+
+export const toInstanceType = (value: string): _InstanceType | undefined => {
+  if (isInstanceType(value)) {
+    return value;
+  }
+  console.error(`Invalid instance type: ${value}`);
+  return undefined;
+}
+
 export const validInstanceTypes = new Set<_InstanceType>([
   "a1.2xlarge", "a1.4xlarge", "a1.large", "a1.medium", "a1.metal", "a1.xlarge",
   "c1.medium", "c1.xlarge", "c3.2xlarge", "c3.4xlarge", "c3.8xlarge", "c3.large",
