@@ -20,7 +20,7 @@ import {
 const HARRIER_TAG_KEY = "Agent";
 const HARRIER_TAG_VALUE = "Harrier-Runner";
 const REGION = process.env.AWS_REGION;
-const SSM_SEND_COMMAND_TIMEOUT = 40;
+const SSM_SEND_COMMAND_TIMEOUT = 100;
 
 // User needs to use the exact below secret name
 const secretName = "github/pat/harrier";
@@ -69,7 +69,7 @@ async function findS3Bucket() {
           return bucketName; // Return the matching bucket name
         }
       } catch (error) {
-        console.log(`No tags found on bucket: ${bucketName}`, error);
+        console.log(`No tags found on bucket: ${bucketName}`);
       }
     }
     console.log(
@@ -77,9 +77,7 @@ async function findS3Bucket() {
     );
   } catch (error) {
     console.error(
-      `❌ Error fetching bucket with tag ${HARRIER_TAG_KEY}:${HARRIER_TAG_VALUE}`,
-      error
-    );
+      `❌ Error fetching bucket with tag ${HARRIER_TAG_KEY}:${HARRIER_TAG_VALUE}`);
   }
 }
 
@@ -214,69 +212,64 @@ async function runCommand(params) {
 
 const getScript = (secret, owner, s3BucketName) => {
   const script = `#!/bin/bash
-  echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-  echo $USER
-  echo "Is user in docker group??"
-  groups
-  getent group docker
+    echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  # Install jq
-  # echo "%%%% before jq install %%%%";
-  # sudo apt install -y jq
-  # echo "%%%% after jq install %%%%";
+    # X variable below is for possible future multiple runners on a single instance
+    X=1
+    
+    echo $USER
+    echo "Is user in docker group??"
+    getent group docker
 
-  # Install build-essentials
-  # echo "%%%% before build-essentials install %%%%";
-  # sudo apt install -y build-essential
-  # echo "%%%% after build-essentials install %%%%";
+    cd /home/ubuntu
 
-  #cd /home/ec2-user/actions-runner
-  cd /home/ubuntu/actions-runner
+    echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    sudo chown ubuntu:ubuntu ./actions-runner
+    cd actions-runner
+    sudo chown ubuntu:ubuntu ./s3bucket
 
-  unique_value=$(date +%s)
-  name="Harrier Runner-$unique_value"
+    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
+    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    
+    for i in $(seq 1 $X); do
+      echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      unique_value=$(date +%s)
+      name="Harrier Runner-$unique_value-$i"
 
-  response=$(curl -L \
-    -X POST \
-    -H "Accept: application/vnd.github+json" \
-    -H "Authorization: Bearer ${secret}" \
-    -H "X-GitHub-Api-Version: 2022-11-28" \
-    https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-    -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted"],"work_folder":"_work"}')
+      echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  # echo $response
-  echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      response=$(curl -L \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${secret}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted"],"work_folder":"_work"}')
 
-  runner_id=$(echo "$response" | jq '.runner.id')
-  runner_name=$(echo "$response" | jq -r '.runner.name')
-  encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+      echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  echo "Runner ID: $runner_id"
-  echo "Runner Name: $runner_name"
-  #echo "Encoded JIT Config: $encoded_jit_config"
+      runner_id=$(echo "$response" | jq '.runner.id')
+      runner_name=$(echo "$response" | jq -r '.runner.name')
+      encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
 
-  echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  cd ..
-  sudo chown ubuntu:ubuntu ./actions-runner
-  cd actions-runner
-  sudo chown ubuntu:ubuntu ./s3bucket
+      echo "Runner ID: $runner_id"
+      echo "Runner Name: $runner_name"
 
-  echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      # Launch run.sh in the background for each iteration
+      su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
 
-  su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
+      echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
+      sleep 2
+    done
 
-  echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
-
-  echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  echo "Done..."`;
+    echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
 
   return script;
 };
+
 
 const main = async (action, secret, owner) => {
   if (action === "queued") {
@@ -293,7 +286,7 @@ const main = async (action, secret, owner) => {
     if (instanceId) {
       await startInstance(instanceId);
 
-      await waitForInstanceRunning(instanceId);
+      // await waitForInstanceRunning(instanceId);  // Currently skipping this to speed up
 
       const sendCommandParams = {
         DocumentName: "AWS-RunShellScript", // This document allows running shell scripts

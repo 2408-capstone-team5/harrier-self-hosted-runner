@@ -12,7 +12,7 @@ const possibleInstanceType = (0, ec2InstancesType_1.toInstanceType)((0, core_1.g
 const instanceType = possibleInstanceType
     ? possibleInstanceType
     : DEFAULT_INSTANCE_TYPE;
-console.log(`@@@@@@@@@@@@@ getInput: ${(0, core_1.getInput)("instanceType")}  possible: ${possibleInstanceType}   instanceType: ${instanceType}`);
+console.log(`Using instanceType: ${instanceType}`);
 const cacheTtlHours = (0, core_1.getInput)("cacheTtlHours") || "72";
 const cidrBlockVPC = (0, core_1.getInput)("cidrBlockVPC") || "10.0.0.0/16";
 const cidrBlockSubnet = (0, core_1.getInput)("cidrBlockSubnet") || "10.0.0.0/24";
