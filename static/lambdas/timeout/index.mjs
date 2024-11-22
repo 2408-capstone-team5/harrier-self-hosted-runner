@@ -14,5 +14,4 @@ async function stopInstance(instanceId) {
 
 export const handler = async (event) => {
     
-
 };

@@ -16,6 +16,8 @@ import {
 import {
   S3Client,
   ListBucketsCommand,
+  GetObjectCommand,
+  PutObjectCommand,
   GetBucketTaggingCommand,
 } from "@aws-sdk/client-s3";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
@@ -76,67 +78,9 @@ const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
 
 function makeScriptForStandbyEC2(secret, owner, instanceId) {
   return `#!/bin/bash
-        echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    
-        echo $USER
-        echo "Is user in docker group??"
-        groups
-        getent group docker
-    
-        cd /home/ec2-user/actions-runner
-    
-        unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
-        name="Harrier Runner-$unique_value" 
-    
-        echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    
-        response=$(curl -L -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${secret}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-            -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
-    
-        # echo $response
-        echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    
-        runner_id=$(echo "$response" | jq '.runner.id')
-        runner_name=$(echo "$response" | jq -r '.runner.name')
-        encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
-    
-        echo "Runner ID: $runner_id"
-        echo "Runner Name: $runner_name"
-        #echo "Encoded JIT Config: $encoded_jit_config"
-    
-        echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-        cd ..
-        sudo chown ec2-user:ec2-user ./actions-runner
-        cd actions-runner
-        sudo chown ec2-user:ec2-user ./s3bucket
-    
-       
-    
-        # **removed s3 mount**
-    
-    
-    
-        # su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
-        su - ec2-user -c "newgrp docker && /home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
-    
-        echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-        echo "Done..."`;
-}
-
-function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
-  return `#!/bin/bash
+      echo "executing standby script"
       echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-      echo $USER
-      echo "Is user in docker group??"
-      groups
-      getent group docker
-  
-      cd /home/ec2-user/actions-runner
+      cd /home/ubuntu/actions-runner
   
       unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
       name="Harrier Runner-$unique_value" 
@@ -150,7 +94,7 @@ function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
           https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
           -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
   
-      # echo $response
+
       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   
       runner_id=$(echo "$response" | jq '.runner.id')
@@ -159,22 +103,57 @@ function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
   
       echo "Runner ID: $runner_id"
       echo "Runner Name: $runner_name"
-      #echo "Encoded JIT Config: $encoded_jit_config"
+
+      su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
+  
+      echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
+}
+
+function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
+  return `#!/bin/bash
+      echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  
+      echo $USER
+      echo "Is user in docker group??"
+      groups
+      getent group docker
+  
+      cd /home/ubuntu/actions-runner
+  
+      unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
+      name="Harrier Runner-$unique_value" 
+  
+      echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  
+      response=$(curl -L -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${secret}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+          -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
+  
+      echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  
+      runner_id=$(echo "$response" | jq '.runner.id')
+      runner_name=$(echo "$response" | jq -r '.runner.name')
+      encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+  
+      echo "Runner ID: $runner_id"
+      echo "Runner Name: $runner_name"
   
       echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
       cd ..
-      sudo chown ec2-user:ec2-user ./actions-runner
+      sudo chown ubuntu:ubuntu ./actions-runner
       cd actions-runner
-      sudo chown ec2-user:ec2-user ./s3bucket
+      sudo chown ubuntu:ubuntu ./s3bucket
   
       echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   
-      su - ec2-user -c "mount-s3 ${s3BucketName} /home/ec2-user/actions-runner/s3bucket --allow-overwrite"
+      su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
   
       echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   
-      # su - ec2-user -c "/home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
-      su - ec2-user -c "newgrp docker && /home/ec2-user/actions-runner/run.sh --jitconfig $encoded_jit_config"
+      su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
   
       echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
       echo "Done..."`;
@@ -276,14 +255,14 @@ async function getAllHarrierRunners() {
 async function findSuitableRunner(instanceIds) {
   try {
     for (const id of instanceIds) {
-      const isStandby = await checkInstanceCurrentStatus(id, "standby");
+      const isStandby = await checkInstanceStatus(id, "standby");
       if (isStandby) {
         return { instanceId: id, currentStatus: "standby" };
       }
     }
 
     for (const id of instanceIds) {
-      const isStopped = await checkInstanceCurrentStatus(id, "stopped");
+      const isStopped = await checkInstanceStatus(id, "stopped");
       if (isStopped) {
         return { instanceId: id, currentStatus: "stopped" };
       }
@@ -297,9 +276,80 @@ async function findSuitableRunner(instanceIds) {
   }
 }
 
+// utility function for reading the s3 object's data
+async function streamToString(stream) {
+  const chunks = [];
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString("utf-8");
+}
+
 // 2 functions related to querying s3 bucket for instance statuses:
-async function updateInstanceStatus(instanceId, currentStatus, nextStatus) {}
-async function checkInstanceCurrentStatus(instanceId, searchedForStatus) {}
+async function updateInstanceStatus(
+  s3BucketName,
+  instanceId,
+  currentStatus,
+  nextStatus
+) {
+  try {
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: s3BucketName,
+        Key: `instance-states/${instanceId}.json`,
+      })
+    );
+
+    const bodyString = await streamToString(response.Body);
+    const instanceState = JSON.parse(bodyString);
+
+    console.log(
+      `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
+    );
+    if (actualStatus !== currentStatus) {
+      throw new Error(
+        `❌ Current status does not match for instance ${instanceId}`
+      );
+    }
+
+    instanceState.status = nextStatus;
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: s3BucketName,
+        Key: `instance-states/${instanceId}.json`,
+        Body: JSON.stringify(instanceState),
+        ContentType: "application/json",
+      })
+    );
+
+    console.log(
+      `✅ Status updated to ${nextStatus} for instance ${instanceId}`
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+async function checkInstanceStatus(
+  s3BucketName,
+  instanceId,
+  searchedForStatus
+) {
+  try {
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: s3BucketName,
+        Key: `instance-states/${instanceId}.json`,
+      })
+    );
+
+    const bodyString = await streamToString(response.Body);
+    const instanceState = JSON.parse(bodyString);
+
+    return instanceState.status === searchedForStatus; // if the strings match, return true
+  } catch (error) {
+    console.error(`❌ error in checkInstanceStatus`, error);
+  }
+}
 
 async function invokeTimeoutLambda(instanceId, wait) {
   try {
@@ -398,7 +448,12 @@ export const handler = async (event) => {
           // this should never be reached...
         }
 
-        await updateInstanceStatus(instanceId, currentStatus, "running");
+        await updateInstanceStatus(
+          s3BucketName,
+          instanceId,
+          currentStatus,
+          "running" // nextStatus
+        );
         break;
       case "completed":
         const existingEC2RunnerInstanceId = event.labels.at(-1); // this should always be an ec2 runner instanceId string value
