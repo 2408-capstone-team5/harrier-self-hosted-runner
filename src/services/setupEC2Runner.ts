@@ -2,7 +2,7 @@ import { createSecurityGroup } from "../utils/aws/ec2/createSecurityGroup";
 import { addSecurityGroupRules } from "../utils/aws/ec2/addSecurityGroupRules";
 import { createEC2 } from "../utils/aws/ec2/createEC2";
 import { waitEC2StatusOk } from "../utils/aws/ec2/waitEC2StatusOk";
-// import { describeEC2s } from "../utils/aws/ec2/describeEC2Instances";
+// import { describeEC2s } from "../utils/aws/ec2/describeEC2s";
 import { stopEC2s } from "../utils/aws/ec2/stopEC2s";
 import { configHarrier } from "../config/configHarrier";
 
