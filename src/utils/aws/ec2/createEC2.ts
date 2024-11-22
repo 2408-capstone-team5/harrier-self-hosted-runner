@@ -3,12 +3,12 @@ import {
   RunInstancesCommand,
   RunInstancesCommandInput,
   TagSpecification,
-  _InstanceType,
+  // _InstanceType,
 } from "@aws-sdk/client-ec2";
 import { configHarrier } from "../../../config/configHarrier";
 import { getStartScript } from "../../../scripts/setup";
 
-export const createEC2 = async () => {
+export const createEC2 = async (poolId: number) => {
   const client = new EC2Client({ region: configHarrier.region });
 
   const amiId = configHarrier.imageId;
@@ -23,7 +23,7 @@ export const createEC2 = async () => {
     {
       ResourceType: "instance",
       Tags: [
-        { Key: "Name", Value: `${configHarrier.tagValue}-ec2` },
+        { Key: "Name", Value: `${configHarrier.tagValue}-ec2-${poolId}` },
         { Key: "Agent", Value: "Harrier-Runner" },
       ],
     },
@@ -40,7 +40,7 @@ export const createEC2 = async () => {
     KeyName: keyName,
     MinCount: minCount, // Minimum instances to launch
     MaxCount: maxCount, // Maximum instances to launch
-     BlockDeviceMappings: [
+    BlockDeviceMappings: [
       {
         DeviceName: "/dev/sda1",
         Ebs: {

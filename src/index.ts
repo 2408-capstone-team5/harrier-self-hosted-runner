@@ -12,7 +12,7 @@ const processCmdLineArgs = () => {
   const args = process.argv.slice(2);
   let clean = false;
 
-  let nameArgIndex = args.indexOf("--clean");
+  const nameArgIndex = args.indexOf("--clean");
   if (nameArgIndex !== -1) {
     clean = true;
     console.log(`*** Clean Only!***`);

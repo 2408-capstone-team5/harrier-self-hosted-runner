@@ -34,4 +34,5 @@ export interface configHarrierType {
   runnerInstanceServiceRoleArn: string;
   schedulerServiceRoleArn: string;
   stageName: string;
+  warmPoolSize: number;
 }
