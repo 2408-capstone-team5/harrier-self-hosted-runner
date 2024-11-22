@@ -30,6 +30,7 @@ export const setupEC2Runner = async () => {
     await waitEC2StatusOk(instanceIds);
     await stopEC2s(instanceIds);
 
+    configHarrier.instanceIds = instanceIds;
     console.log("✅ Successfully set up EC2.\n");
   } catch (error: unknown) {
     if (error instanceof Error) {

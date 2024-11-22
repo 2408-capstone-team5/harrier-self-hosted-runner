@@ -35,4 +35,5 @@ export interface configHarrierType {
   schedulerServiceRoleArn: string;
   stageName: string;
   warmPoolSize: number;
+  instanceIds: string[];
 }

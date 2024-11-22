@@ -1,4 +1,5 @@
 import { createS3 } from "../utils/aws/s3/createS3";
+import { initializeS3 } from "../utils/aws/s3/initializeS3";
 import { S3Client } from "@aws-sdk/client-s3";
 import { configHarrier } from "../config/configHarrier";
 
@@ -9,4 +10,5 @@ export const setupS3CacheBucket = async () => {
   const bucketName = `${configHarrier.s3Name}`;
   console.log("** Starting setupS3CacheBucket...");
   await createS3(client, bucketName, maxWaitTime);
+  await initializeS3(client, bucketName);
 };

@@ -43,11 +43,11 @@ const main = async () => {
 
     await setupVPC();
 
+    await setupEC2Runner();
+
     await setupS3CacheBucket(); // S3
 
     await setupCacheEviction();
-
-    await setupEC2Runner();
 
     await setupApiAndWebhook();
   } catch (error) {

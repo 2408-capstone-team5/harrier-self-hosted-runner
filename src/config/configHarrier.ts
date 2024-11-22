@@ -60,6 +60,7 @@ export const configHarrier: configHarrierType = {
   schedulerServiceRoleArn: "",
   stageName: "dev",
   warmPoolSize: 8,
+  instanceIds: [],
 };
 
 export const harrierVPC = {};
