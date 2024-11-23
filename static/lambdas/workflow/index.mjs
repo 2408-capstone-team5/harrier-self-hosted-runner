@@ -29,7 +29,7 @@ const HARRIER_TAG_VALUE = "Harrier-Runner";
 const REGION = process.env.AWS_REGION;
 
 const SSM_SEND_COMMAND_TIMEOUT = 100;
-const MAX_WAITER_TIME_IN_SECONDS = 60 * 4; // moved this down from 8 minutes to 4
+const MAX_WAITER_TIME_IN_SECONDS = 60 * 4;
 const SECRET_NAME = "github/pat/harrier";
 
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
@@ -39,6 +39,7 @@ const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   S3Client,
   LambdaClient,
 ].map((client) => new client({ region: REGION }));
+
 
 function makeScriptForIdleEC2(secret, owner, instanceId) {
   return `#!/bin/bash
@@ -58,10 +59,10 @@ function makeScriptForIdleEC2(secret, owner, instanceId) {
     cd actions-runner
     sudo chown ubuntu:ubuntu ./s3bucket
 
-    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
-    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    
+    # removed s3 bucket mount 
+    # removed s3 bucket mount
+    # removed s3 bucket mount 
+
     for i in $(seq 1 $X); do
       echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -380,9 +381,8 @@ async function invokeTimeoutLambda(instanceId, delayInMinutes, s3BucketName) {
   }
 }
 
-
 export const handler = async (event) => {
-  if (event.zen) {
+  if ('zen' in event) {
     return {
       statusCode: 200,
       body: JSON.stringify(`✅ Successful ping: ${event.zen}`),
@@ -391,13 +391,13 @@ export const handler = async (event) => {
 
   try {
     const secret = await getSecret();
+    const s3BucketName = await findS3Bucket();
     const owner = event.repository.owner.login;
     const action = event.action;
 
     switch (action) {
       case "queued":
         const runnerIds = await getAllHarrierRunners();
-        const s3BucketName = await findS3Bucket();
 
         const { instanceId, currentStatus } = await findSuitableRunner(
           runnerIds,
@@ -425,10 +425,10 @@ export const handler = async (event) => {
           await startStoppedInstance(instanceId);
 
           console.log(`waiting for offline instance to start...`);
-//           await waitUntilInstanceRunning(
-//             { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
-//             { InstanceIds: [instanceId] }
-//           );
+        //   await waitUntilInstanceRunning(
+        //     { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
+        //     { InstanceIds: [instanceId] }
+        //   );
 
           const startOfflineEC2Script = makeScriptForOfflineEC2(
             secret,
@@ -446,6 +446,7 @@ export const handler = async (event) => {
           });
         } else {
           // this should never be reached...
+          console.log(`⚠️ this line should never be reached`);
         }
 
         await updateInstanceStatus(
@@ -457,12 +458,12 @@ export const handler = async (event) => {
         break;
       case "completed":
         const existingEC2RunnerInstanceId = event.workflow_job.labels.at(-1); // this should always be an ec2 runner instanceId string value
-        const wait = 3; // wait 3 minutes
+        const delay = 3; // wait 3 minutes
 
-        await invokeTimeoutLambda(existingEC2RunnerInstanceId, wait);
+        await invokeTimeoutLambda(existingEC2RunnerInstanceId, delay, s3BucketName);
 
         console.log(
-          `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda("${existingEC2RunnerInstanceId}", ${wait})`
+          `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda(${existingEC2RunnerInstanceId}, ${delay}, ${s3BucketName});`
         );
         break;
       case "in_progress":
