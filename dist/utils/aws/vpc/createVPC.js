@@ -32,7 +32,8 @@ const createVpc = (configHarrier) => __awaiter(void 0, void 0, void 0, function*
         };
         const command = new client_ec2_1.CreateVpcCommand(params);
         const response = yield ec2Client.send(command);
-        console.log("VPC Created:", response.Vpc);
+        console.log("✅ Successfully Created VPC\n");
+        // console.log("VPC Created:", response.Vpc);
         if (!((_a = response.Vpc) === null || _a === void 0 ? void 0 : _a.VpcId)) {
             throw new Error("VPC Creation Failed!");
         }
@@ -40,7 +41,7 @@ const createVpc = (configHarrier) => __awaiter(void 0, void 0, void 0, function*
     }
     catch (error) {
         if (error instanceof Error) {
-            console.error("Error:", error.message);
+            console.error("❌ Error:", error.message, "\n");
             return;
         }
         else {

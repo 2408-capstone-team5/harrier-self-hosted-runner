@@ -22,7 +22,7 @@ const createRoute = (routeTableId, internetGatewayId) => __awaiter(void 0, void 
         };
         const command = new client_ec2_1.CreateRouteCommand(params);
         yield ec2Client.send(command);
-        console.log(`Route to Internet Gateway ${internetGatewayId} created in Route Table ${routeTableId}`);
+        console.log(`   Route to Internet Gateway ${internetGatewayId} created in Route Table ${routeTableId}\n`);
     }
     catch (error) {
         throw new Error(`Error creating route: ${error}`);

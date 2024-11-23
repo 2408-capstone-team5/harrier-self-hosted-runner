@@ -17,7 +17,7 @@ const lambdaClient = new client_lambda_1.LambdaClient({ region: configHarrier_1.
 const cleanupLambdas = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        console.log("Start Lambda cleanup");
+        console.log("** Start Lambda cleanup");
         const listFunctionsCommand = new client_lambda_1.ListFunctionsCommand({});
         const lambdaResponse = yield lambdaClient.send(listFunctionsCommand);
         const lambdaFunctions = lambdaResponse.Functions || [];
@@ -25,22 +25,22 @@ const cleanupLambdas = () => __awaiter(void 0, void 0, void 0, function* () {
             if ((_a = lambda.FunctionName) === null || _a === void 0 ? void 0 : _a.startsWith("harrier")) {
                 // Filter by name prefix
                 try {
-                    console.log(`Deleting Lambda function: ${lambda.FunctionName}`);
+                    console.log(`   Deleting Lambda function: ${lambda.FunctionName}`);
                     const deleteFunctionCommand = new client_lambda_1.DeleteFunctionCommand({
                         FunctionName: lambda.FunctionName,
                     });
                     yield lambdaClient.send(deleteFunctionCommand);
-                    console.log(`Lambda function deleted: ${lambda.FunctionName}`);
+                    console.log(`   Lambda function deleted: ${lambda.FunctionName}`);
                 }
                 catch (error) {
-                    console.error(`Error deleting Lambda function ${lambda.FunctionName}:`, error);
+                    console.error(`❌ Error deleting Lambda function ${lambda.FunctionName}:`, error);
                 }
             }
         }
-        console.log("*** Lambda cleanup complete ***");
+        console.log("✅ Successfully completed Lambda cleanup.\n");
     }
     catch (error) {
-        console.error("Error listing Lambda functions:", error);
+        console.error("❌ Error listing Lambda functions:", error, "\n");
     }
 });
 exports.cleanupLambdas = cleanupLambdas;

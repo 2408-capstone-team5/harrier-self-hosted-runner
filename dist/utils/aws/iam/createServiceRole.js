@@ -29,11 +29,11 @@ function createLambdaServiceRole(roleName, policyDocument) {
             // previously, if the !roleExistsAndIsAssumable, throw an error
             console.log(`🚦 ***waiting for lambda service ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
-            console.log(`✅ Permissions policy attached to ${roleName}`);
+            console.log(`✅ Permissions policy attached to ${roleName}\n`);
             return arn;
         }
         catch (error) {
-            console.error("❌ Error in createWorkflowLambdaServiceRole ", error);
+            console.error("❌ Error in createWorkflowLambdaServiceRole ", error, "\n");
             throw new Error("❌");
         }
     });
@@ -52,11 +52,11 @@ function createInstanceServiceRole(roleName, policyDocument) {
             // previously, if the !roleExistsAndIsAssumable, throw an error
             console.log(`🚦 ***waiting for instance service role ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
-            console.log(`✅ Permissions policy attached to ${roleName}`);
+            console.log(`✅ Permissions policy attached to ${roleName}\n`);
             return arn;
         }
         catch (error) {
-            console.error("❌ Error in createInstanceServiceRole ", error);
+            console.error("❌ Error in createInstanceServiceRole ", error, "\n");
             throw new Error("❌");
         }
     });
@@ -73,13 +73,13 @@ function createSchedulerServiceRole(roleName, policyDocument) {
                 PolicyDocument: policyDocument,
             }));
             // previously, if the !roleExistsAndIsAssumable, throw an error
-            console.log(`🚦 ***waiting for scheculer service ${roleName} to PROPAGATE***`);
+            console.log(`🚦 ***waiting for scheduler service ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
-            console.log(`✅ Permissions policy attached to ${roleName}`);
+            console.log(`✅ Permissions policy attached to ${roleName}\n`);
             return arn;
         }
         catch (error) {
-            console.error("❌ Error in createSchedulerServiceRole ", error);
+            console.error("❌ Error in createSchedulerServiceRole ", error, "\n");
             throw new Error("❌");
         }
     });

@@ -27,7 +27,8 @@ import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 const HARRIER_TAG_KEY = "Agent";
 const HARRIER_TAG_VALUE = "Harrier-Runner";
 const REGION = process.env.AWS_REGION;
-const SSM_SEND_COMMAND_TIMEOUT = 40;
+
+const SSM_SEND_COMMAND_TIMEOUT = 100;
 const MAX_WAITER_TIME_IN_SECONDS = 60 * 4; // moved this down from 8 minutes to 4
 const SECRET_NAME = "github/pat/harrier";
 
@@ -41,192 +42,118 @@ const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
 
 function makeScriptForStandbyEC2(secret, owner, instanceId) {
   return `#!/bin/bash
-  echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  # X variable below is for possible future multiple runners on a single instance
-  X=1
-  
-  echo $USER
-  echo "Is user in docker group??"
-  getent group docker
+    # X variable below is for possible future multiple runners on a single instance
+    X=1
+    
+    echo $USER
+    echo "Is user in docker group??"
+    getent group docker
 
-  cd /home/ubuntu
+    cd /home/ubuntu
 
-  echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  sudo chown ubuntu:ubuntu ./actions-runner
-  cd actions-runner
+    echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    sudo chown ubuntu:ubuntu ./actions-runner
+    cd actions-runner
+    sudo chown ubuntu:ubuntu ./s3bucket
 
-  for i in $(seq 1 $X); do
-    echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
+    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    
+    for i in $(seq 1 $X); do
+      echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-    unique_value=$(date +%s)
-    name="Harrier Runner-$unique_value-$i"
+      unique_value=$(date +%s)
+      name="Harrier Runner-$unique_value-$i"
 
-    echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-    response=$(curl -L \
-      -X POST \
-      -H "Accept: application/vnd.github+json" \
-      -H "Authorization: Bearer ${secret}" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-      -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
+      response=$(curl -L \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${secret}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
 
-    echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-    runner_id=$(echo "$response" | jq '.runner.id')
-    runner_name=$(echo "$response" | jq -r '.runner.name')
-    encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+      runner_id=$(echo "$response" | jq '.runner.id')
+      runner_name=$(echo "$response" | jq -r '.runner.name')
+      encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
 
-    echo "Runner ID: $runner_id"
-    echo "Runner Name: $runner_name"
+      echo "Runner ID: $runner_id"
+      echo "Runner Name: $runner_name"
 
-    # Launch run.sh in the background for each iteration
-    su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
+      # Launch run.sh in the background for each iteration
+      su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
 
-    echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
-    sleep 2
-  done
+      echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
+      sleep 2
+    done
 
-  echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
-
-  //   return `#!/bin/bash
-  //       echo "executing standby script"
-  //       echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  //       cd /home/ubuntu/actions-runner
-
-  //       unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
-  //       name="Harrier Runner-$unique_value"
-
-  //       echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       response=$(curl -L -X POST \
-  //           -H "Accept: application/vnd.github+json" \
-  //           -H "Authorization: Bearer ${secret}" \
-  //           -H "X-GitHub-Api-Version: 2022-11-28" \
-  //           https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-  //           -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
-
-  //       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       runner_id=$(echo "$response" | jq '.runner.id')
-  //       runner_name=$(echo "$response" | jq -r '.runner.name')
-  //       encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
-
-  //       echo "Runner ID: $runner_id"
-  //       echo "Runner Name: $runner_name"
-
-  //       su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
-
-  //       echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
+    echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
 }
 
 function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
-  // new script:
   return `#!/bin/bash
-  echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-  # X variable below is for possible future multiple runners on a single instance
-  X=1
-  
-  echo $USER
-  echo "Is user in docker group??"
-  getent group docker
+    # X variable below is for possible future multiple runners on a single instance
+    X=1
+    
+    echo $USER
+    echo "Is user in docker group??"
+    getent group docker
 
-  cd /home/ubuntu
+    cd /home/ubuntu
 
-  echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  sudo chown ubuntu:ubuntu ./actions-runner
-  cd actions-runner
-  sudo chown ubuntu:ubuntu ./s3bucket
+    echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    sudo chown ubuntu:ubuntu ./actions-runner
+    cd actions-runner
+    sudo chown ubuntu:ubuntu ./s3bucket
 
-  echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
-  echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-  for i in $(seq 1 $X); do
-    echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
+    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    
+    for i in $(seq 1 $X); do
+      echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-    unique_value=$(date +%s)
-    name="Harrier Runner-$unique_value-$i"
+      unique_value=$(date +%s)
+      name="Harrier Runner-$unique_value-$i"
 
-    echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-    response=$(curl -L \
-      -X POST \
-      -H "Accept: application/vnd.github+json" \
-      -H "Authorization: Bearer ${secret}" \
-      -H "X-GitHub-Api-Version: 2022-11-28" \
-      https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-      -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
+      response=$(curl -L \
+        -X POST \
+        -H "Accept: application/vnd.github+json" \
+        -H "Authorization: Bearer ${secret}" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
 
-    echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-    runner_id=$(echo "$response" | jq '.runner.id')
-    runner_name=$(echo "$response" | jq -r '.runner.name')
-    encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+      runner_id=$(echo "$response" | jq '.runner.id')
+      runner_name=$(echo "$response" | jq -r '.runner.name')
+      encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
 
-    echo "Runner ID: $runner_id"
-    echo "Runner Name: $runner_name"
+      echo "Runner ID: $runner_id"
+      echo "Runner Name: $runner_name"
 
-    # Launch run.sh in the background for each iteration
-    su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
+      # Launch run.sh in the background for each iteration
+      su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
 
-    echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
-    sleep 2
-  done
+      echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+      echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
+      sleep 2
+    done
 
-  echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
-
-  //   return `#!/bin/bash
-  //       echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       echo $USER
-  //       echo "Is user in docker group??"
-  //       groups
-  //       getent group docker
-
-  //       cd /home/ubuntu/actions-runner
-
-  //       unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
-  //       name="Harrier Runner-$unique_value"
-
-  //       echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       response=$(curl -L -X POST \
-  //           -H "Accept: application/vnd.github+json" \
-  //           -H "Authorization: Bearer ${secret}" \
-  //           -H "X-GitHub-Api-Version: 2022-11-28" \
-  //           https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-  //           -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
-
-  //       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       runner_id=$(echo "$response" | jq '.runner.id')
-  //       runner_name=$(echo "$response" | jq -r '.runner.name')
-  //       encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
-
-  //       echo "Runner ID: $runner_id"
-  //       echo "Runner Name: $runner_name"
-
-  //       echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  //       cd ..
-  //       sudo chown ubuntu:ubuntu ./actions-runner
-  //       cd actions-runner
-  //       sudo chown ubuntu:ubuntu ./s3bucket
-
-  //       echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
-
-  //       echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-
-  //       su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
-
-  //       echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  //       echo "Done..."`;
+    echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
 }
 
 async function getSecret() {
@@ -377,6 +304,7 @@ async function findSuitableRunner(instanceIds, s3BucketName) {
   }
 }
 
+
 // utility function for reading the s3 object's data
 async function streamToString(stream) {
   const chunks = [];
@@ -451,8 +379,6 @@ async function invokeTimeoutLambda(instanceId, wait) {
       }),
     });
 
-    await lambdaClient.send(invoke);
-
     const response = await lambdaClient.send(invoke);
 
     console.log(
@@ -464,6 +390,7 @@ async function invokeTimeoutLambda(instanceId, wait) {
     throw error;
   }
 }
+
 
 export const handler = async (event) => {
   if (event.zen) {
@@ -510,10 +437,10 @@ export const handler = async (event) => {
           await startStoppedInstance(instanceId);
 
           console.log(`waiting for stopped instance to start...`);
-          await waitUntilInstanceRunning(
-            { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
-            { InstanceIds: [instanceId] }
-          );
+//           await waitUntilInstanceRunning(
+//             { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
+//             { InstanceIds: [instanceId] }
+//           );
 
           const startStoppedEC2Script = makeScriptForStoppedEC2(
             secret,

@@ -12,10 +12,7 @@ export const createEC2 = async () => {
   const client = new EC2Client({ region: configHarrier.region });
 
   const amiId = configHarrier.imageId;
-  const instanceType: _InstanceType =
-    configHarrier.instanceType === "m7a.medium"
-      ? configHarrier.instanceType
-      : "t2.micro";
+  const instanceType = configHarrier.instanceType;
   const keyName = configHarrier.keyName;
   const minCount = configHarrier.minInstanceCount;
   const maxCount = configHarrier.maxInstanceCount;
@@ -32,9 +29,7 @@ export const createEC2 = async () => {
     },
   ];
 
-  // const userDataScript = startScript;
   const userDataScript = getStartScript();
-  // console.log(userDataScript);
 
   // Encode the script in base64 as required by AWS
   const userData = Buffer.from(userDataScript).toString("base64");
@@ -45,6 +40,15 @@ export const createEC2 = async () => {
     KeyName: keyName,
     MinCount: minCount, // Minimum instances to launch
     MaxCount: maxCount, // Maximum instances to launch
+     BlockDeviceMappings: [
+      {
+        DeviceName: "/dev/sda1",
+        Ebs: {
+          VolumeSize: 16, // Size of the volume in GB
+          VolumeType: "gp3",
+        },
+      },
+    ],
     SecurityGroupIds: securityGroupIds, // Security group IDs
     SubnetId: subnetId, // Subnet ID (optional)
     IamInstanceProfile: iamInstanceProfile, // IAM resource profile

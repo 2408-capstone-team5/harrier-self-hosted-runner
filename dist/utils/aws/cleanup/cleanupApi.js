@@ -16,7 +16,7 @@ const apiGatewayClient = new client_api_gateway_1.APIGatewayClient({ region: "us
 const cleanupApi = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
-        console.log("Start API cleanup");
+        console.log("** Start API cleanup");
         const getRestApisCommand = new client_api_gateway_1.GetRestApisCommand({});
         const apiResponse = yield apiGatewayClient.send(getRestApisCommand);
         const apis = apiResponse.items || [];
@@ -24,22 +24,22 @@ const cleanupApi = () => __awaiter(void 0, void 0, void 0, function* () {
             if ((_a = api.name) === null || _a === void 0 ? void 0 : _a.startsWith("harrier")) {
                 // Filter by API name
                 try {
-                    console.log(`Deleting API Gateway REST API: ${api.id} - ${api.name}`);
+                    console.log(`   Deleting API Gateway REST API: ${api.id} - ${api.name}`);
                     const deleteRestApiCommand = new client_api_gateway_1.DeleteRestApiCommand({
                         restApiId: api.id,
                     });
                     yield apiGatewayClient.send(deleteRestApiCommand);
-                    console.log(`API Gateway REST API deleted: ${api.id}`);
+                    console.log(`   API Gateway REST API deleted: ${api.id}`);
                 }
                 catch (error) {
-                    console.error(`Error deleting API Gateway REST API ${api.id}:`, error);
+                    console.error(`❌ Error deleting API Gateway REST API ${api.id}:`, error);
                 }
             }
         }
-        console.log("*** API cleanup complete ***");
+        console.log("✅ Successfully completed API cleanup.\n");
     }
     catch (error) {
-        console.error("Error listing API Gateway REST APIs:", error);
+        console.error("❌ Error cleaning up API Gateway REST APIs: ", error, "\n");
     }
 });
 exports.cleanupApi = cleanupApi;

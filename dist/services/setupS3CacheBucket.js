@@ -17,6 +17,7 @@ const client = new client_s3_1.S3Client({ region: configHarrier_1.configHarrier.
 const maxWaitTime = 60;
 const setupS3CacheBucket = () => __awaiter(void 0, void 0, void 0, function* () {
     const bucketName = `${configHarrier_1.configHarrier.s3Name}`;
+    console.log("** Starting setupS3CacheBucket...");
     yield (0, createS3_1.createS3)(client, bucketName, maxWaitTime);
 });
 exports.setupS3CacheBucket = setupS3CacheBucket;

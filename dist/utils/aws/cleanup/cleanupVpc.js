@@ -44,7 +44,7 @@ const deleteSubnets = (vpcId) => __awaiter(void 0, void 0, void 0, function* () 
     const response = yield ec2Client.send(command);
     const subnets = response.Subnets;
     if (!subnets) {
-        console.log("No subnets found.");
+        console.log("   No subnets found.");
         return;
     }
     for (const subnet of subnets) {
@@ -53,10 +53,10 @@ const deleteSubnets = (vpcId) => __awaiter(void 0, void 0, void 0, function* () 
                 SubnetId: subnet.SubnetId,
             });
             yield ec2Client.send(deleteSubnetCommand);
-            console.log(`Subnet ${subnet.SubnetId} deleted.`);
+            console.log(`   Subnet ${subnet.SubnetId} deleted.`);
         }
         catch (error) {
-            console.error(`Failed to delete subnet ${subnet.SubnetId}:`, error);
+            console.error(`❌ Error deleting subnet ${subnet.SubnetId}:`, error);
         }
     }
 });
@@ -73,7 +73,7 @@ const deleteInternetGateways = (vpcId) => __awaiter(void 0, void 0, void 0, func
     const response = yield ec2Client.send(command);
     const internetGateways = response.InternetGateways;
     if (!internetGateways) {
-        console.log("No internet gateways found.");
+        console.log("   No internet gateways found.");
         return;
     }
     for (const igw of internetGateways) {
@@ -84,16 +84,16 @@ const deleteInternetGateways = (vpcId) => __awaiter(void 0, void 0, void 0, func
                 VpcId: vpcId,
             });
             yield ec2Client.send(detachCommand);
-            console.log(`Internet Gateway ${igw.InternetGatewayId} detached.`);
+            console.log(`   Internet Gateway ${igw.InternetGatewayId} detached.`);
             // Then delete the Internet Gateway
             const deleteCommand = new client_ec2_1.DeleteInternetGatewayCommand({
                 InternetGatewayId: igw.InternetGatewayId,
             });
             yield ec2Client.send(deleteCommand);
-            console.log(`Internet Gateway ${igw.InternetGatewayId} deleted.`);
+            console.log(`   Internet Gateway ${igw.InternetGatewayId} deleted.`);
         }
         catch (error) {
-            console.error(`Failed to delete Internet Gateway ${igw.InternetGatewayId}:`, error);
+            console.error(`❌ Error deleting Internet Gateway ${igw.InternetGatewayId}:`, error);
         }
     }
 });
@@ -108,30 +108,31 @@ const deleteVpcAndResources = (vpcId) => __awaiter(void 0, void 0, void 0, funct
             VpcId: vpcId,
         });
         yield ec2Client.send(deleteVpcCommand);
-        console.log(`VPC ${vpcId} deleted.`);
+        console.log(`   VPC ${vpcId} deleted.`);
     }
     catch (error) {
-        console.error(`Failed to delete VPC ${vpcId}:`, error);
+        console.error(`❌ Error deleting VPC ${vpcId}:`, error);
     }
 });
 // Main function to process all VPCs with name starting with "Harrier"
 const cleanupVpc = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        console.log("Start VPC cleanup");
+        console.log("** Start VPC cleanup");
         const vpcs = yield findVpcsWithNamePrefix("harrier");
         if (vpcs.length === 0) {
-            console.log('No VPCs found with the prefix "harrier".');
-            return;
+            console.log('   No VPCs found with the prefix "harrier".');
         }
-        for (const vpc of vpcs) {
-            console.log(`Processing VPC: ${vpc}`);
-            // Delete the VPC and its resources
-            yield deleteVpcAndResources(vpc);
+        else {
+            for (const vpc of vpcs) {
+                console.log(`   Processing VPC: ${vpc}`);
+                // Delete the VPC and its resources
+                yield deleteVpcAndResources(vpc);
+            }
         }
-        console.log("*** VPC cleanup complete ***");
+        console.log("✅ Successfully completed VPC cleanup.\n");
     }
     catch (error) {
-        console.error("Error processing VPCs:", error);
+        console.error("❌ Error processing VPCs:", error, "\n");
     }
 });
 exports.cleanupVpc = cleanupVpc;

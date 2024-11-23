@@ -30,10 +30,10 @@ const createSecurityGroup = () => __awaiter(void 0, void 0, void 0, function* ()
         }
         configHarrier_1.configHarrier.securityGroupName = securityGroupName;
         configHarrier_1.configHarrier.securityGroupIds = [securityGroupId];
-        console.log("*** Security group created:", securityGroupId);
+        console.log("   Security group created:", securityGroupId);
     }
     catch (error) {
-        console.error("Error creating security group:", error);
+        console.error("❌ Error creating security group:", error);
     }
 });
 exports.createSecurityGroup = createSecurityGroup;

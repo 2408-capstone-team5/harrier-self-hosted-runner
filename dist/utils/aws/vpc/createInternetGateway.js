@@ -30,7 +30,7 @@ const createInternetGateway = () => __awaiter(void 0, void 0, void 0, function* 
             !response.InternetGateway.InternetGatewayId) {
             throw new Error("Internet Gateway Creation Failed!");
         }
-        console.log(`Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier_1.configHarrier.vpcId}`);
+        console.log(`   Internet Gateway Created: ${response.InternetGateway.InternetGatewayId}  VPC Id: ${configHarrier_1.configHarrier.vpcId}`);
         return response.InternetGateway.InternetGatewayId;
     }
     catch (error) {

@@ -16,9 +16,7 @@ const setup_1 = require("../../../scripts/setup");
 const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
     const client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
     const amiId = configHarrier_1.configHarrier.imageId;
-    const instanceType = configHarrier_1.configHarrier.instanceType === "m7a.medium"
-        ? configHarrier_1.configHarrier.instanceType
-        : "t2.micro";
+    const instanceType = configHarrier_1.configHarrier.instanceType;
     const keyName = configHarrier_1.configHarrier.keyName;
     const minCount = configHarrier_1.configHarrier.minInstanceCount;
     const maxCount = configHarrier_1.configHarrier.maxInstanceCount;
@@ -34,9 +32,7 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
             ],
         },
     ];
-    // const userDataScript = startScript;
     const userDataScript = (0, setup_1.getStartScript)();
-    console.log(userDataScript);
     // Encode the script in base64 as required by AWS
     const userData = Buffer.from(userDataScript).toString("base64");
     const params = {
@@ -45,6 +41,15 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         KeyName: keyName,
         MinCount: minCount,
         MaxCount: maxCount,
+        BlockDeviceMappings: [
+            {
+                DeviceName: "/dev/sda1",
+                Ebs: {
+                    VolumeSize: 16,
+                    VolumeType: "gp3",
+                },
+            },
+        ],
         SecurityGroupIds: securityGroupIds,
         SubnetId: subnetId,
         IamInstanceProfile: iamInstanceProfile,
@@ -58,7 +63,7 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         if (instanceData.Instances && instanceData.Instances[0].InstanceId) {
             instanceId = instanceData.Instances[0].InstanceId;
         }
-        console.log(`*** Created instance with ID: ${instanceId} ***`);
+        console.log(`✅ Successfully created instance with ID: ${instanceId}\n`);
         return instanceId;
     }
     catch (error) {

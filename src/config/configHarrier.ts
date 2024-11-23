@@ -1,12 +1,22 @@
 import { configHarrierType } from "../types/typesConfig";
 import { installationHash } from "./installationHash";
-
+import { _InstanceType } from "@aws-sdk/client-ec2";
+import { toInstanceType } from "../types/ec2InstancesType";
 import { getInput } from "@actions/core";
+
+const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.xlarge";
 
 const awsRegion = getInput("region") || "us-east-1";
 const ghOwnerName = getInput("ghOwnerName") || "2408-capstone-team5";
 const awsAccountId = getInput("awsAccountId") || "536697269866";
-const instanceType = getInput("instanceType") || "t2.micro";
+
+const possibleInstanceType = toInstanceType(getInput("instanceType"));
+const instanceType = possibleInstanceType
+  ? possibleInstanceType
+  : DEFAULT_INSTANCE_TYPE;
+
+console.log(`Using instanceType: ${instanceType}`);
+
 const cacheTtlHours = getInput("cacheTtlHours") || "72";
 const cidrBlockVPC = getInput("cidrBlockVPC") || "10.0.0.0/16";
 const cidrBlockSubnet = getInput("cidrBlockSubnet") || "10.0.0.0/24";
@@ -25,7 +35,8 @@ export const configHarrier: configHarrierType = {
   //   logGroup: "/aws/lambda/joel_test",
   region: awsRegion,
   awsAccountId: awsAccountId,
-  imageId: "ami-063d43db0594b521b", // AMI ID for the instance
+  // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
+  imageId: "ami-005fc0f236362e99f",  // AMI Ubuntu 22.04
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
   instanceType: instanceType, // EC2 instance type, default from workflow is t2.micro
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
@@ -59,54 +70,6 @@ export const harrierLambda_Eviction = {};
 export const harrierLambda_Scheduler = {};
 export const harrierRestApi = {};
 
-// export const workflowPolicyDocument = JSON.stringify({
-//   Version: "2012-10-17",
-//   Statement: [
-//     {
-//       Sid: "VisualEditor0",
-//       Effect: "Allow",
-//       Action: ["ec2:StartInstances", "ec2:StopInstances"],
-//       Resource: `arn:aws:ec2:*:${configHarrier.awsAccountId}:instance/*`,
-//       Condition: {
-//         StringEquals: {
-//           "ec2:ResourceTag/Agent": "Harrier-Runner",
-//         },
-//       },
-//     },
-//     {
-//       Sid: "VisualEditor1",
-//       Effect: "Allow",
-//       Action: ["ssm:SendCommand", "logs:CreateLogGroup"],
-//       Resource: [
-//         `arn:aws:ec2:*:${configHarrier.awsAccountId}:instance/*`,
-//         "arn:aws:ssm:*:*:document/AWS-RunShellScript",
-//         `arn:aws:logs:*:${configHarrier.awsAccountId}:log-group:*`,
-//       ],
-//     },
-//     {
-//       Sid: "VisualEditor2",
-//       Effect: "Allow",
-//       Action: [
-//         "logs:CreateLogStream",
-//         "s3:GetBucketTagging",
-//         "secretsmanager:GetSecretValue",
-//         "logs:PutLogEvents",
-//       ],
-//       Resource: [
-//         "arn:aws:s3:::harrier*",
-//         `arn:aws:secretsmanager:*:${configHarrier.awsAccountId}:secret:${configHarrier.secretName}*`,
-//         `arn:aws:logs:*:${configHarrier.awsAccountId}:log-group:*:log-stream:*`,
-//       ],
-//     },
-//     {
-//       Sid: "VisualEditor3",
-//       Effect: "Allow",
-//       Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
-//       Resource: "*",
-//     },
-//   ],
-// });
-
 export const evictionPolicyDocument = JSON.stringify({});
 export const apiResourcePolicyDocument = JSON.stringify({
   Version: "2012-10-17",
@@ -131,4 +94,3 @@ export const apiResourcePolicyDocument = JSON.stringify({
     },
   ],
 });
-// export const harrierWebhook = {};
