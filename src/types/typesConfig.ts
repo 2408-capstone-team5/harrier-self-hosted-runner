@@ -36,4 +36,9 @@ export interface configHarrierType {
   runnerInstanceServiceRoleArn: string;
   schedulerServiceRoleArn: string;
   stageName: string;
+
+  harrierTagKey: string;
+  harrierTagValue: string;
+  ssmSendCommandTimeout: number;
+  maxWaiterTimeInSeconds: number;
 }

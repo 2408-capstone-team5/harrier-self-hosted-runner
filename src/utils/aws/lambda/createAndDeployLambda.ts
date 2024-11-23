@@ -20,30 +20,34 @@ export async function createAndDeployLambda(
 
     const zipFile = getLambda(lambdaName);
 
-    await lambdaClient.send(
-      new CreateFunctionCommand({
-        Timeout: 900, // this seems high
-        FunctionName: lambdaName,
-        Role: lambdaRoleArn,
-        Description: `The ${lambdaName} lambda`,
-        Code: { ZipFile: zipFile },
-        Tags: {
-          Name: `${configHarrier.tagValue}`,
+    const createFunction = new CreateFunctionCommand({
+      Timeout: 900, // this seems high
+      FunctionName: lambdaName,
+      Role: lambdaRoleArn,
+      Description: `The ${lambdaName} lambda`,
+      Code: { ZipFile: zipFile },
+      Tags: {
+        Name: `${configHarrier.tagValue}`,
+      },
+      Environment: {
+        Variables: {
+          REGION: configHarrier.region,
+          TTL: configHarrier.cacheTtlHours,
+          BUCKET: configHarrier.s3Name,
+          secretName: configHarrier.secretName,
+          harrierTagKey: configHarrier.harrierTagKey,
+          harrierTagValue: configHarrier.harrierTagValue, // just fyi this and 'tagValue' in config harrier are different value
+          ssmSendCommandTimeout: configHarrier.ssmSendCommandTimeout,
+          maxWaiterTimeInSeconds: configHarrier.maxWaiterTimeInSeconds,
         },
-        Environment: {
-          Variables: {
-            REGION: configHarrier.region,
-            TTL: configHarrier.cacheTtlHours,
-            BUCKET: configHarrier.s3Name,
-          },
-        },
-        Runtime: "nodejs20.x",
-        Handler: "index.handler",
-        Publish: true,
-        PackageType: "Zip",
-        Layers: [],
-      })
-    );
+      },
+      Runtime: "nodejs20.x",
+      Handler: "index.handler",
+      Publish: true,
+      PackageType: "Zip",
+      Layers: [],
+    });
+    await lambdaClient.send(createFunction);
 
     console.log(`✅ CREATED ${lambdaName} lambda`);
 

@@ -24,14 +24,21 @@ import {
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 
 // ideally we could put all of these in the `configHarrier` file
+// const HARRIER_TAG_KEY = "Agent";
+// const HARRIER_TAG_VALUE = "Harrier-Runner";
+// const REGION = process.env.AWS_REGION;
+
+// const SSM_SEND_COMMAND_TIMEOUT = 100;
+// const MAX_WAITER_TIME_IN_SECONDS = 60 * 4;
+// const SECRET_NAME = "github/pat/harrier";
+
 const HARRIER_TAG_KEY = "Agent";
 const HARRIER_TAG_VALUE = "Harrier-Runner";
 const REGION = process.env.AWS_REGION;
 
 const SSM_SEND_COMMAND_TIMEOUT = 100;
 const MAX_WAITER_TIME_IN_SECONDS = 60 * 4;
-const SECRET_NAME = "github/pat/harrier";
-
+// const SECRET_NAME = "github/pat/harrier";
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   SecretsManagerClient,
   SSMClient,
@@ -39,7 +46,6 @@ const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   S3Client,
   LambdaClient,
 ].map((client) => new client({ region: REGION }));
-
 
 function makeScriptForIdleEC2(secret, owner, instanceId) {
   return `#!/bin/bash
@@ -225,7 +231,8 @@ async function runCommand(params, retries = SSM_SEND_COMMAND_TIMEOUT) {
   throw new Error(`❌ SSM Send Command timed out after ${retries} tries!`);
 }
 
-async function startStoppedInstance(instanceId) { // stopped or 'offline'
+async function startStoppedInstance(instanceId) {
+  // stopped or 'offline'
   try {
     console.log(`🚀 Starting a stopped instance: ${instanceId}`);
     const start = new StartInstancesCommand({ InstanceIds: [instanceId] });
@@ -365,7 +372,7 @@ async function invokeTimeoutLambda(instanceId, delayInMinutes, s3BucketName) {
       Payload: JSON.stringify({
         instanceId,
         delayInMinutes,
-        s3BucketName
+        s3BucketName,
       }),
     });
 
@@ -382,7 +389,7 @@ async function invokeTimeoutLambda(instanceId, delayInMinutes, s3BucketName) {
 }
 
 export const handler = async (event) => {
-  if ('zen' in event) {
+  if ("zen" in event) {
     return {
       statusCode: 200,
       body: JSON.stringify(`✅ Successful ping: ${event.zen}`),
@@ -404,7 +411,8 @@ export const handler = async (event) => {
           s3BucketName
         );
 
-        if (currentStatus === "busy") { // busy means: no idle or offline instances were found
+        if (currentStatus === "busy") {
+          // busy means: no idle or offline instances were found
           console.log(`⚠️ all harrier runners are busy at the moment`);
           console.error("**ec2 runner creation and cold start required**");
           // @Shane or @Wook
@@ -425,10 +433,10 @@ export const handler = async (event) => {
           await startStoppedInstance(instanceId);
 
           console.log(`waiting for offline instance to start...`);
-        //   await waitUntilInstanceRunning(
-        //     { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
-        //     { InstanceIds: [instanceId] }
-        //   );
+          //   await waitUntilInstanceRunning(
+          //     { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
+          //     { InstanceIds: [instanceId] }
+          //   );
 
           const startOfflineEC2Script = makeScriptForOfflineEC2(
             secret,
@@ -460,7 +468,11 @@ export const handler = async (event) => {
         const existingEC2RunnerInstanceId = event.workflow_job.labels.at(-1); // this should always be an ec2 runner instanceId string value
         const delay = 3; // wait 3 minutes
 
-        await invokeTimeoutLambda(existingEC2RunnerInstanceId, delay, s3BucketName);
+        await invokeTimeoutLambda(
+          existingEC2RunnerInstanceId,
+          delay,
+          s3BucketName
+        );
 
         console.log(
           `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda(${existingEC2RunnerInstanceId}, ${delay}, ${s3BucketName});`

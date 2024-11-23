@@ -36,7 +36,7 @@ export const configHarrier: configHarrierType = {
   region: awsRegion,
   awsAccountId: awsAccountId,
   // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
-  imageId: "ami-005fc0f236362e99f",  // AMI Ubuntu 22.04
+  imageId: "ami-005fc0f236362e99f", // AMI Ubuntu 22.04
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
   instanceType: instanceType, // EC2 instance type, default from workflow is t2.micro
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
@@ -45,7 +45,6 @@ export const configHarrier: configHarrierType = {
   IamInstanceProfile: {
     Name: "EC2-access-S3", // this will change as it is created programmatically
   },
-  secretName: "github/pat/harrier", // githubPAT
   ghOwnerName: ghOwnerName,
   githubUrl: `https://github.com/${ghOwnerName}`,
   s3Name: `harrier-s3-${ghOwnerName}`,
@@ -61,6 +60,13 @@ export const configHarrier: configHarrierType = {
   runnerInstanceServiceRoleArn: "",
   schedulerServiceRoleArn: "",
   stageName: "dev",
+
+  // all currently used by the workflow lambda:
+  secretName: "github/pat/harrier",
+  harrierTagKey: "Agent",
+  harrierTagValue: "Harrier-Runner",
+  ssmSendCommandTimeout: 100,
+  maxWaiterTimeInSeconds: 60 * 4,
 };
 
 export const harrierVPC = {};
@@ -72,7 +78,6 @@ export const harrierLambda_Eviction = {};
 export const harrierLambda_Scheduler = {};
 export const harrierRestApi = {};
 
-export const evictionPolicyDocument = JSON.stringify({});
 export const apiResourcePolicyDocument = JSON.stringify({
   Version: "2012-10-17",
   Statement: [
