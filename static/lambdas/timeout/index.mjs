@@ -13,5 +13,13 @@ async function stopInstance(instanceId) {
 }
 
 export const handler = async (event) => {
-    
+  console.log(
+    `args passed: instanceId: ${event.instanceId}, wait: ${event.wait}`
+  );
+  console.log({ event });
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify("Hello from Timeout!"),
+  };
 };

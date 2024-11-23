@@ -13,6 +13,7 @@ import {
   SecretsManagerClient,
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
+
 import {
   S3Client,
   ListBucketsCommand,
@@ -38,125 +39,194 @@ const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   LambdaClient,
 ].map((client) => new client({ region: REGION }));
 
-// this functionality has been moved to the `timeout` lambda
-
-// async function stopInstance(instanceId) {
-//   try {
-//     const stop = new StopInstancesCommand({ InstanceIds: [instanceId] });
-//     const response = await ec2Client.send(stop);
-//     console.log("✅ Stopping instance:", response.StoppingInstances);
-//   } catch (error) {
-//     console.error("❌ Error stopping instance:", error);
-//   }
-// }
-
-// async function findInstance(state) {
-//   try {
-//     const describe = new DescribeInstancesCommand({
-//       Filters: [
-//         { Name: `tag:${HARRIER_TAG_KEY}`, Values: [HARRIER_TAG_VALUE] },
-//         // { Name: "instance-state-name", Values: [state] },
-//       ],
-//     });
-
-//     const data = await ec2Client.send(describe);
-
-//     if (data.Reservations?.length) {
-//       const instanceId = data.Reservations[0].Instances[0].InstanceId;
-//       console.log("✅ Found instance:", instanceId);
-//       return instanceId;
-//     } else {
-//       console.log("❌ No instances found with the specified state and tag.");
-//     }
-//   } catch (error) {
-//     console.error(
-//       "❌ Error finding instance:",
-//       error instanceof Error ? error.message : error
-//     );
-//   }
-// }
-
 function makeScriptForStandbyEC2(secret, owner, instanceId) {
   return `#!/bin/bash
-      echo "executing standby script"
-      echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-      cd /home/ubuntu/actions-runner
-  
-      unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
-      name="Harrier Runner-$unique_value" 
-  
-      echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-      response=$(curl -L -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${secret}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-          -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
-  
+  echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-      echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  # X variable below is for possible future multiple runners on a single instance
+  X=1
   
-      runner_id=$(echo "$response" | jq '.runner.id')
-      runner_name=$(echo "$response" | jq -r '.runner.name')
-      encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
-  
-      echo "Runner ID: $runner_id"
-      echo "Runner Name: $runner_name"
+  echo $USER
+  echo "Is user in docker group??"
+  getent group docker
 
-      su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
-  
-      echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
+  cd /home/ubuntu
+
+  echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  sudo chown ubuntu:ubuntu ./actions-runner
+  cd actions-runner
+
+  for i in $(seq 1 $X); do
+    echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    unique_value=$(date +%s)
+    name="Harrier Runner-$unique_value-$i"
+
+    echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    response=$(curl -L \
+      -X POST \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer ${secret}" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+      -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
+
+    echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    runner_id=$(echo "$response" | jq '.runner.id')
+    runner_name=$(echo "$response" | jq -r '.runner.name')
+    encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+
+    echo "Runner ID: $runner_id"
+    echo "Runner Name: $runner_name"
+
+    # Launch run.sh in the background for each iteration
+    su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
+
+    echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
+    sleep 2
+  done
+
+  echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
+
+  //   return `#!/bin/bash
+  //       echo "executing standby script"
+  //       echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  //       cd /home/ubuntu/actions-runner
+
+  //       unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
+  //       name="Harrier Runner-$unique_value"
+
+  //       echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       response=$(curl -L -X POST \
+  //           -H "Accept: application/vnd.github+json" \
+  //           -H "Authorization: Bearer ${secret}" \
+  //           -H "X-GitHub-Api-Version: 2022-11-28" \
+  //           https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+  //           -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
+
+  //       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       runner_id=$(echo "$response" | jq '.runner.id')
+  //       runner_name=$(echo "$response" | jq -r '.runner.name')
+  //       encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+
+  //       echo "Runner ID: $runner_id"
+  //       echo "Runner Name: $runner_name"
+
+  //       su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
+
+  //       echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
 }
 
 function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
+  // new script:
   return `#!/bin/bash
-      echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  # X variable below is for possible future multiple runners on a single instance
+  X=1
   
-      echo $USER
-      echo "Is user in docker group??"
-      groups
-      getent group docker
+  echo $USER
+  echo "Is user in docker group??"
+  getent group docker
+
+  cd /home/ubuntu
+
+  echo "change dir perms.. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  sudo chown ubuntu:ubuntu ./actions-runner
+  cd actions-runner
+  sudo chown ubuntu:ubuntu ./s3bucket
+
+  echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
+  echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
   
-      cd /home/ubuntu/actions-runner
-  
-      unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
-      name="Harrier Runner-$unique_value" 
-  
-      echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-      response=$(curl -L -X POST \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${secret}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-          -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
-  
-      echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-      runner_id=$(echo "$response" | jq '.runner.id')
-      runner_name=$(echo "$response" | jq -r '.runner.name')
-      encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
-  
-      echo "Runner ID: $runner_id"
-      echo "Runner Name: $runner_name"
-  
-      echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-      cd ..
-      sudo chown ubuntu:ubuntu ./actions-runner
-      cd actions-runner
-      sudo chown ubuntu:ubuntu ./s3bucket
-  
-      echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-      su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
-  
-      echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-  
-      su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
-  
-      echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-      echo "Done..."`;
+  for i in $(seq 1 $X); do
+    echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    unique_value=$(date +%s)
+    name="Harrier Runner-$unique_value-$i"
+
+    echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    response=$(curl -L \
+      -X POST \
+      -H "Accept: application/vnd.github+json" \
+      -H "Authorization: Bearer ${secret}" \
+      -H "X-GitHub-Api-Version: 2022-11-28" \
+      https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+      -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
+
+    echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+    runner_id=$(echo "$response" | jq '.runner.id')
+    runner_name=$(echo "$response" | jq -r '.runner.name')
+    encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+
+    echo "Runner ID: $runner_id"
+    echo "Runner Name: $runner_name"
+
+    # Launch run.sh in the background for each iteration
+    su - ubuntu -c "newgrp docker && nohup /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config > /home/ubuntu/actions-runner/run-$i.log 2>&1 &"
+
+    echo "After su run.sh for iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+    echo "Sleep 2 seconds to avoid hitting Github too fast with new runner requests"
+    sleep 2
+  done
+
+  echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
+
+  //   return `#!/bin/bash
+  //       echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       echo $USER
+  //       echo "Is user in docker group??"
+  //       groups
+  //       getent group docker
+
+  //       cd /home/ubuntu/actions-runner
+
+  //       unique_value=$(date +%s)               # maybe instead of the date, we can just pass in the harrierTag value as unique?
+  //       name="Harrier Runner-$unique_value"
+
+  //       echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       response=$(curl -L -X POST \
+  //           -H "Accept: application/vnd.github+json" \
+  //           -H "Authorization: Bearer ${secret}" \
+  //           -H "X-GitHub-Api-Version: 2022-11-28" \
+  //           https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
+  //           -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted","${instanceId}"],"work_folder":"_work"}')
+
+  //       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       runner_id=$(echo "$response" | jq '.runner.id')
+  //       runner_name=$(echo "$response" | jq -r '.runner.name')
+  //       encoded_jit_config=$(echo "$response" | jq -r '.encoded_jit_config')
+
+  //       echo "Runner ID: $runner_id"
+  //       echo "Runner Name: $runner_name"
+
+  //       echo "Before cd .. - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  //       cd ..
+  //       sudo chown ubuntu:ubuntu ./actions-runner
+  //       cd actions-runner
+  //       sudo chown ubuntu:ubuntu ./s3bucket
+
+  //       echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
+
+  //       echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+
+  //       su - ubuntu -c "newgrp docker && /home/ubuntu/actions-runner/run.sh --jitconfig $encoded_jit_config"
+
+  //       echo "After su run.sh - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
+  //       echo "Done..."`;
 }
 
 async function getSecret() {
@@ -183,20 +253,30 @@ async function findS3Bucket() {
       const taggingData = await s3Client.send(
         new GetBucketTaggingCommand({ Bucket: bucket.Name })
       );
-      const bucketHasHarrierTag = !!taggingData.TagSet.some(
+
+      const bucketHasHarrierTag = taggingData.TagSet.some(
         (tag) => tag.Key === HARRIER_TAG_KEY && tag.Value === HARRIER_TAG_VALUE
       );
 
-      if (!bucketHasHarrierTag) {
-        throw new Error("❌ S3 bucket not found!");
+      if (bucketHasHarrierTag) {
+        console.log(`✅ Bucket found: ${bucket.Name}`);
+        return bucket.Name;
       }
-
-      console.log(`✅ Bucket found: ${bucket.Name}`);
-      return bucket.Name;
     } catch (error) {
-      console.error(`❌ Error fetching bucket ${bucket.Name}: `, error);
+      if (error.name === "NoSuchTagSet") {
+        console.warn(`⚠️ Bucket ${bucket.Name} does not have tagging.`);
+      } else {
+        console.error(
+          `❌ Error fetching or checking tags of bucket ${bucket.Name}: `,
+          error
+        );
+      }
     }
   }
+
+  throw new Error(
+    "❌ An S3 bucket with HARRIER_TAG_KEY: HARRIER_TAG_VALUE was not found!"
+  );
 }
 
 async function runCommand(params, retries = SSM_SEND_COMMAND_TIMEOUT) {
@@ -252,24 +332,45 @@ async function getAllHarrierRunners() {
   }
 }
 
-async function findSuitableRunner(instanceIds) {
+async function checkInstanceStatus(
+  s3BucketName,
+  instanceId,
+  searchedForStatus
+) {
+  try {
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: s3BucketName,
+        Key: `runner-statuses/${instanceId}.json`,
+      })
+    );
+
+    const bodyString = await streamToString(response.Body);
+    const instanceState = JSON.parse(bodyString);
+
+    return instanceState.status === searchedForStatus; // if the strings match, return true
+  } catch (error) {
+    console.error(`❌ error in checkInstanceStatus`, error);
+  }
+}
+
+async function findSuitableRunner(instanceIds, s3BucketName) {
   try {
     for (const id of instanceIds) {
-      const isStandby = await checkInstanceStatus(id, "standby");
-      if (isStandby) {
-        return { instanceId: id, currentStatus: "standby" };
+      const isIdle = await checkInstanceStatus(s3BucketName, id, "idle");
+      if (isIdle) {
+        return { instanceId: id, currentStatus: "idle" };
       }
     }
 
     for (const id of instanceIds) {
-      const isStopped = await checkInstanceStatus(id, "stopped");
-      if (isStopped) {
-        return { instanceId: id, currentStatus: "stopped" };
+      const isOffline = await checkInstanceStatus(s3BucketName, id, "offline");
+      if (isOffline) {
+        return { instanceId: id, currentStatus: "offline" };
       }
     }
 
-    console.log(`⚠️ all harrier runners are BUSY (status: running)`);
-    return { instanceId: null, currentStatus: "none" };
+    return { instanceId: null, currentStatus: "busy" };
   } catch (error) {
     console.error(`❌ an error occurred when seeking a suitable runner`, error);
     throw new Error(`❌ findSuitableRunner failed`);
@@ -306,7 +407,17 @@ async function updateInstanceStatus(
     console.log(
       `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
     );
-    if (actualStatus !== currentStatus) {
+
+    /*
+      {
+      "status": 
+          'busy'    -> ec2 running, runner active
+          'offline' -> ec2 stopped, runner offline
+          'idle'    -> ec2 running, runner idle
+      }
+    */
+
+    if (instanceState.status !== currentStatus) {
       throw new Error(
         `❌ Current status does not match for instance ${instanceId}`
       );
@@ -329,27 +440,6 @@ async function updateInstanceStatus(
     console.error(error);
   }
 }
-async function checkInstanceStatus(
-  s3BucketName,
-  instanceId,
-  searchedForStatus
-) {
-  try {
-    const response = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: s3BucketName,
-        Key: `instance-states/${instanceId}.json`,
-      })
-    );
-
-    const bodyString = await streamToString(response.Body);
-    const instanceState = JSON.parse(bodyString);
-
-    return instanceState.status === searchedForStatus; // if the strings match, return true
-  } catch (error) {
-    console.error(`❌ error in checkInstanceStatus`, error);
-  }
-}
 
 async function invokeTimeoutLambda(instanceId, wait) {
   try {
@@ -362,20 +452,13 @@ async function invokeTimeoutLambda(instanceId, wait) {
     });
 
     await lambdaClient.send(invoke);
-    // since we don't/can't care about the response, the code ends here
-    // const response = await lambdaClient.send(invoke);
-    // { // InvocationResponse
-    //   StatusCode: Number("int"),
-    //   FunctionError: "STRING_VALUE",
-    //   LogResult: "STRING_VALUE",
-    //   Payload: new Uint8Array(),
-    //   ExecutedVersion: "STRING_VALUE",
-    // };
 
-    // const responsePayload = JSON.parse(
-    //   new TextDecoder("utf-8").decode(response.Payload)
-    // );
-    // console.log("Lambda function invoked successfully:", responsePayload);
+    const response = await lambdaClient.send(invoke);
+
+    console.log(
+      "✅ Lambda function invoked successfully with Payload: ",
+      JSON.parse(new TextDecoder("utf-8").decode(response.Payload))
+    );
   } catch (error) {
     console.error("Error invoking Lambda function:", error);
     throw error;
@@ -399,16 +482,18 @@ export const handler = async (event) => {
     switch (action) {
       case "queued":
         const runnerIds = await getAllHarrierRunners();
-        const { instanceId, currentStatus } =
-          await findSuitableRunner(runnerIds);
+        const s3BucketName = await findS3Bucket();
 
-        if (currentStatus === "none") {
+        const { instanceId, currentStatus } = await findSuitableRunner(
+          runnerIds,
+          s3BucketName
+        );
+        console.log({ instanceId, currentStatus });
+
+        if (currentStatus === "busy") {
+          console.log(`⚠️ all harrier runners are busy at the moment`);
           console.error("**ec2 runner creation and cold start required**");
-          /* 
-            if there are no available instances (all are 'running')...
-                coldstart new ec2 and deliver JIT config request & s3 mount script once the instance is ready
-            */
-        } else if (currentStatus === "standby") {
+        } else if (currentStatus === "idle") {
           const startStandByEC2Script = makeScriptForStandbyEC2(
             secret,
             owner,
@@ -420,13 +505,11 @@ export const handler = async (event) => {
             InstanceIds: [instanceId],
             Parameters: { commands: [startStandByEC2Script] },
           });
-        } else if (currentStatus === "stopped") {
-          // previous default scenario
-          // send ssm command with the JIT request & s3 mount script to the located stopped instance
-
-          const s3BucketName = await findS3Bucket();
+        } else if (currentStatus === "offline") {
+          console.log("found an offline instance: ", instanceId);
           await startStoppedInstance(instanceId);
 
+          console.log(`waiting for stopped instance to start...`);
           await waitUntilInstanceRunning(
             { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
             { InstanceIds: [instanceId] }
@@ -438,6 +521,14 @@ export const handler = async (event) => {
             instanceId,
             s3BucketName
           );
+
+          console.log({
+            message: "made a script for restarted instance",
+            instanceId,
+            startStoppedEC2Script,
+          });
+
+          throw new Error("❌❌❌❌❌");
 
           await runCommand({
             DocumentName: "AWS-RunShellScript",
@@ -452,20 +543,22 @@ export const handler = async (event) => {
           s3BucketName,
           instanceId,
           currentStatus,
-          "running" // nextStatus
+          "busy" // nextStatus
         );
         break;
       case "completed":
-        const existingEC2RunnerInstanceId = event.labels.at(-1); // this should always be an ec2 runner instanceId string value
+        const existingEC2RunnerInstanceId = event.workflow_job.labels.at(-1); // this should always be an ec2 runner instanceId string value
         const wait = 3; // wait 3 minutes
 
         await invokeTimeoutLambda(existingEC2RunnerInstanceId, wait);
+
         console.log(
-          `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda(${existingEC2RunnerInstanceId}, ${wait})`
+          `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda("${existingEC2RunnerInstanceId}", ${wait})`
         );
         break;
       case "in_progress":
         console.log("does this event matter?");
+        console.log(`event received ${event.action}`);
         /* 
             grab instance_id info from event and check that instance's status
             some sort of modification of the state flagging values?
@@ -478,7 +571,6 @@ export const handler = async (event) => {
         */
         break;
     }
-
     return {
       statusCode: 200,
       body: JSON.stringify(
@@ -493,46 +585,3 @@ export const handler = async (event) => {
     throw new Error(`❌`);
   }
 };
-
-/* 
-        filter harrierInstanceIds based on their "state" (based on each instance's status flag, in s3 or paramsmanager)
-
-
-        if there are no available instances (all are 'running')...
-            coldstart new ec2 and deliver JIT config request & s3 mount script once the instance is ready
-
-
-        if a 'standing-by' ec2 is found then...
-            deliver the abbreviated JIT config script to that instance via SSM 
-            & 
-            update status of standing-by instance to status: 'running' in the s3 folder based on instance_id
-          
-
-        if stopped... (current way)
-            previous default scenario
-            send ssm command with the JIT request & s3 mount script to the located stopped instance
-        
-
-        if stopping... 
-            - timed retry mechanism for script delivery or X??
-    */
-
-/* 
-setup harrier executes...
-    - provisions ec2 and s3
-    - installs some files on the ec2
-    - eventually spin down and is STOPPED (what if we didn't stop the ec2 after setup?)
-
-... ran a job successfully...
-
-job is queued from github...
-    - queued event is received by workflow lambda
-    - pull in event.instance_id
-    - deliver shell script to running ec2 instance based on event.instance_id
-    - ec2 instance executes run.sh, becoming available for a workflow run
-
-after a successful job is run (receiving 'completed' event)... 
-    - invoke timed-termination lambda and stop the instance programmatically
-    - has instance_id
-
-*/
