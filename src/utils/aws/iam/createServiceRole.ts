@@ -5,9 +5,11 @@ import {
 } from "@aws-sdk/client-iam";
 
 import { configHarrier } from "../../../config/configHarrier";
-import { lambdaTrustPolicy } from "../../../config/trustPolicies";
-import { instanceTrustPolicy } from "../../../config/trustPolicies";
-import { schedulerTrustPolicy } from "../../../config/trustPolicies";
+import {
+  lambdaTrustPolicy,
+  instanceTrustPolicy,
+  schedulerTrustPolicy,
+} from "../../../config/trustPolicies";
 
 const iamClient = new IAMClient({ region: configHarrier.region });
 
@@ -16,7 +18,6 @@ export async function createLambdaServiceRole(
   policyDocument: string
 ) {
   try {
-    // previously, we checked if the role already existed and if so, just returned the existingRoleArn
     const arn = await createBaseRole(roleName, lambdaTrustPolicy);
 
     await iamClient.send(
@@ -27,7 +28,6 @@ export async function createLambdaServiceRole(
       })
     );
 
-    // previously, if the !roleExistsAndIsAssumable, throw an error
     console.log(`🚦 ***waiting for lambda service ${roleName} to PROPAGATE***`);
     await new Promise((res) => setTimeout(res, 10_000));
     console.log(`✅ Permissions policy attached to ${roleName}\n`);

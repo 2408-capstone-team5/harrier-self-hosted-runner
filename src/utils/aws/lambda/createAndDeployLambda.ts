@@ -16,25 +16,20 @@ export async function createAndDeployLambda(
   try {
     await zipLambda(lambdaName);
 
-    await new Promise((res) => setTimeout(res, 10_000)); // artificial wait
+    await new Promise((res) => setTimeout(res, 5_000)); // 10 seconds is likely excessive
 
     const zipFile = getLambda(lambdaName);
 
     await lambdaClient.send(
       new CreateFunctionCommand({
-        Timeout: 900,
+        Timeout: 900, // this seems high
         FunctionName: lambdaName,
-        Runtime: "nodejs20.x",
         Role: lambdaRoleArn,
-        Handler: "index.handler",
+        Description: `The ${lambdaName} lambda`,
         Code: { ZipFile: zipFile },
-        Description: `the ${lambdaName} lambda`,
-        Publish: true,
-        PackageType: "Zip",
         Tags: {
           Name: `${configHarrier.tagValue}`,
         },
-        Layers: [],
         Environment: {
           Variables: {
             REGION: configHarrier.region,
@@ -42,9 +37,15 @@ export async function createAndDeployLambda(
             BUCKET: configHarrier.s3Name,
           },
         },
+        Runtime: "nodejs20.x",
+        Handler: "index.handler",
+        Publish: true,
+        PackageType: "Zip",
+        Layers: [],
       })
     );
-    console.log("✅ lambda CREATED");
+
+    console.log(`✅ CREATED ${lambdaName} lambda`);
 
     const waitResponse = await waitUntilFunctionActiveV2(
       { client: lambdaClient, maxWaitTime: 1000, minDelay: 5 },
@@ -55,8 +56,7 @@ export async function createAndDeployLambda(
       throw new Error("❌ WaiterResult state was not SUCCESS");
     }
 
-    console.log("✅ lambda ACTIVE");
-    console.log("✅ role ASSUMED");
+    console.log(`✅ lambda ACTIVE and ASSUMED a role`);
   } catch (error) {
     console.error(`❌ createAndDeployLambda failed`, error);
   }

@@ -26,11 +26,13 @@ export interface configHarrierType {
     Name: string;
   };
   workflowServiceName: string;
+  timeoutServiceName: string;
   cacheEvictionServiceName: string;
   runnerInstanceServiceName: string;
   schedulerServiceName: string;
   workflowServiceRoleArn: string;
   cacheEvictionServiceRoleArn: string;
+  timeoutServiceRoleArn: string;
   runnerInstanceServiceRoleArn: string;
   schedulerServiceRoleArn: string;
   stageName: string;
