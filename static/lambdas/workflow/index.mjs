@@ -439,8 +439,6 @@ export const handler = async (event) => {
             s3BucketName
           );
 
-          throw new Error("❌❌❌❌❌");
-
           await runCommand({
             DocumentName: "AWS-RunShellScript",
             InstanceIds: [instanceId],
@@ -460,7 +458,7 @@ export const handler = async (event) => {
         break;
       case "completed":
         const existingEC2RunnerInstanceId = event.workflow_job.labels.at(-1); // this should always be an ec2 runner instanceId string value
-        const delay = 3; // wait 3 minutes
+        const delay = 1; // wait 1 minute
 
         await invokeTimeoutLambda(
           existingEC2RunnerInstanceId,
@@ -498,6 +496,6 @@ export const handler = async (event) => {
       `❌ Unknown error encountered when invoking index.handler: `,
       error
     );
-    throw new Error(`❌`);
+    throw new Error(`❌ workflow lambda failed`);
   }
 };
