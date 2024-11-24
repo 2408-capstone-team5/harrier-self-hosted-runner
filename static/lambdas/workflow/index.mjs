@@ -23,14 +23,14 @@ import {
 } from "@aws-sdk/client-s3";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 
-// ideally we could put all of these in the `configHarrier` file
-const HARRIER_TAG_KEY = "Agent";
-const HARRIER_TAG_VALUE = "Harrier-Runner";
-const REGION = process.env.AWS_REGION;
-
-const SSM_SEND_COMMAND_TIMEOUT = 100;
-const MAX_WAITER_TIME_IN_SECONDS = 60 * 4; // moved this down from 8 minutes to 4
-const SECRET_NAME = "github/pat/harrier";
+const {
+  REGION,
+  SECRET_NAME,
+  HARRIER_TAG_KEY,
+  HARRIER_TAG_VALUE,
+  SSM_SEND_COMMAND_TIMEOUT, // these are both strings
+  MAX_WAITER_TIME_IN_SECONDS,
+} = process.env;
 
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   SecretsManagerClient,
@@ -40,7 +40,7 @@ const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   LambdaClient,
 ].map((client) => new client({ region: REGION }));
 
-function makeScriptForStandbyEC2(secret, owner, instanceId) {
+function makeScriptForIdleEC2(secret, owner, instanceId) {
   return `#!/bin/bash
     echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -58,10 +58,10 @@ function makeScriptForStandbyEC2(secret, owner, instanceId) {
     cd actions-runner
     sudo chown ubuntu:ubuntu ./s3bucket
 
-    echo "Before S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    su - ubuntu -c "mount-s3 ${s3BucketName} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
-    echo "After S3 Bucket Mount - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
-    
+    # removed s3 bucket mount 
+    # removed s3 bucket mount
+    # removed s3 bucket mount 
+
     for i in $(seq 1 $X); do
       echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -98,7 +98,7 @@ function makeScriptForStandbyEC2(secret, owner, instanceId) {
     echo "Done with all iterations - $(date '+%Y-%m-%d %H:%M:%S-%3N')"`;
 }
 
-function makeScriptForStoppedEC2(secret, owner, instanceId, s3BucketName) {
+function makeScriptForOfflineEC2(secret, owner, instanceId, s3BucketName) {
   return `#!/bin/bash
     echo "Start - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -206,7 +206,8 @@ async function findS3Bucket() {
   );
 }
 
-async function runCommand(params, retries = SSM_SEND_COMMAND_TIMEOUT) {
+async function runCommand(params) {
+  const retries = parseInt(SSM_SEND_COMMAND_TIMEOUT);
   for (let count = 0; count < retries; count++) {
     try {
       await ssmClient.send(new SendCommandCommand(params));
@@ -225,6 +226,7 @@ async function runCommand(params, retries = SSM_SEND_COMMAND_TIMEOUT) {
 }
 
 async function startStoppedInstance(instanceId) {
+  // stopped or 'offline'
   try {
     console.log(`🚀 Starting a stopped instance: ${instanceId}`);
     const start = new StartInstancesCommand({ InstanceIds: [instanceId] });
@@ -304,8 +306,6 @@ async function findSuitableRunner(instanceIds, s3BucketName) {
   }
 }
 
-
-// utility function for reading the s3 object's data
 async function streamToString(stream) {
   const chunks = [];
   for await (const chunk of stream) {
@@ -314,7 +314,6 @@ async function streamToString(stream) {
   return Buffer.concat(chunks).toString("utf-8");
 }
 
-// 2 functions related to querying s3 bucket for instance statuses:
 async function updateInstanceStatus(
   s3BucketName,
   instanceId,
@@ -335,15 +334,6 @@ async function updateInstanceStatus(
     console.log(
       `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
     );
-
-    /*
-      {
-      "status": 
-          'busy'    -> ec2 running, runner active
-          'offline' -> ec2 stopped, runner offline
-          'idle'    -> ec2 running, runner idle
-      }
-    */
 
     if (instanceState.status !== currentStatus) {
       throw new Error(
@@ -369,13 +359,14 @@ async function updateInstanceStatus(
   }
 }
 
-async function invokeTimeoutLambda(instanceId, wait) {
+async function invokeTimeoutLambda(instanceId, delayInMinutes, s3BucketName) {
   try {
     const invoke = new InvokeCommand({
       FunctionName: "timeout",
       Payload: JSON.stringify({
         instanceId,
-        wait,
+        delayInMinutes,
+        s3BucketName,
       }),
     });
 
@@ -391,9 +382,8 @@ async function invokeTimeoutLambda(instanceId, wait) {
   }
 }
 
-
 export const handler = async (event) => {
-  if (event.zen) {
+  if ("zen" in event) {
     return {
       statusCode: 200,
       body: JSON.stringify(`✅ Successful ping: ${event.zen}`),
@@ -402,26 +392,26 @@ export const handler = async (event) => {
 
   try {
     const secret = await getSecret();
+    const s3BucketName = await findS3Bucket();
     const owner = event.repository.owner.login;
-
     const action = event.action;
 
     switch (action) {
       case "queued":
         const runnerIds = await getAllHarrierRunners();
-        const s3BucketName = await findS3Bucket();
 
         const { instanceId, currentStatus } = await findSuitableRunner(
           runnerIds,
           s3BucketName
         );
-        console.log({ instanceId, currentStatus });
 
         if (currentStatus === "busy") {
+          // busy means: no idle or offline instances were found
           console.log(`⚠️ all harrier runners are busy at the moment`);
           console.error("**ec2 runner creation and cold start required**");
+          // @Shane or @Wook
         } else if (currentStatus === "idle") {
-          const startStandByEC2Script = makeScriptForStandbyEC2(
+          const startIdleEC2Script = makeScriptForIdleEC2(
             secret,
             owner,
             instanceId
@@ -430,40 +420,33 @@ export const handler = async (event) => {
           await runCommand({
             DocumentName: "AWS-RunShellScript",
             InstanceIds: [instanceId],
-            Parameters: { commands: [startStandByEC2Script] },
+            Parameters: { commands: [startIdleEC2Script] },
           });
         } else if (currentStatus === "offline") {
           console.log("found an offline instance: ", instanceId);
           await startStoppedInstance(instanceId);
 
-          console.log(`waiting for stopped instance to start...`);
-//           await waitUntilInstanceRunning(
-//             { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
-//             { InstanceIds: [instanceId] }
-//           );
+          console.log(`waiting for offline instance to start...`);
+          //   await waitUntilInstanceRunning(
+          //     { client: ec2Client, maxWaitTime: parseInt(MAX_WAITER_TIME_IN_SECONDS) },
+          //     { InstanceIds: [instanceId] }
+          //   );
 
-          const startStoppedEC2Script = makeScriptForStoppedEC2(
+          const startOfflineEC2Script = makeScriptForOfflineEC2(
             secret,
             owner,
             instanceId,
             s3BucketName
           );
 
-          console.log({
-            message: "made a script for restarted instance",
-            instanceId,
-            startStoppedEC2Script,
-          });
-
-          throw new Error("❌❌❌❌❌");
-
           await runCommand({
             DocumentName: "AWS-RunShellScript",
             InstanceIds: [instanceId],
-            Parameters: { commands: [startStoppedEC2Script] },
+            Parameters: { commands: [startOfflineEC2Script] },
           });
         } else {
           // this should never be reached...
+          console.log(`⚠️ this line should never be reached`);
         }
 
         await updateInstanceStatus(
@@ -475,12 +458,16 @@ export const handler = async (event) => {
         break;
       case "completed":
         const existingEC2RunnerInstanceId = event.workflow_job.labels.at(-1); // this should always be an ec2 runner instanceId string value
-        const wait = 3; // wait 3 minutes
+        const delay = 1; // wait 1 minute
 
-        await invokeTimeoutLambda(existingEC2RunnerInstanceId, wait);
+        await invokeTimeoutLambda(
+          existingEC2RunnerInstanceId,
+          delay,
+          s3BucketName
+        );
 
         console.log(
-          `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda("${existingEC2RunnerInstanceId}", ${wait})`
+          `✅ invoked 'timeout' lambda with args: invokeTimeoutLambda(${existingEC2RunnerInstanceId}, ${delay}, ${s3BucketName});`
         );
         break;
       case "in_progress":
@@ -509,6 +496,6 @@ export const handler = async (event) => {
       `❌ Unknown error encountered when invoking index.handler: `,
       error
     );
-    throw new Error(`❌`);
+    throw new Error(`❌ workflow lambda failed`);
   }
 };

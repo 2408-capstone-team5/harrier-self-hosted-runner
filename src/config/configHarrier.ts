@@ -45,22 +45,31 @@ export const configHarrier: configHarrierType = {
   IamInstanceProfile: {
     Name: "EC2-access-S3", // this will change as it is created programmatically
   },
-  secretName: "github/pat/harrier", // githubPAT
   ghOwnerName: ghOwnerName,
   githubUrl: `https://github.com/${ghOwnerName}`,
   s3Name: `harrier-s3-${ghOwnerName}`,
   cacheTtlHours: cacheTtlHours,
   workflowServiceName: `harrier-${installationHash}-workflow`,
+  timeoutServiceName: `harrier-${installationHash}-timeout`,
   cacheEvictionServiceName: `harrier-${installationHash}-eviction`,
   runnerInstanceServiceName: `harrier-${installationHash}-runner`,
   schedulerServiceName: `harrier-${installationHash}-scheduler`,
   workflowServiceRoleArn: "",
   cacheEvictionServiceRoleArn: "",
+  timeoutServiceRoleArn: "",
   runnerInstanceServiceRoleArn: "",
   schedulerServiceRoleArn: "",
   stageName: "dev",
+
   warmPoolSize: 8,
   instanceIds: [],
+  
+  // all currently used by the workflow lambda:
+  secretName: "github/pat/harrier",
+  harrierTagKey: "Agent",
+  harrierTagValue: "Harrier-Runner",
+  ssmSendCommandTimeout: 100,
+  maxWaiterTimeInSeconds: 60 * 4,
 };
 
 export const harrierVPC = {};
@@ -72,7 +81,6 @@ export const harrierLambda_Eviction = {};
 export const harrierLambda_Scheduler = {};
 export const harrierRestApi = {};
 
-export const evictionPolicyDocument = JSON.stringify({});
 export const apiResourcePolicyDocument = JSON.stringify({
   Version: "2012-10-17",
   Statement: [

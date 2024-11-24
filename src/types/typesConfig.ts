@@ -26,14 +26,22 @@ export interface configHarrierType {
     Name: string;
   };
   workflowServiceName: string;
+  timeoutServiceName: string;
   cacheEvictionServiceName: string;
   runnerInstanceServiceName: string;
   schedulerServiceName: string;
   workflowServiceRoleArn: string;
   cacheEvictionServiceRoleArn: string;
+  timeoutServiceRoleArn: string;
   runnerInstanceServiceRoleArn: string;
   schedulerServiceRoleArn: string;
   stageName: string;
+
   warmPoolSize: number;
   instanceIds: string[];
+
+  harrierTagKey: string;
+  harrierTagValue: string;
+  ssmSendCommandTimeout: number;
+  maxWaiterTimeInSeconds: number;
 }

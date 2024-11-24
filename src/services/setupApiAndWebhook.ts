@@ -11,6 +11,11 @@ const stageName = configHarrier.stageName;
 export async function setupApiAndWebhook() {
   try {
     await createAndDeployLambda(
+      configHarrier.timeoutServiceName,
+      configHarrier.timeoutServiceRoleArn
+    );
+
+    await createAndDeployLambda(
       configHarrier.workflowServiceName,
       configHarrier.workflowServiceRoleArn
     );
