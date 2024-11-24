@@ -47,6 +47,7 @@ export const workflowLambdaPolicy = JSON.stringify({
       Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
       Resource: "*",
     },
+    // three new policies:
     {
       Effect: "Allow",
       Action: ["s3:GetObject"],
@@ -56,6 +57,11 @@ export const workflowLambdaPolicy = JSON.stringify({
       Effect: "Allow",
       Action: ["s3:ListBucket"],
       Resource: ["arn:aws:s3:::harrier*"],
+    },
+    {
+      Effect: "Allow",
+      Action: ["lambda:InvokeFunction"],
+      Resource: [`arn:aws:lambda:*:${awsAccountId}:function:harrier*`],
     },
   ],
 });
@@ -100,9 +106,27 @@ export const timeoutLambdaPolicy = JSON.stringify({
       Action: ["s3:GetObject"],
       Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
     },
+    {
+      Effect: "Allow",
+      Action: [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+      ],
+      Resource: `arn:aws:logs:*:${awsAccountId}:log-group:*`,
+    },
+    {
+      Effect: "Allow",
+      Action: ["s3:ListBucket"],
+      Resource: "*",
+    },
+    {
+      Effect: "Allow",
+      Action: ["ec2:DescribeInstances", "ec2:StopInstances"],
+      Resource: "*",
+    },
   ],
 });
-
 export const runnerInstancePolicy = JSON.stringify({
   Version: "2012-10-17",
   Statement: [

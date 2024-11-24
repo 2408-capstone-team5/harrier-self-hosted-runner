@@ -4,7 +4,7 @@ import { _InstanceType } from "@aws-sdk/client-ec2";
 import { toInstanceType } from "../types/ec2InstancesType";
 import { getInput } from "@actions/core";
 
-const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.xlarge";
+const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.medium"; //"m7a.xlarge";
 
 const awsRegion = getInput("region") || "us-east-1";
 const ghOwnerName = getInput("ghOwnerName") || "2408-capstone-team5";
@@ -49,21 +49,29 @@ export const configHarrier: configHarrierType = {
   githubUrl: `https://github.com/${ghOwnerName}`,
   s3Name: `harrier-s3-${ghOwnerName}`,
   cacheTtlHours: cacheTtlHours,
+
+  workflowLambdaName: `harrier-${installationHash}-workflow`, // this duplication is a bit confusing
+  timeoutLambdaName: `harrier-${installationHash}-timeout`,
+  evictionLambdaName: `harrier-${installationHash}-eviction`,
+
   workflowServiceName: `harrier-${installationHash}-workflow`,
   timeoutServiceName: `harrier-${installationHash}-timeout`,
   cacheEvictionServiceName: `harrier-${installationHash}-eviction`,
+
   runnerInstanceServiceName: `harrier-${installationHash}-runner`,
   schedulerServiceName: `harrier-${installationHash}-scheduler`,
+
   workflowServiceRoleArn: "",
   cacheEvictionServiceRoleArn: "",
   timeoutServiceRoleArn: "",
   runnerInstanceServiceRoleArn: "",
   schedulerServiceRoleArn: "",
+
   stageName: "dev",
 
   warmPoolSize: 8,
   instanceIds: [],
-  
+
   // all currently used by the workflow lambda:
   secretName: "github/pat/harrier",
   harrierTagKey: "Agent",
@@ -71,15 +79,6 @@ export const configHarrier: configHarrierType = {
   ssmSendCommandTimeout: 100,
   maxWaiterTimeInSeconds: 60 * 4,
 };
-
-export const harrierVPC = {};
-export const harrierEC2 = {};
-export const harrierS3 = {};
-
-export const harrierLambda_Workflow = {};
-export const harrierLambda_Eviction = {};
-export const harrierLambda_Scheduler = {};
-export const harrierRestApi = {};
 
 export const apiResourcePolicyDocument = JSON.stringify({
   Version: "2012-10-17",

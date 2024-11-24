@@ -30,6 +30,7 @@ const {
   HARRIER_TAG_VALUE,
   SSM_SEND_COMMAND_TIMEOUT, // these are both strings
   MAX_WAITER_TIME_IN_SECONDS,
+  TIMEOUT_LAMBDA_NAME,
 } = process.env;
 
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
@@ -193,7 +194,7 @@ async function findS3Bucket() {
       if (error.name === "NoSuchTagSet") {
         console.warn(`⚠️ Bucket ${bucket.Name} does not have tagging.`);
       } else {
-        console.error(
+        console.warn(
           `❌ Error fetching or checking tags of bucket ${bucket.Name}: `,
           error
         );
@@ -202,7 +203,7 @@ async function findS3Bucket() {
   }
 
   throw new Error(
-    "❌ An S3 bucket with HARRIER_TAG_KEY: HARRIER_TAG_VALUE was not found!"
+    `❌ An S3 bucket with ${HARRIER_TAG_KEY}: ${HARRIER_TAG_VALUE} was not found!`
   );
 }
 
@@ -279,7 +280,12 @@ async function checkInstanceStatus(
 
     return instanceState.status === searchedForStatus; // if the strings match, return true
   } catch (error) {
+    if (error.name === "NoSuchKey") {
+      console.warn(`⚠️ Key not found for instanceId: ${instanceId}`);
+      return false; // Return false since the key doesn't exist
+    }
     console.error(`❌ error in checkInstanceStatus`, error);
+    throw new Error(`❌ checkInstanceStatus failed`);
   }
 }
 
@@ -359,10 +365,15 @@ async function updateInstanceStatus(
   }
 }
 
-async function invokeTimeoutLambda(instanceId, delayInMinutes, s3BucketName) {
+async function invokeTimeoutLambda(
+  instanceId,
+  delayInMinutes,
+  s3BucketName,
+  timeoutFunctionName
+) {
   try {
     const invoke = new InvokeCommand({
-      FunctionName: "timeout",
+      FunctionName: timeoutFunctionName,
       Payload: JSON.stringify({
         instanceId,
         delayInMinutes,
@@ -373,11 +384,11 @@ async function invokeTimeoutLambda(instanceId, delayInMinutes, s3BucketName) {
     const response = await lambdaClient.send(invoke);
 
     console.log(
-      "✅ Lambda function invoked successfully with Payload: ",
+      `✅ ${timeoutFunctionName} invoked successfully with Payload: `,
       JSON.parse(new TextDecoder("utf-8").decode(response.Payload))
     );
   } catch (error) {
-    console.error("Error invoking Lambda function:", error);
+    console.error(`Error invoking ${timeoutFunctionName}:`, error);
     throw error;
   }
 }
@@ -463,7 +474,8 @@ export const handler = async (event) => {
         await invokeTimeoutLambda(
           existingEC2RunnerInstanceId,
           delay,
-          s3BucketName
+          s3BucketName,
+          TIMEOUT_LAMBDA_NAME
         );
 
         console.log(

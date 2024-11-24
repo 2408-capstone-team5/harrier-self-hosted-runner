@@ -25,6 +25,11 @@ export interface configHarrierType {
   IamInstanceProfile: {
     Name: string;
   };
+
+  workflowLambdaName: string;
+  timeoutLambdaName: string;
+  evictionLambdaName: string;
+
   workflowServiceName: string;
   timeoutServiceName: string;
   cacheEvictionServiceName: string;

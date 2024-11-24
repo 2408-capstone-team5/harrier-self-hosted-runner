@@ -15,17 +15,17 @@ const getLambda_1 = require("../lambda/getLambda");
 const zipLambda_1 = require("../lambda/zipLambda");
 const client_lambda_1 = require("@aws-sdk/client-lambda");
 const lambdaClient = new client_lambda_1.LambdaClient({ region: configHarrier_1.configHarrier.region });
-function createAndDeployLambda(lambdaName, lambdaRoleArn) {
+function createAndDeployLambda(lambdaServiceName, lambdaRoleArn) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield (0, zipLambda_1.zipLambda)(lambdaName);
+            yield (0, zipLambda_1.zipLambda)(lambdaServiceName);
             yield new Promise((res) => setTimeout(res, 5000)); // 10 seconds is likely excessive
-            const zipFile = (0, getLambda_1.getLambda)(lambdaName);
+            const zipFile = (0, getLambda_1.getLambda)(lambdaServiceName);
             const createFunction = new client_lambda_1.CreateFunctionCommand({
                 Timeout: 900,
-                FunctionName: lambdaName,
+                FunctionName: lambdaServiceName,
                 Role: lambdaRoleArn,
-                Description: `The ${lambdaName} lambda`,
+                Description: `The ${lambdaServiceName} lambda`,
                 Code: { ZipFile: zipFile },
                 Tags: {
                     Name: `${configHarrier_1.configHarrier.tagValue}`,
@@ -42,6 +42,7 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                         HARRIER_TAG_VALUE: configHarrier_1.configHarrier.harrierTagValue,
                         SSM_SEND_COMMAND_TIMEOUT: String(configHarrier_1.configHarrier.ssmSendCommandTimeout),
                         MAX_WAITER_TIME_IN_SECONDS: String(configHarrier_1.configHarrier.maxWaiterTimeInSeconds),
+                        TIMEOUT_LAMBDA_NAME: configHarrier_1.configHarrier.timeoutLambdaName,
                     },
                 },
                 Runtime: "nodejs20.x",
@@ -51,8 +52,8 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
                 Layers: [],
             });
             yield lambdaClient.send(createFunction);
-            console.log(`✅ CREATED ${lambdaName} lambda`);
-            const waitResponse = yield (0, client_lambda_1.waitUntilFunctionActiveV2)({ client: lambdaClient, maxWaitTime: 1000, minDelay: 5 }, { FunctionName: lambdaName });
+            console.log(`✅ CREATED ${lambdaServiceName} lambda`);
+            const waitResponse = yield (0, client_lambda_1.waitUntilFunctionActiveV2)({ client: lambdaClient, maxWaitTime: 1000, minDelay: 5 }, { FunctionName: lambdaServiceName });
             if (`${waitResponse.state}` !== "SUCCESS") {
                 throw new Error("❌ WaiterResult state was not SUCCESS");
             }

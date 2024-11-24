@@ -10,21 +10,21 @@ import {
 const lambdaClient = new LambdaClient({ region: configHarrier.region });
 
 export async function createAndDeployLambda(
-  lambdaName: string,
+  lambdaServiceName: string,
   lambdaRoleArn: string
 ) {
   try {
-    await zipLambda(lambdaName);
+    await zipLambda(lambdaServiceName);
 
     await new Promise((res) => setTimeout(res, 5_000)); // 10 seconds is likely excessive
 
-    const zipFile = getLambda(lambdaName);
+    const zipFile = getLambda(lambdaServiceName);
 
     const createFunction = new CreateFunctionCommand({
       Timeout: 900, // this seems high
-      FunctionName: lambdaName,
+      FunctionName: lambdaServiceName,
       Role: lambdaRoleArn,
-      Description: `The ${lambdaName} lambda`,
+      Description: `The ${lambdaServiceName} lambda`,
       Code: { ZipFile: zipFile },
       Tags: {
         Name: `${configHarrier.tagValue}`,
@@ -43,6 +43,7 @@ export async function createAndDeployLambda(
           MAX_WAITER_TIME_IN_SECONDS: String(
             configHarrier.maxWaiterTimeInSeconds
           ),
+          TIMEOUT_LAMBDA_NAME: configHarrier.timeoutLambdaName,
         },
       },
       Runtime: "nodejs20.x",
@@ -53,11 +54,11 @@ export async function createAndDeployLambda(
     });
     await lambdaClient.send(createFunction);
 
-    console.log(`✅ CREATED ${lambdaName} lambda`);
+    console.log(`✅ CREATED ${lambdaServiceName} lambda`);
 
     const waitResponse = await waitUntilFunctionActiveV2(
       { client: lambdaClient, maxWaitTime: 1000, minDelay: 5 },
-      { FunctionName: lambdaName }
+      { FunctionName: lambdaServiceName }
     );
 
     if (`${waitResponse.state}` !== "SUCCESS") {

@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.apiResourcePolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
+exports.apiResourcePolicyDocument = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 const ec2InstancesType_1 = require("../types/ec2InstancesType");
 const core_1 = require("@actions/core");
-const DEFAULT_INSTANCE_TYPE = "m7a.xlarge";
+const DEFAULT_INSTANCE_TYPE = "m7a.large"; //"m7a.xlarge";
 const awsRegion = (0, core_1.getInput)("region") || "us-east-1";
 const ghOwnerName = (0, core_1.getInput)("ghOwnerName") || "2408-capstone-team5";
 const awsAccountId = (0, core_1.getInput)("awsAccountId") || "536697269866";
@@ -43,6 +43,9 @@ exports.configHarrier = {
     githubUrl: `https://github.com/${ghOwnerName}`,
     s3Name: `harrier-s3-${ghOwnerName}`,
     cacheTtlHours: cacheTtlHours,
+    workflowLambdaName: `harrier-${installationHash_1.installationHash}-workflow`,
+    timeoutLambdaName: `harrier-${installationHash_1.installationHash}-timeout`,
+    evictionLambdaName: `harrier-${installationHash_1.installationHash}-eviction`,
     workflowServiceName: `harrier-${installationHash_1.installationHash}-workflow`,
     timeoutServiceName: `harrier-${installationHash_1.installationHash}-timeout`,
     cacheEvictionServiceName: `harrier-${installationHash_1.installationHash}-eviction`,
@@ -63,13 +66,6 @@ exports.configHarrier = {
     ssmSendCommandTimeout: 100,
     maxWaiterTimeInSeconds: 60 * 4,
 };
-exports.harrierVPC = {};
-exports.harrierEC2 = {};
-exports.harrierS3 = {};
-exports.harrierLambda_Workflow = {};
-exports.harrierLambda_Eviction = {};
-exports.harrierLambda_Scheduler = {};
-exports.harrierRestApi = {};
 exports.apiResourcePolicyDocument = JSON.stringify({
     Version: "2012-10-17",
     Statement: [

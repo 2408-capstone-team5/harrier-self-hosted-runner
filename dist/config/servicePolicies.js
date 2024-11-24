@@ -48,10 +48,21 @@ exports.workflowLambdaPolicy = JSON.stringify({
             Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
             Resource: "*",
         },
+        // three new policies:
         {
             Effect: "Allow",
             Action: ["s3:GetObject"],
             Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
+        },
+        {
+            Effect: "Allow",
+            Action: ["s3:ListBucket"],
+            Resource: ["arn:aws:s3:::harrier*"],
+        },
+        {
+            Effect: "Allow",
+            Action: ["lambda:InvokeFunction"],
+            Resource: [`arn:aws:lambda:*:${awsAccountId}:function:harrier*`],
         },
     ],
 });
