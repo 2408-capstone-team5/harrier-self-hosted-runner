@@ -23,7 +23,7 @@ export const initializeEC2Status = async () => {
       await client.send(command);
     }
 
-    console.log(`   Successfully initialized S3 with EC2 status "offline".\n`);
+    console.log(`✅ Successfully initialized S3 with EC2 status "offline".\n`);
   } catch (error) {
     throw new Error(`❌ Error initializing S3 with EC2 status: ${error}`);
   }
