@@ -13,20 +13,16 @@ exports.createSchedulerServiceRole = exports.createInstanceServiceRole = exports
 const client_iam_1 = require("@aws-sdk/client-iam");
 const configHarrier_1 = require("../../../config/configHarrier");
 const trustPolicies_1 = require("../../../config/trustPolicies");
-const trustPolicies_2 = require("../../../config/trustPolicies");
-const trustPolicies_3 = require("../../../config/trustPolicies");
 const iamClient = new client_iam_1.IAMClient({ region: configHarrier_1.configHarrier.region });
 function createLambdaServiceRole(roleName, policyDocument) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            // previously, we checked if the role already existed and if so, just returned the existingRoleArn
             const arn = yield createBaseRole(roleName, trustPolicies_1.lambdaTrustPolicy);
             yield iamClient.send(new client_iam_1.PutRolePolicyCommand({
                 RoleName: roleName,
                 PolicyName: `${roleName}-policy`,
                 PolicyDocument: policyDocument,
             }));
-            // previously, if the !roleExistsAndIsAssumable, throw an error
             console.log(`🚦 ***waiting for lambda service ${roleName} to PROPAGATE***`);
             yield new Promise((res) => setTimeout(res, 10000));
             console.log(`✅ Permissions policy attached to ${roleName}\n`);
@@ -43,7 +39,7 @@ function createInstanceServiceRole(roleName, policyDocument) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // previously, we checked if the role already existed and if so, just returned the existingRoleArn
-            const arn = yield createBaseRole(roleName, trustPolicies_2.instanceTrustPolicy);
+            const arn = yield createBaseRole(roleName, trustPolicies_1.instanceTrustPolicy);
             yield iamClient.send(new client_iam_1.PutRolePolicyCommand({
                 RoleName: roleName,
                 PolicyName: `${roleName}-policy`,
@@ -66,7 +62,7 @@ function createSchedulerServiceRole(roleName, policyDocument) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             // previously, we checked if the role already existed and if so, just returned the existingRoleArn
-            const arn = yield createBaseRole(roleName, trustPolicies_3.schedulerTrustPolicy);
+            const arn = yield createBaseRole(roleName, trustPolicies_1.schedulerTrustPolicy);
             yield iamClient.send(new client_iam_1.PutRolePolicyCommand({
                 RoleName: roleName,
                 PolicyName: `${roleName}-policy`,

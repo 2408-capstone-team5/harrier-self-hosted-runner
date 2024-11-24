@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.apiResourcePolicyDocument = exports.evictionPolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
+exports.apiResourcePolicyDocument = exports.harrierRestApi = exports.harrierLambda_Scheduler = exports.harrierLambda_Eviction = exports.harrierLambda_Workflow = exports.harrierS3 = exports.harrierEC2 = exports.harrierVPC = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 const ec2InstancesType_1 = require("../types/ec2InstancesType");
 const core_1 = require("@actions/core");
@@ -39,20 +39,29 @@ exports.configHarrier = {
     IamInstanceProfile: {
         Name: "EC2-access-S3", // this will change as it is created programmatically
     },
-    secretName: "github/pat/harrier",
     ghOwnerName: ghOwnerName,
     githubUrl: `https://github.com/${ghOwnerName}`,
     s3Name: `harrier-s3-${ghOwnerName}`,
     cacheTtlHours: cacheTtlHours,
     workflowServiceName: `harrier-${installationHash_1.installationHash}-workflow`,
+    timeoutServiceName: `harrier-${installationHash_1.installationHash}-timeout`,
     cacheEvictionServiceName: `harrier-${installationHash_1.installationHash}-eviction`,
     runnerInstanceServiceName: `harrier-${installationHash_1.installationHash}-runner`,
     schedulerServiceName: `harrier-${installationHash_1.installationHash}-scheduler`,
     workflowServiceRoleArn: "",
     cacheEvictionServiceRoleArn: "",
+    timeoutServiceRoleArn: "",
     runnerInstanceServiceRoleArn: "",
     schedulerServiceRoleArn: "",
     stageName: "dev",
+    warmPoolSize: 8,
+    instanceIds: [],
+    // all currently used by the workflow lambda:
+    secretName: "github/pat/harrier",
+    harrierTagKey: "Agent",
+    harrierTagValue: "Harrier-Runner",
+    ssmSendCommandTimeout: 100,
+    maxWaiterTimeInSeconds: 60 * 4,
 };
 exports.harrierVPC = {};
 exports.harrierEC2 = {};
@@ -61,7 +70,6 @@ exports.harrierLambda_Workflow = {};
 exports.harrierLambda_Eviction = {};
 exports.harrierLambda_Scheduler = {};
 exports.harrierRestApi = {};
-exports.evictionPolicyDocument = JSON.stringify({});
 exports.apiResourcePolicyDocument = JSON.stringify({
     Version: "2012-10-17",
     Statement: [

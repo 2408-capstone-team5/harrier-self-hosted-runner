@@ -20,7 +20,7 @@ let deleteHarrier = false;
 const processCmdLineArgs = () => {
     const args = process.argv.slice(2);
     let clean = false;
-    let nameArgIndex = args.indexOf("--clean");
+    const nameArgIndex = args.indexOf("--clean");
     if (nameArgIndex !== -1) {
         clean = true;
         console.log(`*** Clean Only!***`);
@@ -42,9 +42,9 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         }
         yield (0, setupRoles_1.setupRoles)(); // IAM
         yield (0, setupVPC_1.setupVPC)();
+        yield (0, setupEC2Runner_1.setupEC2Runner)();
         yield (0, setupS3CacheBucket_1.setupS3CacheBucket)(); // S3
         yield (0, setupCacheEviction_1.setupCacheEviction)();
-        yield (0, setupEC2Runner_1.setupEC2Runner)();
         yield (0, setupApiAndWebhook_1.setupApiAndWebhook)();
     }
     catch (error) {

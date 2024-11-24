@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.eventBridgeSchedulerPolicy = exports.runnerInstancePolicy = exports.cacheEvictionLambdaPolicy = exports.workflowLambdaPolicy = void 0;
+exports.eventBridgeSchedulerPolicy = exports.runnerInstancePolicy = exports.timeoutLambdaPolicy = exports.cacheEvictionLambdaPolicy = exports.workflowLambdaPolicy = void 0;
 const configHarrier_1 = require("./configHarrier");
 const awsAccountId = configHarrier_1.configHarrier.awsAccountId;
 exports.workflowLambdaPolicy = JSON.stringify({
@@ -78,6 +78,16 @@ exports.cacheEvictionLambdaPolicy = JSON.stringify({
             Effect: "Allow",
             Action: "s3:ListAllMyBuckets",
             Resource: "*",
+        },
+    ],
+});
+exports.timeoutLambdaPolicy = JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+        {
+            Effect: "Allow",
+            Action: ["s3:GetObject"],
+            Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
         },
     ],
 });

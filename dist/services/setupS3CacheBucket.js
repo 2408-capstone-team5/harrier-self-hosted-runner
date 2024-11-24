@@ -11,13 +11,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setupS3CacheBucket = void 0;
 const createS3_1 = require("../utils/aws/s3/createS3");
-const client_s3_1 = require("@aws-sdk/client-s3");
-const configHarrier_1 = require("../config/configHarrier");
-const client = new client_s3_1.S3Client({ region: configHarrier_1.configHarrier.region });
-const maxWaitTime = 60;
+const initializeEC2Status_1 = require("../utils/aws/s3/initializeEC2Status");
+const initializeCachePaths_1 = require("../utils/aws/s3/initializeCachePaths");
 const setupS3CacheBucket = () => __awaiter(void 0, void 0, void 0, function* () {
-    const bucketName = `${configHarrier_1.configHarrier.s3Name}`;
-    console.log("** Starting setupS3CacheBucket...");
-    yield (0, createS3_1.createS3)(client, bucketName, maxWaitTime);
+    try {
+        console.log("** Starting setupS3CacheBucket...");
+        yield (0, createS3_1.createS3)();
+        yield (0, initializeEC2Status_1.initializeEC2Status)();
+        yield (0, initializeCachePaths_1.initializeCachePaths)();
+        console.log("✅ Successfully set up S3.\n");
+    }
+    catch (error) {
+        if (error instanceof Error) {
+            console.error("❌ Error:", error.message, "\n");
+        }
+        else {
+            throw new Error(`Error setting up S3!`);
+        }
+    }
 });
 exports.setupS3CacheBucket = setupS3CacheBucket;
