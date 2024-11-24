@@ -69,6 +69,6 @@ export const createEC2 = async (poolId: number) => {
     console.log(`✅ Successfully created instance with ID: ${instanceId}\n`);
     return instanceId;
   } catch (error) {
-    throw new Error(`Error creating EC2 instance: ${error}`);
+    throw new Error(`❌ Error creating EC2 instance: ${error}`);
   }
 };
