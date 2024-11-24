@@ -4,7 +4,7 @@ exports.apiResourcePolicyDocument = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 const ec2InstancesType_1 = require("../types/ec2InstancesType");
 const core_1 = require("@actions/core");
-const DEFAULT_INSTANCE_TYPE = "m7a.large"; //"m7a.xlarge";
+const DEFAULT_INSTANCE_TYPE = "m7a.medium"; //"m7a.xlarge";
 const awsRegion = (0, core_1.getInput)("region") || "us-east-1";
 const ghOwnerName = (0, core_1.getInput)("ghOwnerName") || "2408-capstone-team5";
 const awsAccountId = (0, core_1.getInput)("awsAccountId") || "536697269866";

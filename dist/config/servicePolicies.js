@@ -105,6 +105,25 @@ exports.timeoutLambdaPolicy = JSON.stringify({
             Action: ["s3:GetObject"],
             Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
         },
+        {
+            Effect: "Allow",
+            Action: [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+            ],
+            Resource: `arn:aws:logs:*:${awsAccountId}:log-group:*`,
+        },
+        {
+            Effect: "Allow",
+            Action: ["s3:ListBucket"],
+            Resource: "*",
+        },
+        {
+            Effect: "Allow",
+            Action: ["ec2:DescribeInstances", "ec2:StopInstances"],
+            Resource: "*",
+        },
     ],
 });
 exports.runnerInstancePolicy = JSON.stringify({
