@@ -12,7 +12,7 @@ const processCmdLineArgs = () => {
   const args = process.argv.slice(2);
   let clean = false;
 
-  let nameArgIndex = args.indexOf("--clean");
+  const nameArgIndex = args.indexOf("--clean");
   if (nameArgIndex !== -1) {
     clean = true;
     console.log(`*** Clean Only!***`);
@@ -43,11 +43,11 @@ const main = async () => {
 
     await setupVPC();
 
+    await setupEC2Runner();
+
     await setupS3CacheBucket(); // S3
 
     await setupCacheEviction();
-
-    await setupEC2Runner();
 
     await setupApiAndWebhook();
   } catch (error) {

@@ -2,7 +2,7 @@ import { EC2Client, waitUntilInstanceStatusOk } from "@aws-sdk/client-ec2";
 
 const MAX_WAITER_TIME_IN_SECONDS = 60 * 8;
 
-export const waitEC2StatusOk = async (instanceId: string) => {
+export const waitEC2StatusOk = async (instanceIds: string[]) => {
   const client = new EC2Client({ region: "us-east-1" });
 
   try {
@@ -13,7 +13,7 @@ export const waitEC2StatusOk = async (instanceId: string) => {
         client: client,
         maxWaitTime: MAX_WAITER_TIME_IN_SECONDS,
       },
-      { InstanceIds: [instanceId] }
+      { InstanceIds: instanceIds }
     );
     const endTime = new Date();
     console.log(

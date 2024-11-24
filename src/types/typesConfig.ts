@@ -37,6 +37,9 @@ export interface configHarrierType {
   schedulerServiceRoleArn: string;
   stageName: string;
 
+  warmPoolSize: number;
+  instanceIds: string[];
+
   harrierTagKey: string;
   harrierTagValue: string;
   ssmSendCommandTimeout: number;

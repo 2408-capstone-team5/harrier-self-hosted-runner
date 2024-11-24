@@ -61,6 +61,9 @@ export const configHarrier: configHarrierType = {
   schedulerServiceRoleArn: "",
   stageName: "dev",
 
+  warmPoolSize: 8,
+  instanceIds: [],
+  
   // all currently used by the workflow lambda:
   secretName: "github/pat/harrier",
   harrierTagKey: "Agent",
