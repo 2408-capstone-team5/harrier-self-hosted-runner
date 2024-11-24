@@ -47,6 +47,11 @@ export const workflowLambdaPolicy = JSON.stringify({
       Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
       Resource: "*",
     },
+    {
+      Effect: "Allow",
+      Action: ["s3:GetObject"],
+      Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
+    },
   ],
 });
 
