@@ -31,15 +31,10 @@ export const createS3 = async () => {
       },
     });
     await client.send(putBucketTaggingCommand);
-    // const putTagsResponse = await client.send(putBucketTaggingCommand);
+
     console.log(
       `✅ Successfully created S3 Bucket with location ${Location}\n`
     );
-    // console.log(
-    //   `✅ Successfully created S3 Bucket with location ${Location} and tags: `,
-    //   putTagsResponse,
-    //   "\n"
-    // );
   } catch (error: unknown) {
     if (error instanceof BucketAlreadyExists) {
       console.error(
