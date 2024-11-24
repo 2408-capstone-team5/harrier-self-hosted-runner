@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { configHarrier } from "../../../config/configHarrier";
 
-export const initializeS3 = async (client: S3Client, bucketName: string) => {
+export const initializeS3 = async () => {
   const statusObject = {
     status: "offline",
   };

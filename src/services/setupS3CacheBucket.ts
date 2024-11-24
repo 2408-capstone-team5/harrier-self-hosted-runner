@@ -1,14 +1,19 @@
 import { createS3 } from "../utils/aws/s3/createS3";
 import { initializeS3 } from "../utils/aws/s3/initializeS3";
-import { S3Client } from "@aws-sdk/client-s3";
-import { configHarrier } from "../config/configHarrier";
-
-const client = new S3Client({ region: configHarrier.region });
-const maxWaitTime = 60;
 
 export const setupS3CacheBucket = async () => {
-  const bucketName = `${configHarrier.s3Name}`;
-  console.log("** Starting setupS3CacheBucket...");
-  await createS3(client, bucketName, maxWaitTime);
-  await initializeS3(client, bucketName);
+  try {
+    console.log("** Starting setupS3CacheBucket...");
+
+    await createS3();
+    await initializeS3();
+
+    console.log("✅ Successfully set up S3.\n");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("❌ Error:", error.message, "\n");
+    } else {
+      throw new Error(`Error setting up S3!`);
+    }
+  }
 };
