@@ -9,13 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.stopInstance = void 0;
+exports.stopEC2s = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
 const configHarrier_1 = require("../../../config/configHarrier");
-const stopInstance = (instanceId) => __awaiter(void 0, void 0, void 0, function* () {
+const stopEC2s = (instanceIds) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
-        const command = new client_ec2_1.StopInstancesCommand({ InstanceIds: [instanceId] });
+        const command = new client_ec2_1.StopInstancesCommand({ InstanceIds: instanceIds });
         const response = yield ec2Client.send(command);
         console.log("   Stopping instance:", response.StoppingInstances);
     }
@@ -23,4 +23,4 @@ const stopInstance = (instanceId) => __awaiter(void 0, void 0, void 0, function*
         console.error("❌ Error stopping instance:", error);
     }
 });
-exports.stopInstance = stopInstance;
+exports.stopEC2s = stopEC2s;

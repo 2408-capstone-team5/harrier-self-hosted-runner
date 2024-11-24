@@ -77,17 +77,17 @@ const getStartScript = () => {
     echo "**** SUDO MKDIR S3BUCKET ***"
     sudo mkdir s3bucket
     echo "**** SUDO MOUNT-S3 S3BUCKET ***"
-    sudo mount-s3 ${configHarrier_1.configHarrier.s3Name} s3bucket
+    # sudo mount-s3 ${configHarrier_1.configHarrier.s3Name} s3bucket
     # su - ubuntu -c "mount-s3 ${configHarrier_1.configHarrier.s3Name} /home/ubuntu/actions-runner/s3bucket --allow-overwrite"
     # sudo cd ./s3bucket
-    sudo mkdir s3bucket/node_modules_cache_key
-    sudo mkdir s3bucket/node_modules_cached_tar
-    sudo mkdir s3bucket/npm_cache
+    # sudo mkdir s3bucket/node_modules_cache_key
+    # sudo mkdir s3bucket/node_modules_cached_tar
+    # sudo mkdir s3bucket/npm_cache
     # sudo cd ..
-    sudo touch starter_file.txt
-    sudo cp starter_file.txt ./s3bucket/node_modules_cache_key/
-    sudo cp starter_file.txt ./s3bucket/node_modules_cached_tar/
-    sudo cp starter_file.txt ./s3bucket/npm_cache/
+    # sudo touch starter_file.txt
+    # sudo cp starter_file.txt ./s3bucket/node_modules_cache_key/
+    # sudo cp starter_file.txt ./s3bucket/node_modules_cached_tar/
+    # sudo cp starter_file.txt ./s3bucket/npm_cache/
 
     echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
     echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"

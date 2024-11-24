@@ -20,6 +20,7 @@ const stageName = configHarrier_1.configHarrier.stageName;
 function setupApiAndWebhook() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
+            yield (0, createAndDeployLambda_1.createAndDeployLambda)(configHarrier_1.configHarrier.timeoutServiceName, configHarrier_1.configHarrier.timeoutServiceRoleArn);
             yield (0, createAndDeployLambda_1.createAndDeployLambda)(configHarrier_1.configHarrier.workflowServiceName, configHarrier_1.configHarrier.workflowServiceRoleArn);
             const { restApiId, resourceId } = yield (0, setupRestApi_1.setupRestApi)();
             yield (0, integrateLambdaWithApi_1.integrateLambdaWithApi)(restApiId, resourceId, configHarrier_1.configHarrier.workflowServiceName);

@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.waitEC2StatusOk = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
 const MAX_WAITER_TIME_IN_SECONDS = 60 * 8;
-const waitEC2StatusOk = (instanceId) => __awaiter(void 0, void 0, void 0, function* () {
+const waitEC2StatusOk = (instanceIds) => __awaiter(void 0, void 0, void 0, function* () {
     const client = new client_ec2_1.EC2Client({ region: "us-east-1" });
     try {
         console.log("   Polling `DescribeInstanceStatus` until STATUS OK...");
@@ -20,7 +20,7 @@ const waitEC2StatusOk = (instanceId) => __awaiter(void 0, void 0, void 0, functi
         yield (0, client_ec2_1.waitUntilInstanceStatusOk)({
             client: client,
             maxWaitTime: MAX_WAITER_TIME_IN_SECONDS,
-        }, { InstanceIds: [instanceId] });
+        }, { InstanceIds: instanceIds });
         const endTime = new Date();
         console.log("   ✅ STATUS OK Succeeded after time: ", (endTime.getTime() - startTime.getTime()) / 1000);
     }

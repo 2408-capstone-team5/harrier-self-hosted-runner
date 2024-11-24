@@ -13,7 +13,7 @@ exports.createEC2 = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
 const configHarrier_1 = require("../../../config/configHarrier");
 const setup_1 = require("../../../scripts/setup");
-const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
+const createEC2 = (poolId) => __awaiter(void 0, void 0, void 0, function* () {
     const client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
     const amiId = configHarrier_1.configHarrier.imageId;
     const instanceType = configHarrier_1.configHarrier.instanceType;
@@ -27,7 +27,7 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         {
             ResourceType: "instance",
             Tags: [
-                { Key: "Name", Value: `${configHarrier_1.configHarrier.tagValue}-ec2` },
+                { Key: "Name", Value: `${configHarrier_1.configHarrier.tagValue}-ec2-${poolId}` },
                 { Key: "Agent", Value: "Harrier-Runner" },
             ],
         },
@@ -67,7 +67,7 @@ const createEC2 = () => __awaiter(void 0, void 0, void 0, function* () {
         return instanceId;
     }
     catch (error) {
-        throw new Error(`Error creating EC2 instance: ${error}`);
+        throw new Error(`❌ Error creating EC2 instance: ${error}`);
     }
 });
 exports.createEC2 = createEC2;

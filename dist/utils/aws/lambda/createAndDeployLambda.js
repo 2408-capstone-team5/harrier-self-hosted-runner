@@ -19,37 +19,44 @@ function createAndDeployLambda(lambdaName, lambdaRoleArn) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             yield (0, zipLambda_1.zipLambda)(lambdaName);
-            yield new Promise((res) => setTimeout(res, 10000)); // artificial wait
+            yield new Promise((res) => setTimeout(res, 5000)); // 10 seconds is likely excessive
             const zipFile = (0, getLambda_1.getLambda)(lambdaName);
-            yield lambdaClient.send(new client_lambda_1.CreateFunctionCommand({
+            const createFunction = new client_lambda_1.CreateFunctionCommand({
                 Timeout: 900,
                 FunctionName: lambdaName,
-                Runtime: "nodejs20.x",
                 Role: lambdaRoleArn,
-                Handler: "index.handler",
+                Description: `The ${lambdaName} lambda`,
                 Code: { ZipFile: zipFile },
-                Description: `the ${lambdaName} lambda`,
-                Publish: true,
-                PackageType: "Zip",
                 Tags: {
                     Name: `${configHarrier_1.configHarrier.tagValue}`,
                 },
-                Layers: [],
+                // it would be better if each lambda passed in a `variables` object with the
+                // env variables they need, currently each lambda is receiving everything
                 Environment: {
                     Variables: {
                         REGION: configHarrier_1.configHarrier.region,
                         TTL: configHarrier_1.configHarrier.cacheTtlHours,
                         BUCKET: configHarrier_1.configHarrier.s3Name,
+                        SECRET_NAME: configHarrier_1.configHarrier.secretName,
+                        HARRIER_TAG_KEY: configHarrier_1.configHarrier.harrierTagKey,
+                        HARRIER_TAG_VALUE: configHarrier_1.configHarrier.harrierTagValue,
+                        SSM_SEND_COMMAND_TIMEOUT: String(configHarrier_1.configHarrier.ssmSendCommandTimeout),
+                        MAX_WAITER_TIME_IN_SECONDS: String(configHarrier_1.configHarrier.maxWaiterTimeInSeconds),
                     },
                 },
-            }));
-            console.log("✅ lambda CREATED");
+                Runtime: "nodejs20.x",
+                Handler: "index.handler",
+                Publish: true,
+                PackageType: "Zip",
+                Layers: [],
+            });
+            yield lambdaClient.send(createFunction);
+            console.log(`✅ CREATED ${lambdaName} lambda`);
             const waitResponse = yield (0, client_lambda_1.waitUntilFunctionActiveV2)({ client: lambdaClient, maxWaitTime: 1000, minDelay: 5 }, { FunctionName: lambdaName });
             if (`${waitResponse.state}` !== "SUCCESS") {
                 throw new Error("❌ WaiterResult state was not SUCCESS");
             }
-            console.log("✅ lambda ACTIVE");
-            console.log("✅ role ASSUMED");
+            console.log(`✅ lambda ACTIVE and ASSUMED a role`);
         }
         catch (error) {
             console.error(`❌ createAndDeployLambda failed`, error);
