@@ -29,16 +29,20 @@ export async function createAndDeployLambda(
       Tags: {
         Name: `${configHarrier.tagValue}`,
       },
+      // it would be better if each lambda passed in a `variables` object with the
+      // env variables they need, currently each lambda is receiving everything
       Environment: {
         Variables: {
           REGION: configHarrier.region,
           TTL: configHarrier.cacheTtlHours,
           BUCKET: configHarrier.s3Name,
-          secretName: configHarrier.secretName,
-          harrierTagKey: configHarrier.harrierTagKey,
-          harrierTagValue: configHarrier.harrierTagValue, // just fyi this and 'tagValue' in config harrier are different value
-          ssmSendCommandTimeout: configHarrier.ssmSendCommandTimeout,
-          maxWaiterTimeInSeconds: configHarrier.maxWaiterTimeInSeconds,
+          SECRET_NAME: configHarrier.secretName,
+          HARRIER_TAG_KEY: configHarrier.harrierTagKey,
+          HARRIER_TAG_VALUE: configHarrier.harrierTagValue,
+          SSM_SEND_COMMAND_TIMEOUT: String(configHarrier.ssmSendCommandTimeout),
+          MAX_WAITER_TIME_IN_SECONDS: String(
+            configHarrier.maxWaiterTimeInSeconds
+          ),
         },
       },
       Runtime: "nodejs20.x",

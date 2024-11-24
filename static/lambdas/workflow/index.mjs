@@ -23,22 +23,15 @@ import {
 } from "@aws-sdk/client-s3";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 
-// ideally we could put all of these in the `configHarrier` file
-// const HARRIER_TAG_KEY = "Agent";
-// const HARRIER_TAG_VALUE = "Harrier-Runner";
-// const REGION = process.env.AWS_REGION;
+const {
+  REGION,
+  SECRET_NAME,
+  HARRIER_TAG_KEY,
+  HARRIER_TAG_VALUE,
+  SSM_SEND_COMMAND_TIMEOUT, // these are both strings
+  MAX_WAITER_TIME_IN_SECONDS,
+} = process.env;
 
-// const SSM_SEND_COMMAND_TIMEOUT = 100;
-// const MAX_WAITER_TIME_IN_SECONDS = 60 * 4;
-// const SECRET_NAME = "github/pat/harrier";
-
-const HARRIER_TAG_KEY = "Agent";
-const HARRIER_TAG_VALUE = "Harrier-Runner";
-const REGION = process.env.AWS_REGION;
-
-const SSM_SEND_COMMAND_TIMEOUT = 100;
-const MAX_WAITER_TIME_IN_SECONDS = 60 * 4;
-// const SECRET_NAME = "github/pat/harrier";
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
   SecretsManagerClient,
   SSMClient,
@@ -213,7 +206,8 @@ async function findS3Bucket() {
   );
 }
 
-async function runCommand(params, retries = SSM_SEND_COMMAND_TIMEOUT) {
+async function runCommand(params) {
+  const retries = parseInt(SSM_SEND_COMMAND_TIMEOUT);
   for (let count = 0; count < retries; count++) {
     try {
       await ssmClient.send(new SendCommandCommand(params));
@@ -434,7 +428,7 @@ export const handler = async (event) => {
 
           console.log(`waiting for offline instance to start...`);
           //   await waitUntilInstanceRunning(
-          //     { client: ec2Client, maxWaitTime: MAX_WAITER_TIME_IN_SECONDS },
+          //     { client: ec2Client, maxWaitTime: parseInt(MAX_WAITER_TIME_IN_SECONDS) },
           //     { InstanceIds: [instanceId] }
           //   );
 
