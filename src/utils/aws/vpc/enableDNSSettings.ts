@@ -3,10 +3,9 @@ import {
   ModifyVpcAttributeCommand,
   ModifyVpcAttributeCommandInput,
 } from "@aws-sdk/client-ec2";
+import { configHarrier } from "../../../config/configHarrier";
 
-// import { configAWS } from "./configAWS";
-
-const ec2Client = new EC2Client({ region: "us-east-1" });
+const ec2Client = new EC2Client({ region: configHarrier.region });
 
 export const enableDNSSettings = async (vpcId: string): Promise<void> => {
   try {

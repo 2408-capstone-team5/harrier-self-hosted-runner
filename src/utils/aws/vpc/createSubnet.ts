@@ -4,10 +4,10 @@ import {
   CreateSubnetCommandInput,
 } from "@aws-sdk/client-ec2";
 
-// import { configAWS } from "./configAWS";
 import { configHarrierType } from "../../../types/typesConfig";
+import { configHarrier } from "../../../config/configHarrier";
 
-const ec2Client = new EC2Client({ region: "us-east-1" });
+const ec2Client = new EC2Client({ region: configHarrier.region });
 
 export const createSubnet = async (
   configHarrier: configHarrierType,
@@ -33,7 +33,6 @@ export const createSubnet = async (
     const command = new CreateSubnetCommand(params);
     const response = await ec2Client.send(command);
 
-    // console.log("   Subnet Created ID:", response.Subnet, "\n");
     console.log("   Subnet Created ID:", response.Subnet?.SubnetId, "\n");
 
     if (!response.Subnet || !response.Subnet.SubnetId) {
