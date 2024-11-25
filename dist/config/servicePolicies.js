@@ -112,12 +112,12 @@ exports.timeoutLambdaPolicy = JSON.stringify({
                 "logs:CreateLogStream",
                 "logs:PutLogEvents",
             ],
-            Resource: `arn:aws:logs:*:${awsAccountId}:log-group:*`,
+            Resource: [`arn:aws:logs:*:${awsAccountId}:log-group:*`],
         },
         {
             Effect: "Allow",
             Action: ["s3:ListBucket"],
-            Resource: "*",
+            Resource: ["arn:aws:s3:::harrier*"],
         },
         {
             Effect: "Allow",
