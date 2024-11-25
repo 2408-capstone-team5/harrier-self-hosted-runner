@@ -66,18 +66,17 @@ function makeScriptForIdleEC2(secret, owner, instanceId) {
     for i in $(seq 1 $X); do
       echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-      unique_value=$(date +%s)
-      name="Harrier Runner-$unique_value-$i"
+      name="${instanceId}"
 
       echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-      response=$(curl -L \
+     response=$(curl -L \
         -X POST \
         -H "Accept: application/vnd.github+json" \
         -H "Authorization: Bearer ${secret}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
         https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted"],"work_folder":"_work"}')
 
       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -124,8 +123,7 @@ function makeScriptForOfflineEC2(secret, owner, instanceId, s3BucketName) {
     for i in $(seq 1 $X); do
       echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
-      unique_value=$(date +%s)
-      name="Harrier Runner-$unique_value-$i"
+      name="${instanceId}"
 
       echo "Before CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -135,7 +133,7 @@ function makeScriptForOfflineEC2(secret, owner, instanceId, s3BucketName) {
         -H "Authorization: Bearer ${secret}" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
         https://api.github.com/orgs/${owner}/actions/runners/generate-jitconfig \
-        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted", "${instanceId}"],"work_folder":"_work"}')
+        -d '{"name":"'"$name"'","runner_group_id":1,"labels":["self-hosted"],"work_folder":"_work"}')
 
       echo "After CURL - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -468,7 +466,7 @@ export const handler = async (event) => {
         );
         break;
       case "completed":
-        const existingEC2RunnerInstanceId = event.workflow_job.labels.at(-1); // this should always be an ec2 runner instanceId string value
+        const existingEC2RunnerInstanceId = event.runner_name;
         const delay = 1; // wait 1 minute
 
         await invokeTimeoutLambda(
