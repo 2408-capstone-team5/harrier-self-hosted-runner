@@ -466,7 +466,7 @@ export const handler = async (event) => {
         );
         break;
       case "completed":
-        const existingEC2RunnerInstanceId = event.runner_name;
+        const existingEC2RunnerInstanceId = event.workflow_job.runner_name; // @wook this value seems to be undefined
         const delay = 1; // wait 1 minute
 
         await invokeTimeoutLambda(
