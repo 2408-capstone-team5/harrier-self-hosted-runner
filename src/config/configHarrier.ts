@@ -4,7 +4,8 @@ import { _InstanceType } from "@aws-sdk/client-ec2";
 import { toInstanceType } from "../types/ec2InstancesType";
 import { getInput } from "@actions/core";
 
-const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.medium"; //"m7a.xlarge";
+const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.medium";
+// const DEFAULT_INSTANCE_TYPE: _InstanceType = "hpc6id.32xlarge";  // not in us-east-1, for testing
 
 const awsRegion = getInput("region") || "us-east-1";
 const ghOwnerName = getInput("ghOwnerName") || "2408-capstone-team5";
@@ -34,11 +35,12 @@ export const configHarrier: configHarrierType = {
   logGroupName: "/aws/lambdas/__TEST_LOG_GROUP",
   //   logGroup: "/aws/lambda/joel_test",
   region: awsRegion,
+  availabilityZone: "",
   awsAccountId: awsAccountId,
   // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
   imageId: "ami-005fc0f236362e99f", // AMI Ubuntu 22.04
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
-  instanceType: instanceType, // EC2 instance type, default from workflow is t2.micro
+  instanceType: instanceType, // EC2 instance type used for initial EC2 cold-start
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
@@ -78,6 +80,9 @@ export const configHarrier: configHarrierType = {
   harrierTagValue: "Harrier-Runner",
   ssmSendCommandTimeout: 100,
   maxWaiterTimeInSeconds: 60 * 4,
+
+  backupInstanceTypes: ["m7a.large", "m7i.large", "r7a.medium", "m6a.large", "m6i.large", "m5a.large", "r6a.large", "r5a.large", "r6i.large", "m7a.medium", "t2.micro"],
+
 };
 
 export const apiResourcePolicyDocument = JSON.stringify({

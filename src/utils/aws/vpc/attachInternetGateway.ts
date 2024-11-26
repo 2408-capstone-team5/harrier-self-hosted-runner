@@ -3,9 +3,9 @@ import {
   AttachInternetGatewayCommand,
   AttachInternetGatewayCommandInput,
 } from "@aws-sdk/client-ec2";
-// import { configAWS } from "./configAWS";
+import { configHarrier } from "../../../config/configHarrier";
 
-const ec2Client = new EC2Client({ region: "us-east-1" });
+const ec2Client = new EC2Client({ region: configHarrier.region });
 
 export const attachInternetGateway = async (
   internetGatewayId: string,

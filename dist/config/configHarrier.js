@@ -4,7 +4,8 @@ exports.apiResourcePolicyDocument = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 const ec2InstancesType_1 = require("../types/ec2InstancesType");
 const core_1 = require("@actions/core");
-const DEFAULT_INSTANCE_TYPE = "m7a.medium"; //"m7a.xlarge";
+// const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.medium";
+const DEFAULT_INSTANCE_TYPE = "hpc6id.32xlarge"; // not in us-east-1
 const awsRegion = (0, core_1.getInput)("region") || "us-east-1";
 const ghOwnerName = (0, core_1.getInput)("ghOwnerName") || "2408-capstone-team5";
 const awsAccountId = (0, core_1.getInput)("awsAccountId") || "536697269866";
@@ -28,6 +29,7 @@ exports.configHarrier = {
     logGroupName: "/aws/lambdas/__TEST_LOG_GROUP",
     //   logGroup: "/aws/lambda/joel_test",
     region: awsRegion,
+    availabilityZone: "",
     awsAccountId: awsAccountId,
     // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
     imageId: "ami-005fc0f236362e99f",
@@ -65,6 +67,7 @@ exports.configHarrier = {
     harrierTagValue: "Harrier-Runner",
     ssmSendCommandTimeout: 100,
     maxWaiterTimeInSeconds: 60 * 4,
+    backupInstanceTypes: ["m7a.large", "m7i.large", "r7a.medium", "m6a.large", "m6i.large", "m5a.large", "r6a.large", "r5a.large", "r6i.large", "m7a.medium", "t2.micro"],
 };
 exports.apiResourcePolicyDocument = JSON.stringify({
     Version: "2012-10-17",

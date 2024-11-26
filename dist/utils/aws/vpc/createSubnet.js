@@ -11,13 +11,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createSubnet = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
-const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" });
+const configHarrier_1 = require("../../../config/configHarrier");
+const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
 const createSubnet = (configHarrier, vpcId) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
         const params = {
             VpcId: vpcId,
             CidrBlock: configHarrier.cidrBlockSubnet,
+            AvailabilityZone: configHarrier.availabilityZone,
             TagSpecifications: [
                 {
                     ResourceType: "subnet",
@@ -32,7 +34,6 @@ const createSubnet = (configHarrier, vpcId) => __awaiter(void 0, void 0, void 0,
         };
         const command = new client_ec2_1.CreateSubnetCommand(params);
         const response = yield ec2Client.send(command);
-        // console.log("   Subnet Created ID:", response.Subnet, "\n");
         console.log("   Subnet Created ID:", (_a = response.Subnet) === null || _a === void 0 ? void 0 : _a.SubnetId, "\n");
         if (!response.Subnet || !response.Subnet.SubnetId) {
             throw new Error("Subnet Creation Failed!");

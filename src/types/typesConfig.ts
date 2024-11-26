@@ -9,6 +9,7 @@ export interface configHarrierType {
   vpcId: string | undefined;
   subnetId: string | undefined;
   region: string;
+  availabilityZone: string;
   awsAccountId: string;
   imageId: string; // AMI ID for the instance
   instanceType: _InstanceType; // EC2 instance type
@@ -49,4 +50,6 @@ export interface configHarrierType {
   harrierTagValue: string;
   ssmSendCommandTimeout: number;
   maxWaiterTimeInSeconds: number;
+
+  backupInstanceTypes: _InstanceType[];
 }

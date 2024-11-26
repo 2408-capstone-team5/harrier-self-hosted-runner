@@ -1,5 +1,4 @@
 import { EC2Client, CreateTagsCommand } from "@aws-sdk/client-ec2";
-
 import { configHarrier } from "../config/configHarrier";
 import { createVpc } from "../utils/aws/vpc/createVPC";
 import { createSubnet } from "../utils/aws/vpc/createSubnet";
@@ -9,15 +8,14 @@ import { attachInternetGateway } from "../utils/aws/vpc/attachInternetGateway";
 import { findRouteTableId } from "../utils/aws/vpc/findRouteTable";
 import { createRoute } from "../utils/aws/vpc/createRoute";
 import { enableDNSSettings } from "../utils/aws/vpc/enableDNSSettings";
-
-// import { configAWS } from "../utils/aws/vpc/configAWS";
-
-const ec2Client = new EC2Client({ region: "us-east-1" });
+import { checkInstanceTypeAvailability } from "../utils/aws/ec2/checkInstanceTypeAvailable";
 
 export const setupVPC = async () => {
   try {
-    console.log("** Starting setupVPC...");
-    // console.log(configHarrier);
+    const ec2Client = new EC2Client({ region: configHarrier.region });
+    console.log("** Start VPC Setup...");
+
+    await checkInstanceTypeAvailability();
 
     const vpcId = await createVpc(configHarrier);
     if (!vpcId) {
@@ -51,7 +49,7 @@ export const setupVPC = async () => {
     await createRoute(routeTableId, gatewayId);
 
     console.log("✅ Successfully completed VPC Setup\n");
-    // console.log(configHarrier);
+
   } catch (error: unknown) {
     if (error instanceof Error) {
       console.error("❌ Error:", error.message, "\n");
@@ -60,5 +58,3 @@ export const setupVPC = async () => {
     }
   }
 };
-
-// setupVPC();

@@ -11,9 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createInternetGateway = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
-// import { configAWS } from "./configAWS";
 const configHarrier_1 = require("../../../config/configHarrier");
-const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" });
+const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
 const createInternetGateway = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const params = {
