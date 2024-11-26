@@ -5,6 +5,10 @@ import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 import { setupCacheEviction } from "./services/setupCacheEviction";
+import { getAvailabilityZones } from "./utils/aws/vpc/getAvailabilityZones";
+import { isInstanceTypeAvailable } from "./utils/aws/ec2/checkInstanceTypeAvailable";
+import { configHarrier } from "./config/configHarrier";
+import { findComparableInstanceType } from "./utils/aws/ec2/checkInstanceTypeAvailable";
 
 let deleteHarrier = false;
 
@@ -36,6 +40,37 @@ const main = async () => {
         "=> Only performing cleanup of previous installation, without installing a new Harrier setup.\n" +
           "✅ Successfully deleted Harrier from AWS account.\n"
       );
+
+      let zones = await getAvailabilityZones();
+      console.log(zones);
+
+      let instanceType = configHarrier.instanceType;
+      // instanceType = "hpc6id.32xlarge";  // not in us-east-1
+
+      let isAvailable = false;
+      let idx = 0;
+
+      while (!isAvailable && idx < zones.length) {
+        isAvailable = await isInstanceTypeAvailable(instanceType, zones[idx]);
+        console.log(`${instanceType} availability in ${zones[idx]}:`, isAvailable);
+        idx++;
+      }
+
+      if (isAvailable) {
+        configHarrier.availabilityZone = zones[idx - 1];
+        console.log(`Set Availability Zone to ${configHarrier.availabilityZone}`);
+        await findComparableInstanceType(instanceType)
+      } else {
+        console.log(`${instanceType} not found in ${configHarrier.region} region.  Searching for comparable instance type to use!`);
+        await findComparableInstanceType(instanceType)
+        // const newInstanceType = await findComparableInstanceType(instanceType);
+        // if (newInstanceType) {
+        //   configHarrier.instanceType = instanceType;
+        //   console.log(`Using `);
+        // } else {
+        //   throw new Error(`Instance Type ${instanceType} not availabile in ${configHarrier.region} and no comparable instances found!`);
+        // }
+      }
       return;
     }
 

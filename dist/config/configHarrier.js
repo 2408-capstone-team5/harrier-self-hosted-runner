@@ -28,6 +28,7 @@ exports.configHarrier = {
     logGroupName: "/aws/lambdas/__TEST_LOG_GROUP",
     //   logGroup: "/aws/lambda/joel_test",
     region: awsRegion,
+    availabilityZone: "",
     awsAccountId: awsAccountId,
     // imageId: "ami-063d43db0594b521b", // AMI ID for Amazon Linux
     imageId: "ami-005fc0f236362e99f",

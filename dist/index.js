@@ -16,6 +16,10 @@ const setupEC2Runner_1 = require("./services/setupEC2Runner");
 const setupApiAndWebhook_1 = require("./services/setupApiAndWebhook");
 const setupRoles_1 = require("./services/setupRoles");
 const setupCacheEviction_1 = require("./services/setupCacheEviction");
+const getAvailabilityZones_1 = require("./utils/aws/vpc/getAvailabilityZones");
+const checkInstanceTypeAvailable_1 = require("./utils/aws/ec2/checkInstanceTypeAvailable");
+const configHarrier_1 = require("./config/configHarrier");
+const checkInstanceTypeAvailable_2 = require("./utils/aws/ec2/checkInstanceTypeAvailable");
 let deleteHarrier = false;
 const processCmdLineArgs = () => {
     const args = process.argv.slice(2);
@@ -38,6 +42,33 @@ const main = () => __awaiter(void 0, void 0, void 0, function* () {
         if (deleteHarrier) {
             console.log("=> Only performing cleanup of previous installation, without installing a new Harrier setup.\n" +
                 "✅ Successfully deleted Harrier from AWS account.\n");
+            let zones = yield (0, getAvailabilityZones_1.getAvailabilityZones)();
+            console.log(zones);
+            let instanceType = configHarrier_1.configHarrier.instanceType;
+            // instanceType = "hpc6id.32xlarge";  // not in us-east-1
+            let isAvailable = false;
+            let idx = 0;
+            while (!isAvailable && idx < zones.length) {
+                isAvailable = yield (0, checkInstanceTypeAvailable_1.isInstanceTypeAvailable)(instanceType, zones[idx]);
+                console.log(`${instanceType} availability in ${zones[idx]}:`, isAvailable);
+                idx++;
+            }
+            if (isAvailable) {
+                configHarrier_1.configHarrier.availabilityZone = zones[idx - 1];
+                console.log(`Set Availability Zone to ${configHarrier_1.configHarrier.availabilityZone}`);
+                yield (0, checkInstanceTypeAvailable_2.findComparableInstanceType)(instanceType);
+            }
+            else {
+                console.log(`${instanceType} not found in ${configHarrier_1.configHarrier.region} region.  Searching for comparable instance type to use!`);
+                yield (0, checkInstanceTypeAvailable_2.findComparableInstanceType)(instanceType);
+                // const newInstanceType = await findComparableInstanceType(instanceType);
+                // if (newInstanceType) {
+                //   configHarrier.instanceType = instanceType;
+                //   console.log(`Using `);
+                // } else {
+                //   throw new Error(`Instance Type ${instanceType} not availabile in ${configHarrier.region} and no comparable instances found!`);
+                // }
+            }
             return;
         }
         yield (0, setupRoles_1.setupRoles)(); // IAM

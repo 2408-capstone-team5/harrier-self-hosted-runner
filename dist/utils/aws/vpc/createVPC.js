@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createVpc = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
-// import { configHarrier } from "../../../services/config";
-const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" });
+const configHarrier_1 = require("../../../config/configHarrier");
+const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
 const createVpc = (configHarrier) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {
@@ -33,7 +33,6 @@ const createVpc = (configHarrier) => __awaiter(void 0, void 0, void 0, function*
         const command = new client_ec2_1.CreateVpcCommand(params);
         const response = yield ec2Client.send(command);
         console.log("✅ Successfully Created VPC\n");
-        // console.log("VPC Created:", response.Vpc);
         if (!((_a = response.Vpc) === null || _a === void 0 ? void 0 : _a.VpcId)) {
             throw new Error("VPC Creation Failed!");
         }
