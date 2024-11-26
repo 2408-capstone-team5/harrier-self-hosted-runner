@@ -17,6 +17,7 @@ export const createSubnet = async (
     const params: CreateSubnetCommandInput = {
       VpcId: vpcId,
       CidrBlock: configHarrier.cidrBlockSubnet,
+      AvailabilityZone: configHarrier.availabilityZone,
       TagSpecifications: [
         {
           ResourceType: "subnet",

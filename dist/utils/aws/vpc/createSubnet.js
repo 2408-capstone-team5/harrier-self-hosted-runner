@@ -19,6 +19,7 @@ const createSubnet = (configHarrier, vpcId) => __awaiter(void 0, void 0, void 0,
         const params = {
             VpcId: vpcId,
             CidrBlock: configHarrier.cidrBlockSubnet,
+            AvailabilityZone: configHarrier.availabilityZone,
             TagSpecifications: [
                 {
                     ResourceType: "subnet",

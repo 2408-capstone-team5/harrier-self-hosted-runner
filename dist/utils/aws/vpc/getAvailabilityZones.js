@@ -19,13 +19,13 @@ function ensureAvailabilityZone(input) {
     return input;
 }
 const getAvailabilityZones = () => __awaiter(void 0, void 0, void 0, function* () {
-    const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
     try {
+        const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region });
         const command = new client_ec2_1.DescribeAvailabilityZonesCommand({});
         const response = yield ec2Client.send(command);
         const possibleAvailabilityZones = ensureAvailabilityZone(response.AvailabilityZones);
         const availabilityZones = possibleAvailabilityZones.map((az) => az.ZoneName ? az.ZoneName : "");
-        console.log(`Availability Zones in ${configHarrier_1.configHarrier.region}:`, availabilityZones);
+        console.log(`   Availability Zones in ${configHarrier_1.configHarrier.region}:`, availabilityZones);
         return availabilityZones;
     }
     catch (error) {

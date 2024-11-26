@@ -5,6 +5,7 @@ import { toInstanceType } from "../types/ec2InstancesType";
 import { getInput } from "@actions/core";
 
 const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.medium";
+// const DEFAULT_INSTANCE_TYPE: _InstanceType = "hpc6id.32xlarge";  // not in us-east-1, for testing
 
 const awsRegion = getInput("region") || "us-east-1";
 const ghOwnerName = getInput("ghOwnerName") || "2408-capstone-team5";

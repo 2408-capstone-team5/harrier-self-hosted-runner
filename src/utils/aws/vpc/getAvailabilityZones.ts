@@ -9,9 +9,9 @@ function ensureAvailabilityZone(input: AvailabilityZone[] | undefined): Availabi
 }
 
 export const getAvailabilityZones = async (): Promise<string[]> => {
-  const ec2Client = new EC2Client({ region: configHarrier.region });
-
   try {
+    const ec2Client = new EC2Client({ region: configHarrier.region });
+
     const command = new DescribeAvailabilityZonesCommand({});
     const response = await ec2Client.send(command);
 
@@ -19,7 +19,7 @@ export const getAvailabilityZones = async (): Promise<string[]> => {
 
     const availabilityZones = possibleAvailabilityZones.map((az: AvailabilityZone) => az.ZoneName ? az.ZoneName : "");
 
-    console.log(`Availability Zones in ${configHarrier.region}:`, availabilityZones);
+    console.log(`   Availability Zones in ${configHarrier.region}:`, availabilityZones);
     return availabilityZones;
   } catch (error) {
     console.error("Error retrieving availability zones:", error);
