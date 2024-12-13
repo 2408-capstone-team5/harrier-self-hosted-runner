@@ -3,6 +3,7 @@ import { cleanupLambdas } from "../utils/aws/cleanup/cleanupLambdas";
 import { cleanupApi } from "../utils/aws/cleanup/cleanupApi";
 import { cleanupIamRoles } from "../utils/aws/cleanup/cleanupIamRoles";
 import { cleanupS3 } from "../utils/aws/cleanup/cleanupS3";
+import { cleanupEventbridge } from "../utils/aws/cleanup/cleanupEventbridge";
 import { cleanupVpc } from "../utils/aws/cleanup/cleanupVpc";
 
 // Cleanup function to delete Lambdas, API Gateway REST APIs, and associated IAM roles
@@ -14,6 +15,7 @@ export const cleanupPrevInstall = async () => {
     await cleanupApi();
     await cleanupIamRoles();
     await cleanupS3();
+    await cleanupEventbridge();
     await cleanupVpc();
 
     console.log("✅ Harrier Cleanup complete.\n");
