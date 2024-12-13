@@ -50,7 +50,7 @@ export const workflowLambdaPolicy = JSON.stringify({
     // three new policies:
     {
       Effect: "Allow",
-      Action: ["s3:GetObject"],
+      Action: ["s3:GetObject", "s3:PutObject"],
       Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
     },
     {
@@ -103,7 +103,7 @@ export const timeoutLambdaPolicy = JSON.stringify({
   Statement: [
     {
       Effect: "Allow",
-      Action: ["s3:GetObject"],
+      Action: ["s3:GetObject", "s3:PutObject"],
       Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
     },
     {
@@ -118,7 +118,7 @@ export const timeoutLambdaPolicy = JSON.stringify({
     {
       Effect: "Allow",
       Action: ["s3:ListBucket"],
-      Resource:["arn:aws:s3:::harrier*"],
+      Resource: ["arn:aws:s3:::harrier*"],
     },
     {
       Effect: "Allow",

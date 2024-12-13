@@ -17,6 +17,7 @@ import {
 import {
   S3Client,
   ListBucketsCommand,
+  ListObjectsV2Command,
   GetObjectCommand,
   PutObjectCommand,
   GetBucketTaggingCommand,
@@ -235,24 +236,39 @@ async function startStoppedInstance(instanceId) {
   }
 }
 
-async function getAllHarrierRunners() {
+async function getAllHarrierRunners(s3BucketName) {
   try {
-    const describe = new DescribeInstancesCommand({
-      Filters: [
-        { Name: `tag:${HARRIER_TAG_KEY}`, Values: [HARRIER_TAG_VALUE] },
-      ],
-    });
-    const response = await ec2Client.send(describe);
+    // Given that we can have random EC2s floating around after a re-install, a better approach
+    // may be to grab instance IDs from the S3 bucket.
 
-    const instanceIds = response.Reservations.flatMap((res) =>
-      res.Instances.map((instance) => instance.InstanceId)
+    const response = await s3Client.send(
+      new ListObjectsV2Command({
+        Bucket: s3BucketName,
+        Prefix: "runner-statuses/",
+      })
     );
 
-    if (!instanceIds.length) {
-      throw new Error(`❌ 0 Harrier-tagged instances located`);
-    }
+    const instanceIds = response.Contents.map(
+      (object) => object.Key.split(/[/.]/)[1]
+    );
+    console.log("Harrier instances located from S3: ", instanceIds);
 
-    console.log(`${instanceIds.length} Harrier-tagged instances located`);
+    // const describe = new DescribeInstancesCommand({
+    //   Filters: [
+    //     { Name: `tag:${HARRIER_TAG_KEY}`, Values: [HARRIER_TAG_VALUE] },
+    //   ],
+    // });
+    // const response = await ec2Client.send(describe);
+
+    // const instanceIds = response.Reservations.flatMap((res) =>
+    //   res.Instances.map((instance) => instance.InstanceId)
+    // );
+
+    // if (!instanceIds.length) {
+    //   throw new Error(`❌ 0 Harrier-tagged instances located`);
+    // }
+
+    // console.log(`${instanceIds.length} Harrier-tagged instances located`);
     return instanceIds;
   } catch (error) {
     console.error(`❌ Error fetching Harrier-tagged instance ids: `, error);
@@ -321,14 +337,15 @@ async function streamToString(stream) {
 async function updateInstanceStatus(
   s3BucketName,
   instanceId,
-  currentStatus,
+  // currentStatus,
   nextStatus
 ) {
   try {
     const response = await s3Client.send(
       new GetObjectCommand({
         Bucket: s3BucketName,
-        Key: `instance-states/${instanceId}.json`,
+        // Key: `instance-states/${instanceId}.json`, // @Joel - shouldn't this path be runner-statuses?
+        Key: `runner-statuses/${instanceId}.json`,
       })
     );
 
@@ -336,20 +353,24 @@ async function updateInstanceStatus(
     const instanceState = JSON.parse(bodyString);
 
     console.log(
-      `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
+      // `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
+      `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
     );
 
-    if (instanceState.status !== currentStatus) {
-      throw new Error(
-        `❌ Current status does not match for instance ${instanceId}`
-      );
-    }
+    // Checking for currentStatus does not allow for this helper function to be re-used elsewhere
+
+    // if (instanceState.status !== currentStatus) {
+    //   throw new Error(
+    //     `❌ Current status does not match for instance ${instanceId}`
+    //   );
+    // }
 
     instanceState.status = nextStatus;
     await s3Client.send(
       new PutObjectCommand({
         Bucket: s3BucketName,
-        Key: `instance-states/${instanceId}.json`,
+        // Key: `instance-states/${instanceId}.json`,
+        Key: `runner-statuses/${instanceId}.json`,
         Body: JSON.stringify(instanceState),
         ContentType: "application/json",
       })
@@ -407,7 +428,7 @@ export const handler = async (event) => {
 
     switch (action) {
       case "queued":
-        const runnerIds = await getAllHarrierRunners();
+        const runnerIds = await getAllHarrierRunners(s3BucketName);
 
         const { instanceId, currentStatus } = await findSuitableRunner(
           runnerIds,
@@ -420,6 +441,15 @@ export const handler = async (event) => {
           console.error("**ec2 runner creation and cold start required**");
           // @Shane or @Wook
         } else if (currentStatus === "idle") {
+          console.log("found an idle instance: ", instanceId);
+
+          await updateInstanceStatus(
+            s3BucketName,
+            instanceId,
+            // currentStatus,
+            "busy" // nextStatus
+          );
+
           const startIdleEC2Script = makeScriptForIdleEC2(
             secret,
             owner,
@@ -433,6 +463,14 @@ export const handler = async (event) => {
           });
         } else if (currentStatus === "offline") {
           console.log("found an offline instance: ", instanceId);
+
+          await updateInstanceStatus(
+            s3BucketName,
+            instanceId,
+            // currentStatus,
+            "busy" // nextStatus
+          );
+
           await startStoppedInstance(instanceId);
 
           console.log(`waiting for offline instance to start...`);
@@ -457,17 +495,17 @@ export const handler = async (event) => {
           // this should never be reached...
           console.log(`⚠️ this line should never be reached`);
         }
-
-        await updateInstanceStatus(
-          s3BucketName,
-          instanceId,
-          currentStatus,
-          "busy" // nextStatus
-        );
         break;
       case "completed":
-        const existingEC2RunnerInstanceId = event.runner_name;
+        const existingEC2RunnerInstanceId = event.workflow_job.runner_name; // @wook this value seems to be undefined
         const delay = 1; // wait 1 minute
+
+        // Workflow completed should indicate that the EC2 is no longer running a job, thus need to toggle state to "idle"
+        await updateInstanceStatus(
+          s3BucketName,
+          existingEC2RunnerInstanceId,
+          "idle" // nextStatus
+        );
 
         await invokeTimeoutLambda(
           existingEC2RunnerInstanceId,
