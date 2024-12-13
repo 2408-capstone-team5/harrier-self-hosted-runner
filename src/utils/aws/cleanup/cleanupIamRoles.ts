@@ -7,8 +7,9 @@ import {
   ListRolesCommand,
   DeleteRoleCommand,
 } from "@aws-sdk/client-iam";
+import { configHarrier } from "../../../config/configHarrier";
 
-const iamClient = new IAMClient({ region: "us-east-1" });
+const iamClient = new IAMClient({ region: configHarrier.region });
 
 // Function to detach managed policies from a role
 async function detachManagedPolicies(roleName: string) {

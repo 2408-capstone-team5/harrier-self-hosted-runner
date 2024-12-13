@@ -8,9 +8,10 @@ import {
   DetachInternetGatewayCommand,
   DeleteInternetGatewayCommand,
 } from "@aws-sdk/client-ec2";
+import { configHarrier } from "../../../config/configHarrier";
 
 // Create EC2 client
-const ec2Client = new EC2Client({ region: "us-east-1" }); // Replace with your region
+const ec2Client = new EC2Client({ region: configHarrier.region }); // Replace with your region
 
 // Find all VPCs whose name starts with "Harrier"
 const findVpcsWithNamePrefix = async (prefix: string) => {
