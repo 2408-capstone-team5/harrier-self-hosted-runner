@@ -4,6 +4,9 @@ import {
   DetachRolePolicyCommand,
   ListRolePoliciesCommand,
   DeleteRolePolicyCommand,
+  ListInstanceProfilesCommand,
+  RemoveRoleFromInstanceProfileCommand,
+  DeleteInstanceProfileCommand,
   ListRolesCommand,
   DeleteRoleCommand,
 } from "@aws-sdk/client-iam";
@@ -72,6 +75,52 @@ async function deleteInlinePolicies(roleName: string) {
   }
 }
 
+// Function to remove role from instance profiles
+async function removeRoleFromInstanceProfiles(roleName: string) {
+  try {
+    const listInstanceProfilesCommand = new ListInstanceProfilesCommand({});
+    const instanceProfilesResponse = await iamClient.send(
+      listInstanceProfilesCommand
+    );
+
+    const instanceProfiles = instanceProfilesResponse.InstanceProfiles || [];
+
+    for (const profile of instanceProfiles) {
+      if (profile.Roles?.some((role) => role.RoleName === roleName)) {
+        console.log(
+          `   Removing role (${roleName}) from instance profile (${profile.InstanceProfileName})...`
+        );
+        await iamClient.send(
+          new RemoveRoleFromInstanceProfileCommand({
+            InstanceProfileName: profile.InstanceProfileName,
+            RoleName: roleName,
+          })
+        );
+        console.log(
+          `   Successfully removed role (${roleName}) from instance profile (${profile.InstanceProfileName}).`
+        );
+
+        console.log(
+          `   Deleting instance profile (${profile.InstanceProfileName})...`
+        );
+        await iamClient.send(
+          new DeleteInstanceProfileCommand({
+            InstanceProfileName: profile.InstanceProfileName,
+          })
+        );
+        console.log(
+          `   Successfully deleted instance profile (${profile.InstanceProfileName}).`
+        );
+      }
+    }
+  } catch (error) {
+    console.error(
+      `❌ Error removing role (${roleName}) from instance profiles:`,
+      error
+    );
+  }
+}
+
 // Function to delete IAM roles with names starting with "harrier"
 export const cleanupIamRoles = async () => {
   try {
@@ -86,13 +135,16 @@ export const cleanupIamRoles = async () => {
       // Filter by role name starting with "Harrier"
       if (role.RoleName?.startsWith("harrier")) {
         try {
-          // Step 1: Detach managed policies
+          // Step 1: Remove role from instance profiles
+          await removeRoleFromInstanceProfiles(role.RoleName);
+
+          // Step 2: Detach managed policies
           await detachManagedPolicies(role.RoleName);
 
-          // Step 2: Delete inline policies
+          // Step 3: Delete inline policies
           await deleteInlinePolicies(role.RoleName);
 
-          // Step 3: Delete role
+          // Step 4: Delete role
           console.log(`   Deleting IAM Role: ${role.RoleName}`);
           const deleteRoleCommand = new DeleteRoleCommand({
             RoleName: role.RoleName,

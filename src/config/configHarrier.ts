@@ -44,9 +44,9 @@ export const configHarrier: configHarrierType = {
   keyName: "test-1-ubuntu-64x86-241022", // For SSH access
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
-  IamInstanceProfile: {
-    Name: `harrier-${installationHash}-runner`, // this will change as it is created programmatically
-  },
+  // IamInstanceProfile: {
+  //   Name: "EC2-access-S3", // this will change as it is created programmatically
+  // },
   ghOwnerName: ghOwnerName,
   githubUrl: `https://github.com/${ghOwnerName}`,
   s3Name: `harrier-s3-${ghOwnerName}`,
@@ -56,12 +56,13 @@ export const configHarrier: configHarrierType = {
   timeoutLambdaName: `harrier-${installationHash}-timeout`,
   evictionLambdaName: `harrier-${installationHash}-eviction`,
 
-  workflowServiceName: `harrier-${installationHash}-workflow`,
-  timeoutServiceName: `harrier-${installationHash}-timeout`,
-  cacheEvictionServiceName: `harrier-${installationHash}-eviction`,
+  workflowServiceName: `harrier-${installationHash}-workflow-service-role`,
+  cacheEvictionServiceName: `harrier-${installationHash}-eviction-service-role`,
+  timeoutServiceName: `harrier-${installationHash}-timeout-service-role`,
+  runnerInstanceServiceName: `harrier-${installationHash}-runner-service-role`,
+  schedulerServiceName: `harrier-${installationHash}-scheduler-service-role`,
 
-  runnerInstanceServiceName: `harrier-${installationHash}-runner`,
-  schedulerServiceName: `harrier-${installationHash}-scheduler`,
+  runnerInstanceProfileName: `harrier-${installationHash}-runner-instance-profile`,
 
   workflowServiceRoleArn: "",
   cacheEvictionServiceRoleArn: "",

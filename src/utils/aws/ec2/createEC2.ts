@@ -5,6 +5,7 @@ import {
   TagSpecification,
   // _InstanceType,
 } from "@aws-sdk/client-ec2";
+
 import { configHarrier } from "../../../config/configHarrier";
 import { getStartScript } from "../../../scripts/setup";
 
@@ -18,7 +19,9 @@ export const createEC2 = async (poolId: number) => {
   const maxCount = configHarrier.maxInstanceCount;
   const securityGroupIds = configHarrier.securityGroupIds;
   const subnetId = configHarrier.subnetId;
-  const iamInstanceProfile = configHarrier.IamInstanceProfile;
+  // const iamInstanceProfile = {
+  //   Arn: configHarrier.runnerInstanceServiceRoleArn,
+  // };
   const tagSpecifications: TagSpecification[] = [
     {
       ResourceType: "instance",
@@ -51,7 +54,9 @@ export const createEC2 = async (poolId: number) => {
     ],
     SecurityGroupIds: securityGroupIds, // Security group IDs
     SubnetId: subnetId, // Subnet ID (optional)
-    IamInstanceProfile: iamInstanceProfile, // IAM resource profile
+    IamInstanceProfile: {
+      Name: configHarrier.runnerInstanceProfileName,
+    }, // IAM resource profile
     TagSpecifications: tagSpecifications, // Instance tags
     UserData: userData, // UserData (must be base64 encoded)
   };
