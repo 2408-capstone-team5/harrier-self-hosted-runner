@@ -45,7 +45,7 @@ export const configHarrier: configHarrierType = {
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
   IamInstanceProfile: {
-    Name: "EC2-access-S3", // this will change as it is created programmatically
+    Name: `harrier-${installationHash}-runner`, // this will change as it is created programmatically
   },
   ghOwnerName: ghOwnerName,
   githubUrl: `https://github.com/${ghOwnerName}`,
@@ -81,8 +81,19 @@ export const configHarrier: configHarrierType = {
   ssmSendCommandTimeout: 100,
   maxWaiterTimeInSeconds: 60 * 4,
 
-  backupInstanceTypes: ["m7a.large", "m7i.large", "r7a.medium", "m6a.large", "m6i.large", "m5a.large", "r6a.large", "r5a.large", "r6i.large", "m7a.medium", "t2.micro"],
-
+  backupInstanceTypes: [
+    "m7a.large",
+    "m7i.large",
+    "r7a.medium",
+    "m6a.large",
+    "m6i.large",
+    "m5a.large",
+    "r6a.large",
+    "r5a.large",
+    "r6i.large",
+    "m7a.medium",
+    "t2.micro",
+  ],
 };
 
 export const apiResourcePolicyDocument = JSON.stringify({
