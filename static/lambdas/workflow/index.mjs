@@ -384,6 +384,46 @@ async function updateInstanceStatus(
   }
 }
 
+async function describeInstance(instanceId) {
+  try {
+    const params = { InstanceIds: [instanceId] };
+    const describeInstancesCommand = new DescribeInstancesCommand(params);
+
+    const instanceDetails = await ec2Client.send(describeInstancesCommand);
+
+    const amiId = instanceDetails.Reservations[0].Instances[0].ImageId;
+    const instanceType =
+      instanceDetails.Reservations[0].Instances[0].InstanceType;
+    const keyName = instanceDetails.Reservations[0].Instances[0].KeyName;
+    const securityGroupIds = [
+      instanceDetails.Reservations[0].Instances[0].SecurityGroups[0].GroupId,
+    ];
+    const subnetId =
+      instanceDetails.Reservations[0].Instances[0].NetworkInterfaces[0]
+        .SubnetId;
+    const iamInstanceProfile = {
+      Arn: instanceDetails.Reservations[0].Instances[0].IamInstanceProfile.Arn,
+    };
+    const harrierHash =
+      instanceDetails.Reservations[0].Instances[0].SecurityGroups[0].GroupName.split(
+        "-"
+      )[1];
+
+    return {
+      amiId,
+      instanceType,
+      keyName,
+      securityGroupIds,
+      subnetId,
+      iamInstanceProfile,
+      harrierHash,
+    };
+  } catch {
+    console.error(`Error describing EC2 instance: ${instanceId}:`, error);
+    throw error;
+  }
+}
+
 async function invokeTimeoutLambda(
   instanceId,
   delayInMinutes,
@@ -491,6 +531,9 @@ export const handler = async (event) => {
             InstanceIds: [instanceId],
             Parameters: { commands: [startOfflineEC2Script] },
           });
+
+          const instanceProps = await describeInstance(instanceId);
+          console.log({ instanceProps });
         } else {
           // this should never be reached...
           console.log(`⚠️ this line should never be reached`);
