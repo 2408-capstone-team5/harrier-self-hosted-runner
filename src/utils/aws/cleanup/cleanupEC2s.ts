@@ -42,7 +42,9 @@ const getInstancesByNamePrefix = async (prefix: string) => {
             instance.SecurityGroups.forEach((group) => {
               if (group.GroupId) {
                 console.log("      Found security group: ", group.GroupId);
-                securityGroups.push(group.GroupId);
+                if (!securityGroups.includes(group.GroupId)) {
+                  securityGroups.push(group.GroupId);
+                }
               }
             });
           }
