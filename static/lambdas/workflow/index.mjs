@@ -9,6 +9,7 @@ import {
   waitUntilInstanceRunning,
   RunInstancesCommand,
   waitUntilInstanceStatusOk,
+  StopInstancesCommand,
 } from "@aws-sdk/client-ec2";
 
 import {
@@ -585,11 +586,11 @@ async function createEC2(instanceProps, nextPoolId) {
 async function waitEC2StatusOk(instanceIds) {
   try {
     console.log("Waiting until STATUS OK...");
-    const MAX_WAITER_TIME_IN_SECONDS = 60 * 8;
+    const MAX_WAITER_TIME_IN_SECONDS = 60 * 6;
     const startTime = new Date();
     await waitUntilInstanceStatusOk(
       {
-        client: client,
+        client: ec2Client,
         maxWaitTime: MAX_WAITER_TIME_IN_SECONDS,
       },
       { InstanceIds: instanceIds }
@@ -621,30 +622,44 @@ async function setupNextEC2(instanceProps, nextPoolId) {
     const instanceIds = [instanceId];
     await waitEC2StatusOk(instanceIds);
     await stopEC2s(instanceIds);
+    return instanceId;
   } catch (error) {
     console.error(`Error creating next EC2: `, error);
     throw error;
   }
 }
 
-async function incrementNextEC2PoolId(s3BucketName, nextPoolId) {
+async function updateEC2PoolStatus(s3BucketName, nextPoolId, nextInstanceId) {
   try {
     const nextIDObject = {
-      nextId: EC2InstanceIds.length,
+      nextId: nextPoolId,
     };
     const nextIDString = JSON.stringify(nextIDObject);
 
-    const command = new PutObjectCommand({
+    const idCommand = new PutObjectCommand({
       Bucket: s3BucketName,
       Key: `runner-statuses/nextId.json`,
       Body: nextIDString,
       ContentType: "application/json",
     });
+    await s3Client.send(idCommand);
 
-    await s3client.send(command);
-    console.log("Successfully updated next EC2 pool ID to: ", nextPoolId);
+    const statusObject = {
+      status: "offline",
+    };
+    const statusString = JSON.stringify(statusObject);
+
+    const statusCommand = new PutObjectCommand({
+      Bucket: configHarrier.s3Name,
+      Key: `runner-statuses/${nextInstanceId}.json`,
+      Body: statusString,
+      ContentType: "application/json",
+    });
+    await s3Client.send(statusCommand);
+
+    console.log("Successfully updated next EC2 pool status");
   } catch (error) {
-    console.error("Error updating next EC2 pool ID: ", error);
+    console.error("Error updating next EC2 pool status: ", error);
   }
 }
 
@@ -762,9 +777,14 @@ export const handler = async (event) => {
           const nextPoolId = await getNextEC2PoolId(s3BucketName);
           console.log(nextPoolId);
 
-          await setupNextEC2(instanceProps, nextPoolId);
+          const newInstanceId = await setupNextEC2(instanceProps, nextPoolId);
+          console.log("Set up new EC2 instance: ", newInstanceId);
 
-          await incrementNextEC2PoolId(s3BucketName, nextPoolId + 1);
+          await updateEC2PoolStatus(
+            s3BucketName,
+            nextPoolId + 1,
+            newInstanceId
+          );
         } else {
           // this should never be reached...
           console.log(`⚠️ this line should never be reached`);
