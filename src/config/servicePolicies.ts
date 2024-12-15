@@ -47,6 +47,7 @@ export const workflowLambdaPolicy = JSON.stringify({
       Action: [
         "ec2:DescribeInstances",
         "ec2:RunInstances",
+        "ec2:CreateTags",
         "s3:ListAllMyBuckets",
       ],
       Resource: "*",
