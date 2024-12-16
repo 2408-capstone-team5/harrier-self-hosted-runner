@@ -300,7 +300,7 @@ async function checkInstanceStatus(
       const { timeStamp: lastTimeStamp, ...lastRun } = instanceState.lastRun;
       const { timeStamp: currentTimeStamp, ...currentRun } = runDetails;
 
-      for (const property of currentRun) {
+      for (const property of Object.keys(currentRun)) {
         if (lastRun[property] !== currentRun[property]) {
           return false;
         }
