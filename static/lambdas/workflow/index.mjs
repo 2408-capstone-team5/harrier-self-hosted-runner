@@ -594,7 +594,7 @@ async function createEC2(instanceProps, nextPoolId) {
 async function waitEC2StatusOk(instanceIds) {
   try {
     console.log("Waiting until STATUS OK...");
-    const MAX_WAITER_TIME_IN_SECONDS = 60 * 6;
+    const MAX_WAITER_TIME_IN_SECONDS = 60 * 3;
     const startTime = new Date();
     await waitUntilInstanceStatusOk(
       {
