@@ -390,7 +390,7 @@ async function updateInstanceStatus(
 
     const statusObject = {
       status: nextStatus,
-      lastRun: { lastRunDetails },
+      lastRun: lastRunDetails,
     };
     const statusString = JSON.stringify(statusObject);
     await s3Client.send(
