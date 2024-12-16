@@ -650,7 +650,7 @@ async function updateEC2PoolStatus(s3BucketName, nextPoolId, nextInstanceId) {
     const statusString = JSON.stringify(statusObject);
 
     const statusCommand = new PutObjectCommand({
-      Bucket: configHarrier.s3Name,
+      Bucket: s3BucketName,
       Key: `runner-statuses/${nextInstanceId}.json`,
       Body: statusString,
       ContentType: "application/json",
