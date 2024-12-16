@@ -2,7 +2,9 @@ import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
 import {
   S3Client,
   GetObjectCommand,
-  PutObjectCommand,
+  // PutObjectCommand,
+  DeleteObjectCommand,
+  TerminateInstancesCommand,
 } from "@aws-sdk/client-s3";
 const REGION = process.env.AWS_REGION;
 const [ec2Client, s3Client] = [EC2Client, S3Client].map(
@@ -29,45 +31,74 @@ async function stillIdle(s3BucketName, instanceId) {
   return status === "idle";
 }
 
-async function stopInstance(instanceId) {
+// async function stopInstance(instanceId) {
+//   try {
+//     const stop = new StopInstancesCommand({ InstanceIds: [instanceId] });
+//     const response = await ec2Client.send(stop);
+//     console.log("✅ Stopping instance:", response.StoppingInstances);
+//   } catch (error) {
+//     console.error("❌ Error stopping instance:", error);
+//   }
+// }
+
+async function terminateInstance(instanceId) {
   try {
-    const stop = new StopInstancesCommand({ InstanceIds: [instanceId] });
-    const response = await ec2Client.send(stop);
-    console.log("✅ Stopping instance:", response.StoppingInstances);
+    const params = {
+      InstanceIds: [instanceId],
+    };
+
+    const data = await ec2Client.send(new TerminateInstancesCommand(params));
+
+    console.log("Successfully terminated instance:", instanceId);
   } catch (error) {
-    console.error("❌ Error stopping instance:", error);
+    console.error(error);
   }
 }
 
-async function updateInstanceStatus(s3BucketName, instanceId, nextStatus) {
+// async function updateInstanceStatus(s3BucketName, instanceId, nextStatus) {
+//   try {
+//     const response = await s3Client.send(
+//       new GetObjectCommand({
+//         Bucket: s3BucketName,
+//         Key: `runner-statuses/${instanceId}.json`,
+//       })
+//     );
+
+//     const bodyString = await streamToString(response.Body);
+//     const instanceState = JSON.parse(bodyString);
+
+//     console.log(
+//       `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
+//     );
+
+//     instanceState.status = nextStatus;
+//     await s3Client.send(
+//       new PutObjectCommand({
+//         Bucket: s3BucketName,
+//         Key: `runner-statuses/${instanceId}.json`,
+//         Body: JSON.stringify(instanceState),
+//         ContentType: "application/json",
+//       })
+//     );
+
+//     console.log(
+//       `✅ Status updated to ${nextStatus} for instance ${instanceId}`
+//     );
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }
+
+async function deleteInstanceStatus(s3BucketName, instanceId) {
   try {
-    const response = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: s3BucketName,
-        Key: `runner-statuses/${instanceId}.json`,
-      })
-    );
+    const deleteParams = {
+      Bucket: s3BucketName,
+      Key: `runner-statuses/${instanceId}.json`,
+    };
 
-    const bodyString = await streamToString(response.Body);
-    const instanceState = JSON.parse(bodyString);
-
-    console.log(
-      `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
-    );
-
-    instanceState.status = nextStatus;
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: s3BucketName,
-        Key: `runner-statuses/${instanceId}.json`,
-        Body: JSON.stringify(instanceState),
-        ContentType: "application/json",
-      })
-    );
-
-    console.log(
-      `✅ Status updated to ${nextStatus} for instance ${instanceId}`
-    );
+    const data = await s3Client.send(new DeleteObjectCommand(deleteParams));
+    console.log("Successfully deleted instance status for: ", instanceId);
+    console.log(data);
   } catch (error) {
     console.error(error);
   }
@@ -83,11 +114,12 @@ export const handler = async ({ instanceId, delayInMinutes, s3BucketName }) => {
     const instanceIsStillIdle = await stillIdle(s3BucketName, instanceId);
 
     if (instanceIsStillIdle) {
-      await stopInstance(instanceId);
-      await updateInstanceStatus(s3BucketName, instanceId, "offline");
-      console.log(
-        `✅ STOPPED instance: ${instanceId} after: ~ ${delayInMinutes} minutes`
-      );
+      await terminateInstance(instanceId);
+      // await stopInstance(instanceId);
+      await deleteInstanceStatus(s3BucketName, instanceId);
+      // await updateInstanceStatus(s3BucketName, instanceId, "offline");
+      console.log`✅ DELETED instance: ${instanceId} after: ~ ${delayInMinutes} minutes`();
+      // `✅ STOPPED instance: ${instanceId} after: ~ ${delayInMinutes} minutes`
     } else {
       console.log(
         `✅ Instance ${instanceId} is not idle, no action was taken on the instance.`
