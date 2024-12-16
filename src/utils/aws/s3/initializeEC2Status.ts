@@ -6,6 +6,15 @@ export const initializeEC2Status = async () => {
 
   const statusObject = {
     status: "offline",
+    lastRun: {
+      timeStamp: "",
+      user: "",
+      organization: "",
+      repository: "",
+      branch: "",
+      workflow: "",
+      job: "",
+    },
   };
   const statusString = JSON.stringify(statusObject);
 
