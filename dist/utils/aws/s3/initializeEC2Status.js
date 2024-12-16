@@ -16,19 +16,39 @@ const initializeEC2Status = () => __awaiter(void 0, void 0, void 0, function* ()
     const client = new client_s3_1.S3Client({ region: configHarrier_1.configHarrier.region });
     const statusObject = {
         status: "offline",
+        lastRun: {
+        // timeStamp: "",
+        // user: "",
+        // organization: "",
+        // repository: "",
+        // branch: "",
+        // workflow: "",
+        // job: "",
+        },
     };
-    const jsonString = JSON.stringify(statusObject);
+    const statusString = JSON.stringify(statusObject);
     const EC2InstanceIds = configHarrier_1.configHarrier.instanceIds;
+    const nextIDObject = {
+        nextId: EC2InstanceIds.length,
+    };
+    const nextIDString = JSON.stringify(nextIDObject);
     try {
         for (const instanceId of EC2InstanceIds) {
             const command = new client_s3_1.PutObjectCommand({
                 Bucket: configHarrier_1.configHarrier.s3Name,
                 Key: `runner-statuses/${instanceId}.json`,
-                Body: jsonString,
+                Body: statusString,
                 ContentType: "application/json",
             });
             yield client.send(command);
         }
+        const command = new client_s3_1.PutObjectCommand({
+            Bucket: configHarrier_1.configHarrier.s3Name,
+            Key: `runner-statuses/nextId.json`,
+            Body: nextIDString,
+            ContentType: "application/json",
+        });
+        yield client.send(command);
         console.log(`✅ Successfully initialized S3 with EC2 status "offline".\n`);
     }
     catch (error) {

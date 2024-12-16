@@ -12,13 +12,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createDailySchedule = void 0;
 const configHarrier_1 = require("../../../config/configHarrier");
 const client_scheduler_1 = require("@aws-sdk/client-scheduler"); // ES Modules import
+const regionTimezone_1 = require("../../../config/regionTimezone");
+// convert AWS region to timezone, or default UTC
+const timezone = regionTimezone_1.regionToTimezone[configHarrier_1.configHarrier.region] || regionTimezone_1.regionToTimezone["default"];
+console.log(`Using timezone: ${timezone}`);
 const client = new client_scheduler_1.SchedulerClient({ region: configHarrier_1.configHarrier.region });
 function createDailySchedule(scheduleName, lambdaArn, scheduleRoleArn) {
     return __awaiter(this, void 0, void 0, function* () {
-        // Create a schedule that runs every day at 3AM
+        // schedule that runs every day at 3AM (cron job)
         const response = yield client.send(new client_scheduler_1.CreateScheduleCommand({
             Name: scheduleName,
             ScheduleExpression: "cron(0 3 * * ? *)",
+            ScheduleExpressionTimezone: timezone,
             FlexibleTimeWindow: { Mode: "FLEXIBLE", MaximumWindowInMinutes: 15 },
             Target: {
                 Arn: lambdaArn,

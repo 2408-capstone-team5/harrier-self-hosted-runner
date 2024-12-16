@@ -11,8 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanupS3 = void 0;
 const client_s3_1 = require("@aws-sdk/client-s3");
+const configHarrier_1 = require("../../../config/configHarrier");
 // Create an S3 client
-const s3Client = new client_s3_1.S3Client({ region: "us-east-1" }); // Change to your region
+const s3Client = new client_s3_1.S3Client({ region: configHarrier_1.configHarrier.region }); // Change to your region
 // Function to find all S3 buckets whose name starts with "Harrier"
 const findBucketsWithPrefix = (prefix) => __awaiter(void 0, void 0, void 0, function* () {
     const command = new client_s3_1.ListBucketsCommand({});

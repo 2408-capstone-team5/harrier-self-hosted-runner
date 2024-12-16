@@ -45,13 +45,18 @@ exports.workflowLambdaPolicy = JSON.stringify({
         {
             Sid: "VisualEditor3",
             Effect: "Allow",
-            Action: ["ec2:DescribeInstances", "s3:ListAllMyBuckets"],
+            Action: [
+                "ec2:DescribeInstances",
+                "ec2:RunInstances",
+                "ec2:CreateTags",
+                "s3:ListAllMyBuckets",
+            ],
             Resource: "*",
         },
         // three new policies:
         {
             Effect: "Allow",
-            Action: ["s3:GetObject"],
+            Action: ["s3:GetObject", "s3:PutObject"],
             Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
         },
         {
@@ -63,6 +68,11 @@ exports.workflowLambdaPolicy = JSON.stringify({
             Effect: "Allow",
             Action: ["lambda:InvokeFunction"],
             Resource: [`arn:aws:lambda:*:${awsAccountId}:function:harrier*`],
+        },
+        {
+            Effect: "Allow",
+            Action: "iam:PassRole",
+            Resource: "arn:aws:iam::*:role/*",
         },
     ],
 });
@@ -102,7 +112,7 @@ exports.timeoutLambdaPolicy = JSON.stringify({
     Statement: [
         {
             Effect: "Allow",
-            Action: ["s3:GetObject"],
+            Action: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
             Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
         },
         {
@@ -121,7 +131,11 @@ exports.timeoutLambdaPolicy = JSON.stringify({
         },
         {
             Effect: "Allow",
-            Action: ["ec2:DescribeInstances", "ec2:StopInstances"],
+            Action: [
+                "ec2:DescribeInstances",
+                "ec2:StopInstances",
+                "ec2:TerminateInstances",
+            ],
             Resource: "*",
         },
     ],

@@ -11,7 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanupApi = void 0;
 const client_api_gateway_1 = require("@aws-sdk/client-api-gateway");
-const apiGatewayClient = new client_api_gateway_1.APIGatewayClient({ region: "us-east-1" });
+const configHarrier_1 = require("../../../config/configHarrier");
+const apiGatewayClient = new client_api_gateway_1.APIGatewayClient({ region: configHarrier_1.configHarrier.region });
 // Function to delete API Gateway REST APIs with names starting with "Harrier"
 const cleanupApi = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;

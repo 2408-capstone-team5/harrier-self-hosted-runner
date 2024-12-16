@@ -4,8 +4,8 @@ exports.apiResourcePolicyDocument = exports.configHarrier = void 0;
 const installationHash_1 = require("./installationHash");
 const ec2InstancesType_1 = require("../types/ec2InstancesType");
 const core_1 = require("@actions/core");
-// const DEFAULT_INSTANCE_TYPE: _InstanceType = "m7a.medium";
-const DEFAULT_INSTANCE_TYPE = "hpc6id.32xlarge"; // not in us-east-1
+const DEFAULT_INSTANCE_TYPE = "m7a.medium";
+// const DEFAULT_INSTANCE_TYPE: _InstanceType = "hpc6id.32xlarge";  // not in us-east-1, for testing
 const awsRegion = (0, core_1.getInput)("region") || "us-east-1";
 const ghOwnerName = (0, core_1.getInput)("ghOwnerName") || "2408-capstone-team5";
 const awsAccountId = (0, core_1.getInput)("awsAccountId") || "536697269866";
@@ -38,9 +38,9 @@ exports.configHarrier = {
     keyName: "test-1-ubuntu-64x86-241022",
     minInstanceCount: 1,
     maxInstanceCount: 1,
-    IamInstanceProfile: {
-        Name: "EC2-access-S3", // this will change as it is created programmatically
-    },
+    // IamInstanceProfile: {
+    //   Name: "EC2-access-S3", // this will change as it is created programmatically
+    // },
     ghOwnerName: ghOwnerName,
     githubUrl: `https://github.com/${ghOwnerName}`,
     s3Name: `harrier-s3-${ghOwnerName}`,
@@ -48,11 +48,12 @@ exports.configHarrier = {
     workflowLambdaName: `harrier-${installationHash_1.installationHash}-workflow`,
     timeoutLambdaName: `harrier-${installationHash_1.installationHash}-timeout`,
     evictionLambdaName: `harrier-${installationHash_1.installationHash}-eviction`,
-    workflowServiceName: `harrier-${installationHash_1.installationHash}-workflow`,
-    timeoutServiceName: `harrier-${installationHash_1.installationHash}-timeout`,
-    cacheEvictionServiceName: `harrier-${installationHash_1.installationHash}-eviction`,
-    runnerInstanceServiceName: `harrier-${installationHash_1.installationHash}-runner`,
-    schedulerServiceName: `harrier-${installationHash_1.installationHash}-scheduler`,
+    workflowServiceName: `harrier-${installationHash_1.installationHash}-workflow-service-role`,
+    cacheEvictionServiceName: `harrier-${installationHash_1.installationHash}-eviction-service-role`,
+    timeoutServiceName: `harrier-${installationHash_1.installationHash}-timeout-service-role`,
+    runnerInstanceServiceName: `harrier-${installationHash_1.installationHash}-runner-service-role`,
+    schedulerServiceName: `harrier-${installationHash_1.installationHash}-scheduler-service-role`,
+    runnerInstanceProfileName: `harrier-${installationHash_1.installationHash}-runner-instance-profile`,
     workflowServiceRoleArn: "",
     cacheEvictionServiceRoleArn: "",
     timeoutServiceRoleArn: "",
@@ -67,7 +68,20 @@ exports.configHarrier = {
     harrierTagValue: "Harrier-Runner",
     ssmSendCommandTimeout: 100,
     maxWaiterTimeInSeconds: 60 * 4,
-    backupInstanceTypes: ["m7a.large", "m7i.large", "r7a.medium", "m6a.large", "m6i.large", "m5a.large", "r6a.large", "r5a.large", "r6i.large", "m7a.medium", "t2.micro"],
+    timeoutLambdaDelayInMin: "1",
+    backupInstanceTypes: [
+        "m7a.large",
+        "m7i.large",
+        "r7a.medium",
+        "m6a.large",
+        "m6i.large",
+        "m5a.large",
+        "r6a.large",
+        "r5a.large",
+        "r6i.large",
+        "m7a.medium",
+        "t2.micro",
+    ],
 };
 exports.apiResourcePolicyDocument = JSON.stringify({
     Version: "2012-10-17",

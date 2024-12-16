@@ -11,7 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanupIamRoles = void 0;
 const client_iam_1 = require("@aws-sdk/client-iam");
-const iamClient = new client_iam_1.IAMClient({ region: "us-east-1" });
+const configHarrier_1 = require("../../../config/configHarrier");
+const iamClient = new client_iam_1.IAMClient({ region: configHarrier_1.configHarrier.region });
 // Function to detach managed policies from a role
 function detachManagedPolicies(roleName) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -58,6 +59,35 @@ function deleteInlinePolicies(roleName) {
         }
     });
 }
+// Function to remove role from instance profiles
+function removeRoleFromInstanceProfiles(roleName) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const listInstanceProfilesCommand = new client_iam_1.ListInstanceProfilesCommand({});
+            const instanceProfilesResponse = yield iamClient.send(listInstanceProfilesCommand);
+            const instanceProfiles = instanceProfilesResponse.InstanceProfiles || [];
+            for (const profile of instanceProfiles) {
+                if ((_a = profile.Roles) === null || _a === void 0 ? void 0 : _a.some((role) => role.RoleName === roleName)) {
+                    console.log(`   Removing role (${roleName}) from instance profile (${profile.InstanceProfileName})...`);
+                    yield iamClient.send(new client_iam_1.RemoveRoleFromInstanceProfileCommand({
+                        InstanceProfileName: profile.InstanceProfileName,
+                        RoleName: roleName,
+                    }));
+                    console.log(`   Successfully removed role (${roleName}) from instance profile (${profile.InstanceProfileName}).`);
+                    console.log(`   Deleting instance profile (${profile.InstanceProfileName})...`);
+                    yield iamClient.send(new client_iam_1.DeleteInstanceProfileCommand({
+                        InstanceProfileName: profile.InstanceProfileName,
+                    }));
+                    console.log(`   Successfully deleted instance profile (${profile.InstanceProfileName}).`);
+                }
+            }
+        }
+        catch (error) {
+            console.error(`❌ Error removing role (${roleName}) from instance profiles:`, error);
+        }
+    });
+}
 // Function to delete IAM roles with names starting with "harrier"
 const cleanupIamRoles = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -70,11 +100,13 @@ const cleanupIamRoles = () => __awaiter(void 0, void 0, void 0, function* () {
             // Filter by role name starting with "Harrier"
             if ((_a = role.RoleName) === null || _a === void 0 ? void 0 : _a.startsWith("harrier")) {
                 try {
-                    // Step 1: Detach managed policies
+                    // Step 1: Remove role from instance profiles
+                    yield removeRoleFromInstanceProfiles(role.RoleName);
+                    // Step 2: Detach managed policies
                     yield detachManagedPolicies(role.RoleName);
-                    // Step 2: Delete inline policies
+                    // Step 3: Delete inline policies
                     yield deleteInlinePolicies(role.RoleName);
-                    // Step 3: Delete role
+                    // Step 4: Delete role
                     console.log(`   Deleting IAM Role: ${role.RoleName}`);
                     const deleteRoleCommand = new client_iam_1.DeleteRoleCommand({
                         RoleName: role.RoleName,

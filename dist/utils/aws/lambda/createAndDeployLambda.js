@@ -43,6 +43,7 @@ function createAndDeployLambda(lambdaServiceName, lambdaRoleArn) {
                         SSM_SEND_COMMAND_TIMEOUT: String(configHarrier_1.configHarrier.ssmSendCommandTimeout),
                         MAX_WAITER_TIME_IN_SECONDS: String(configHarrier_1.configHarrier.maxWaiterTimeInSeconds),
                         TIMEOUT_LAMBDA_NAME: configHarrier_1.configHarrier.timeoutLambdaName,
+                        TIMEOUT_LAMBDA_DELAY: configHarrier_1.configHarrier.timeoutLambdaDelayInMin,
                     },
                 },
                 Runtime: "nodejs20.x",

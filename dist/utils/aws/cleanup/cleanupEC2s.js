@@ -11,7 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanupEC2s = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
-const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" }); // specify your region
+const configHarrier_1 = require("../../../config/configHarrier");
+const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region }); // specify your region
 // Find EC2 instances by prefix
 const getInstancesByNamePrefix = (prefix) => __awaiter(void 0, void 0, void 0, function* () {
     const command = new client_ec2_1.DescribeInstancesCommand({
@@ -43,7 +44,9 @@ const getInstancesByNamePrefix = (prefix) => __awaiter(void 0, void 0, void 0, f
                         instance.SecurityGroups.forEach((group) => {
                             if (group.GroupId) {
                                 console.log("      Found security group: ", group.GroupId);
-                                securityGroups.push(group.GroupId);
+                                if (!securityGroups.includes(group.GroupId)) {
+                                    securityGroups.push(group.GroupId);
+                                }
                             }
                         });
                     }

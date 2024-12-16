@@ -11,8 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanupVpc = void 0;
 const client_ec2_1 = require("@aws-sdk/client-ec2");
+const configHarrier_1 = require("../../../config/configHarrier");
 // Create EC2 client
-const ec2Client = new client_ec2_1.EC2Client({ region: "us-east-1" }); // Replace with your region
+const ec2Client = new client_ec2_1.EC2Client({ region: configHarrier_1.configHarrier.region }); // Replace with your region
 // Find all VPCs whose name starts with "Harrier"
 const findVpcsWithNamePrefix = (prefix) => __awaiter(void 0, void 0, void 0, function* () {
     const command = new client_ec2_1.DescribeVpcsCommand({});

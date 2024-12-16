@@ -22,7 +22,9 @@ const createEC2 = (poolId) => __awaiter(void 0, void 0, void 0, function* () {
     const maxCount = configHarrier_1.configHarrier.maxInstanceCount;
     const securityGroupIds = configHarrier_1.configHarrier.securityGroupIds;
     const subnetId = configHarrier_1.configHarrier.subnetId;
-    const iamInstanceProfile = configHarrier_1.configHarrier.IamInstanceProfile;
+    // const iamInstanceProfile = {
+    //   Arn: configHarrier.runnerInstanceServiceRoleArn,
+    // };
     const tagSpecifications = [
         {
             ResourceType: "instance",
@@ -52,7 +54,9 @@ const createEC2 = (poolId) => __awaiter(void 0, void 0, void 0, function* () {
         ],
         SecurityGroupIds: securityGroupIds,
         SubnetId: subnetId,
-        IamInstanceProfile: iamInstanceProfile,
+        IamInstanceProfile: {
+            Name: configHarrier_1.configHarrier.runnerInstanceProfileName,
+        },
         TagSpecifications: tagSpecifications,
         UserData: userData, // UserData (must be base64 encoded)
     };
