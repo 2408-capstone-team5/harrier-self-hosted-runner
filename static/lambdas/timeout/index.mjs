@@ -22,7 +22,7 @@ async function streamToString(stream) {
   return Buffer.concat(chunks).toString("utf-8");
 }
 
-async function stillIdle(s3BucketName, instanceId) {
+async function stillIdle(s3BucketName, instanceId, lastRunDetails) {
   const response = await s3Client.send(
     new GetObjectCommand({
       Bucket: s3BucketName,
@@ -30,8 +30,8 @@ async function stillIdle(s3BucketName, instanceId) {
     })
   );
   const bodyString = await streamToString(response.Body);
-  const { status } = JSON.parse(bodyString);
-  return status === "idle";
+  const { lastRun } = JSON.parse(bodyString);
+  return lastRun.timeStamp === lastRunDetails.timeStamp;
 }
 
 // async function stopInstance(instanceId) {
@@ -107,14 +107,27 @@ async function deleteInstanceStatus(s3BucketName, instanceId) {
   }
 }
 
-export const handler = async ({ instanceId, delayInMinutes, s3BucketName }) => {
+export const handler = async ({
+  instanceId,
+  delayInMinutes,
+  s3BucketName,
+  lastRunDetails,
+}) => {
   console.log(
     `arguments: instanceId: ${instanceId}, delay: ${delayInMinutes}, bucketName: ${s3BucketName}`
   );
 
   try {
     await new Promise((res) => setTimeout(res, delayInMinutes * 60 * 1000));
-    const instanceIsStillIdle = await stillIdle(s3BucketName, instanceId);
+    const instanceIsStillIdle = await stillIdle(
+      s3BucketName,
+      instanceId,
+      lastRunDetails
+    );
+    console.log(
+      "Check - Instance has not been used since last run: ",
+      instanceIsStillIdle
+    );
 
     if (instanceIsStillIdle) {
       await terminateInstance(instanceId);

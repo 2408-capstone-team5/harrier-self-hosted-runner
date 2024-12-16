@@ -282,7 +282,8 @@ async function getAllHarrierRunners(s3BucketName) {
 async function checkInstanceStatus(
   s3BucketName,
   instanceId,
-  searchedForStatus
+  searchedForStatus,
+  runDetails
 ) {
   try {
     const response = await s3Client.send(
@@ -295,7 +296,24 @@ async function checkInstanceStatus(
     const bodyString = await streamToString(response.Body);
     const instanceState = JSON.parse(bodyString);
 
-    return instanceState.status === searchedForStatus; // if the strings match, return true
+    const compareDetails = () => {
+      const { timeStamp: lastTimeStamp, ...lastRun } = instanceState.lastRun;
+      const { timeStamp: currentTimeStamp, ...currentRun } = runDetails;
+
+      for (const property of currentRun) {
+        if (lastRun[property] !== currentRun[property]) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    if (searchedForStatus === "idle") {
+      return instanceState.status === searchedForStatus && compareDetails();
+    } else {
+      return instanceState.status === searchedForStatus; // if the strings match, return true
+    }
   } catch (error) {
     if (error.name === "NoSuchKey") {
       console.warn(`⚠️ Key not found for instanceId: ${instanceId}`);
@@ -306,17 +324,27 @@ async function checkInstanceStatus(
   }
 }
 
-async function findSuitableRunner(instanceIds, s3BucketName) {
+async function findSuitableRunner(instanceIds, s3BucketName, runDetails) {
   try {
     for (const id of instanceIds) {
-      const isIdle = await checkInstanceStatus(s3BucketName, id, "idle");
+      const isIdle = await checkInstanceStatus(
+        s3BucketName,
+        id,
+        "idle",
+        runDetails
+      );
       if (isIdle) {
         return { instanceId: id, currentStatus: "idle" };
       }
     }
 
     for (const id of instanceIds) {
-      const isOffline = await checkInstanceStatus(s3BucketName, id, "offline");
+      const isOffline = await checkInstanceStatus(
+        s3BucketName,
+        id,
+        "offline",
+        runDetails
+      );
       if (isOffline) {
         return { instanceId: id, currentStatus: "offline" };
       }
@@ -340,41 +368,36 @@ async function streamToString(stream) {
 async function updateInstanceStatus(
   s3BucketName,
   instanceId,
-  // currentStatus,
-  nextStatus
+  nextStatus,
+  lastRunDetails
 ) {
   try {
-    const response = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: s3BucketName,
-        // Key: `instance-states/${instanceId}.json`, // @Joel - shouldn't this path be runner-statuses?
-        Key: `runner-statuses/${instanceId}.json`,
-      })
-    );
+    // const response = await s3Client.send(
+    //   new GetObjectCommand({
+    //     Bucket: s3BucketName,
+    //     Key: `runner-statuses/${instanceId}.json`,
+    //   })
+    // );
 
-    const bodyString = await streamToString(response.Body);
-    const instanceState = JSON.parse(bodyString);
+    // const bodyString = await streamToString(response.Body);
+    // const instanceState = JSON.parse(bodyString);
 
-    console.log(
-      // `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
-      `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
-    );
+    // console.log(
+    //   `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
+    // );
 
-    // Checking for currentStatus does not allow for this helper function to be re-used elsewhere
+    // instanceState.status = nextStatus;
 
-    // if (instanceState.status !== currentStatus) {
-    //   throw new Error(
-    //     `❌ Current status does not match for instance ${instanceId}`
-    //   );
-    // }
-
-    instanceState.status = nextStatus;
+    const statusObject = {
+      status: nextStatus,
+      lastRun: { lastRunDetails },
+    };
+    const statusString = JSON.stringify(statusObject);
     await s3Client.send(
       new PutObjectCommand({
         Bucket: s3BucketName,
-        // Key: `instance-states/${instanceId}.json`,
         Key: `runner-statuses/${instanceId}.json`,
-        Body: JSON.stringify(instanceState),
+        Body: statusString,
         ContentType: "application/json",
       })
     );
@@ -667,7 +690,8 @@ async function invokeTimeoutLambda(
   instanceId,
   delayInMinutes,
   s3BucketName,
-  timeoutFunctionName
+  timeoutFunctionName,
+  lastRunDetails
 ) {
   try {
     const invoke = new InvokeCommand({
@@ -676,6 +700,7 @@ async function invokeTimeoutLambda(
         instanceId,
         delayInMinutes,
         s3BucketName,
+        lastRunDetails,
       }),
     });
 
@@ -705,13 +730,24 @@ export const handler = async (event) => {
     const owner = event.repository.owner.login;
     const action = event.action;
 
+    const runDetails = {
+      timeStamp: new Date().toISOString(),
+      user: event.sender.login,
+      organization: event.organization.login,
+      repository: event.repository.name,
+      branch: event.workflow_job.head_branch,
+      workflow: event.workflow_job.workflow_name,
+      job: event.workflow_job.name,
+    };
+
     switch (action) {
       case "queued":
         const runnerIds = await getAllHarrierRunners(s3BucketName);
 
         const { instanceId, currentStatus } = await findSuitableRunner(
           runnerIds,
-          s3BucketName
+          s3BucketName,
+          runDetails
         );
 
         if (currentStatus === "busy") {
@@ -725,8 +761,8 @@ export const handler = async (event) => {
           await updateInstanceStatus(
             s3BucketName,
             instanceId,
-            // currentStatus,
-            "busy" // nextStatus
+            "busy", // nextStatus
+            runDetails
           );
 
           const startIdleEC2Script = makeScriptForIdleEC2(
@@ -746,8 +782,8 @@ export const handler = async (event) => {
           await updateInstanceStatus(
             s3BucketName,
             instanceId,
-            // currentStatus,
-            "busy" // nextStatus
+            "busy", // nextStatus
+            runDetails
           );
 
           await startStoppedInstance(instanceId);
@@ -798,14 +834,16 @@ export const handler = async (event) => {
         await updateInstanceStatus(
           s3BucketName,
           existingEC2RunnerInstanceId,
-          "idle" // nextStatus
+          "idle", // nextStatus
+          runDetails
         );
 
         await invokeTimeoutLambda(
           existingEC2RunnerInstanceId,
           delay,
           s3BucketName,
-          TIMEOUT_LAMBDA_NAME
+          TIMEOUT_LAMBDA_NAME,
+          runDetails
         );
 
         console.log(
