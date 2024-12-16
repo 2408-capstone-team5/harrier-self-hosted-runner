@@ -23,9 +23,9 @@ export interface configHarrierType {
   cacheTtlHours: string;
   secretName: string;
   ghOwnerName: string;
-  IamInstanceProfile: {
-    Name: string;
-  };
+  // IamInstanceProfile: {
+  //   Name: string;
+  // };
 
   workflowLambdaName: string;
   timeoutLambdaName: string;
@@ -35,6 +35,7 @@ export interface configHarrierType {
   timeoutServiceName: string;
   cacheEvictionServiceName: string;
   runnerInstanceServiceName: string;
+  runnerInstanceProfileName: string;
   schedulerServiceName: string;
   workflowServiceRoleArn: string;
   cacheEvictionServiceRoleArn: string;

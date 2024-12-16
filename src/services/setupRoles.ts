@@ -4,6 +4,8 @@ import {
   createSchedulerServiceRole,
 } from "../utils/aws/iam/createServiceRole";
 
+import { createInstanceProfile } from "../utils/aws/iam/createInstanceProfile";
+
 import { configHarrier } from "../config/configHarrier";
 import {
   workflowLambdaPolicy,
@@ -12,8 +14,6 @@ import {
   runnerInstancePolicy,
   eventBridgeSchedulerPolicy,
 } from "../config/servicePolicies";
-
-const ROLE_NAME_IDENTIFIER = "-service-role";
 
 export const setupRoles = async () => {
   const [
@@ -24,23 +24,23 @@ export const setupRoles = async () => {
     schedulerServiceRoleArn,
   ] = await Promise.all([
     createLambdaServiceRole(
-      `${configHarrier.workflowServiceName}${ROLE_NAME_IDENTIFIER}`,
+      `${configHarrier.workflowServiceName}`,
       workflowLambdaPolicy
     ),
     createLambdaServiceRole(
-      `${configHarrier.cacheEvictionServiceName}${ROLE_NAME_IDENTIFIER}`,
+      `${configHarrier.cacheEvictionServiceName}`,
       cacheEvictionLambdaPolicy
     ),
     createLambdaServiceRole(
-      `${configHarrier.timeoutServiceName}${ROLE_NAME_IDENTIFIER}`,
+      `${configHarrier.timeoutServiceName}`,
       timeoutLambdaPolicy
     ),
     createInstanceServiceRole(
-      `${configHarrier.runnerInstanceServiceName}${ROLE_NAME_IDENTIFIER}`,
+      `${configHarrier.runnerInstanceServiceName}`,
       runnerInstancePolicy
     ),
     createSchedulerServiceRole(
-      `${configHarrier.schedulerServiceName}${ROLE_NAME_IDENTIFIER}`,
+      `${configHarrier.schedulerServiceName}`,
       eventBridgeSchedulerPolicy
     ),
   ]);
@@ -50,6 +50,11 @@ export const setupRoles = async () => {
   configHarrier.timeoutServiceRoleArn = timeoutServiceRoleArn;
   configHarrier.runnerInstanceServiceRoleArn = runnerInstanceServiceRoleArn;
   configHarrier.schedulerServiceRoleArn = schedulerServiceRoleArn;
+
+  createInstanceProfile(
+    configHarrier.runnerInstanceServiceName,
+    configHarrier.runnerInstanceProfileName
+  );
 };
 // export const setupRoles = async () => {
 //   configHarrier.workflowServiceRoleArn = await createLambdaServiceRole(
