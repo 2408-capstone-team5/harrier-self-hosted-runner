@@ -80,9 +80,21 @@ export const configHarrier: configHarrierType = {
   harrierTagValue: "Harrier-Runner",
   ssmSendCommandTimeout: 100,
   maxWaiterTimeInSeconds: 60 * 4,
+  timeoutLambdaDelayInMin: "1",
 
-  backupInstanceTypes: ["m7a.large", "m7i.large", "r7a.medium", "m6a.large", "m6i.large", "m5a.large", "r6a.large", "r5a.large", "r6i.large", "m7a.medium", "t2.micro"],
-
+  backupInstanceTypes: [
+    "m7a.large",
+    "m7i.large",
+    "r7a.medium",
+    "m6a.large",
+    "m6i.large",
+    "m5a.large",
+    "r6a.large",
+    "r5a.large",
+    "r6i.large",
+    "m7a.medium",
+    "t2.micro",
+  ],
 };
 
 export const apiResourcePolicyDocument = JSON.stringify({

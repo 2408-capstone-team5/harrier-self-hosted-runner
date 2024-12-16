@@ -50,6 +50,7 @@ export interface configHarrierType {
   harrierTagValue: string;
   ssmSendCommandTimeout: number;
   maxWaiterTimeInSeconds: number;
+  timeoutLambdaDelayInMin: string;
 
   backupInstanceTypes: _InstanceType[];
 }

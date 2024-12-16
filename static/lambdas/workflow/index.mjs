@@ -35,6 +35,7 @@ const {
   SSM_SEND_COMMAND_TIMEOUT, // these are both strings
   MAX_WAITER_TIME_IN_SECONDS,
   TIMEOUT_LAMBDA_NAME,
+  TIMEOUT_LAMBDA_DELAY,
 } = process.env;
 
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
@@ -828,7 +829,7 @@ export const handler = async (event) => {
         break;
       case "completed":
         const existingEC2RunnerInstanceId = event.workflow_job.runner_name; // @wook this value seems to be undefined
-        const delay = 1; // wait 1 minute
+        const delay = parseInt(TIMEOUT_LAMBDA_DELAY, 10); // wait time set by user, default 1 minute
 
         // Workflow completed should indicate that the EC2 is no longer running a job, thus need to toggle state to "idle"
         await updateInstanceStatus(
