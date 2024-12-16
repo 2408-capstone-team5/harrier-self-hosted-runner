@@ -1,10 +1,13 @@
-import { EC2Client, StopInstancesCommand } from "@aws-sdk/client-ec2";
+import {
+  EC2Client,
+  StopInstancesCommand,
+  TerminateInstancesCommand,
+} from "@aws-sdk/client-ec2";
 import {
   S3Client,
   GetObjectCommand,
   // PutObjectCommand,
   DeleteObjectCommand,
-  TerminateInstancesCommand,
 } from "@aws-sdk/client-s3";
 const REGION = process.env.AWS_REGION;
 const [ec2Client, s3Client] = [EC2Client, S3Client].map(
