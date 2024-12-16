@@ -1,0 +1,46 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import { SetTopicAttributesInput } from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface SetTopicAttributesCommandInput
+  extends SetTopicAttributesInput {}
+export interface SetTopicAttributesCommandOutput extends __MetadataBearer {}
+declare const SetTopicAttributesCommand_base: {
+  new (
+    input: SetTopicAttributesCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    SetTopicAttributesCommandInput,
+    SetTopicAttributesCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (
+    __0_0: SetTopicAttributesCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    SetTopicAttributesCommandInput,
+    SetTopicAttributesCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class SetTopicAttributesCommand extends SetTopicAttributesCommand_base {
+  protected static __types: {
+    api: {
+      input: SetTopicAttributesInput;
+      output: {};
+    };
+    sdk: {
+      input: SetTopicAttributesCommandInput;
+      output: SetTopicAttributesCommandOutput;
+    };
+  };
+}

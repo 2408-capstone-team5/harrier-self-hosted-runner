@@ -1,0 +1,51 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import {
+  ListSMSSandboxPhoneNumbersInput,
+  ListSMSSandboxPhoneNumbersResult,
+} from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface ListSMSSandboxPhoneNumbersCommandInput
+  extends ListSMSSandboxPhoneNumbersInput {}
+export interface ListSMSSandboxPhoneNumbersCommandOutput
+  extends ListSMSSandboxPhoneNumbersResult,
+    __MetadataBearer {}
+declare const ListSMSSandboxPhoneNumbersCommand_base: {
+  new (
+    input: ListSMSSandboxPhoneNumbersCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    ListSMSSandboxPhoneNumbersCommandInput,
+    ListSMSSandboxPhoneNumbersCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (
+    ...[input]: [] | [ListSMSSandboxPhoneNumbersCommandInput]
+  ): import("@smithy/smithy-client").CommandImpl<
+    ListSMSSandboxPhoneNumbersCommandInput,
+    ListSMSSandboxPhoneNumbersCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class ListSMSSandboxPhoneNumbersCommand extends ListSMSSandboxPhoneNumbersCommand_base {
+  protected static __types: {
+    api: {
+      input: ListSMSSandboxPhoneNumbersInput;
+      output: ListSMSSandboxPhoneNumbersResult;
+    };
+    sdk: {
+      input: ListSMSSandboxPhoneNumbersCommandInput;
+      output: ListSMSSandboxPhoneNumbersCommandOutput;
+    };
+  };
+}

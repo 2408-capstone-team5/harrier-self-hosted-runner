@@ -1,0 +1,43 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import { PublishInput, PublishResponse } from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface PublishCommandInput extends PublishInput {}
+export interface PublishCommandOutput
+  extends PublishResponse,
+    __MetadataBearer {}
+declare const PublishCommand_base: {
+  new (input: PublishCommandInput): import("@smithy/smithy-client").CommandImpl<
+    PublishCommandInput,
+    PublishCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (__0_0: PublishCommandInput): import("@smithy/smithy-client").CommandImpl<
+    PublishCommandInput,
+    PublishCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class PublishCommand extends PublishCommand_base {
+  protected static __types: {
+    api: {
+      input: PublishInput;
+      output: PublishResponse;
+    };
+    sdk: {
+      input: PublishCommandInput;
+      output: PublishCommandOutput;
+    };
+  };
+}

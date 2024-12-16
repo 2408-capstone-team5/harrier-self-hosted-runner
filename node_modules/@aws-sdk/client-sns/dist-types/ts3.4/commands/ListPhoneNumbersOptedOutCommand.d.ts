@@ -1,0 +1,51 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import {
+  ListPhoneNumbersOptedOutInput,
+  ListPhoneNumbersOptedOutResponse,
+} from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface ListPhoneNumbersOptedOutCommandInput
+  extends ListPhoneNumbersOptedOutInput {}
+export interface ListPhoneNumbersOptedOutCommandOutput
+  extends ListPhoneNumbersOptedOutResponse,
+    __MetadataBearer {}
+declare const ListPhoneNumbersOptedOutCommand_base: {
+  new (
+    input: ListPhoneNumbersOptedOutCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    ListPhoneNumbersOptedOutCommandInput,
+    ListPhoneNumbersOptedOutCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (
+    ...[input]: [] | [ListPhoneNumbersOptedOutCommandInput]
+  ): import("@smithy/smithy-client").CommandImpl<
+    ListPhoneNumbersOptedOutCommandInput,
+    ListPhoneNumbersOptedOutCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class ListPhoneNumbersOptedOutCommand extends ListPhoneNumbersOptedOutCommand_base {
+  protected static __types: {
+    api: {
+      input: ListPhoneNumbersOptedOutInput;
+      output: ListPhoneNumbersOptedOutResponse;
+    };
+    sdk: {
+      input: ListPhoneNumbersOptedOutCommandInput;
+      output: ListPhoneNumbersOptedOutCommandOutput;
+    };
+  };
+}

@@ -1,0 +1,51 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import {
+  GetEndpointAttributesInput,
+  GetEndpointAttributesResponse,
+} from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface GetEndpointAttributesCommandInput
+  extends GetEndpointAttributesInput {}
+export interface GetEndpointAttributesCommandOutput
+  extends GetEndpointAttributesResponse,
+    __MetadataBearer {}
+declare const GetEndpointAttributesCommand_base: {
+  new (
+    input: GetEndpointAttributesCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    GetEndpointAttributesCommandInput,
+    GetEndpointAttributesCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (
+    __0_0: GetEndpointAttributesCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    GetEndpointAttributesCommandInput,
+    GetEndpointAttributesCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class GetEndpointAttributesCommand extends GetEndpointAttributesCommand_base {
+  protected static __types: {
+    api: {
+      input: GetEndpointAttributesInput;
+      output: GetEndpointAttributesResponse;
+    };
+    sdk: {
+      input: GetEndpointAttributesCommandInput;
+      output: GetEndpointAttributesCommandOutput;
+    };
+  };
+}

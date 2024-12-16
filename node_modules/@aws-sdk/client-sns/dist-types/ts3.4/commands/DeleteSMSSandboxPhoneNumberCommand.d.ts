@@ -1,0 +1,51 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import {
+  DeleteSMSSandboxPhoneNumberInput,
+  DeleteSMSSandboxPhoneNumberResult,
+} from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface DeleteSMSSandboxPhoneNumberCommandInput
+  extends DeleteSMSSandboxPhoneNumberInput {}
+export interface DeleteSMSSandboxPhoneNumberCommandOutput
+  extends DeleteSMSSandboxPhoneNumberResult,
+    __MetadataBearer {}
+declare const DeleteSMSSandboxPhoneNumberCommand_base: {
+  new (
+    input: DeleteSMSSandboxPhoneNumberCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    DeleteSMSSandboxPhoneNumberCommandInput,
+    DeleteSMSSandboxPhoneNumberCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (
+    __0_0: DeleteSMSSandboxPhoneNumberCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    DeleteSMSSandboxPhoneNumberCommandInput,
+    DeleteSMSSandboxPhoneNumberCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class DeleteSMSSandboxPhoneNumberCommand extends DeleteSMSSandboxPhoneNumberCommand_base {
+  protected static __types: {
+    api: {
+      input: DeleteSMSSandboxPhoneNumberInput;
+      output: {};
+    };
+    sdk: {
+      input: DeleteSMSSandboxPhoneNumberCommandInput;
+      output: DeleteSMSSandboxPhoneNumberCommandOutput;
+    };
+  };
+}

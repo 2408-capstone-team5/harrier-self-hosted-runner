@@ -1,0 +1,51 @@
+import { Command as $Command } from "@smithy/smithy-client";
+import { MetadataBearer as __MetadataBearer } from "@smithy/types";
+import {
+  ListOriginationNumbersRequest,
+  ListOriginationNumbersResult,
+} from "../models/models_0";
+import {
+  ServiceInputTypes,
+  ServiceOutputTypes,
+  SNSClientResolvedConfig,
+} from "../SNSClient";
+export { __MetadataBearer };
+export { $Command };
+export interface ListOriginationNumbersCommandInput
+  extends ListOriginationNumbersRequest {}
+export interface ListOriginationNumbersCommandOutput
+  extends ListOriginationNumbersResult,
+    __MetadataBearer {}
+declare const ListOriginationNumbersCommand_base: {
+  new (
+    input: ListOriginationNumbersCommandInput
+  ): import("@smithy/smithy-client").CommandImpl<
+    ListOriginationNumbersCommandInput,
+    ListOriginationNumbersCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  new (
+    ...[input]: [] | [ListOriginationNumbersCommandInput]
+  ): import("@smithy/smithy-client").CommandImpl<
+    ListOriginationNumbersCommandInput,
+    ListOriginationNumbersCommandOutput,
+    SNSClientResolvedConfig,
+    ServiceInputTypes,
+    ServiceOutputTypes
+  >;
+  getEndpointParameterInstructions(): import("@smithy/middleware-endpoint").EndpointParameterInstructions;
+};
+export declare class ListOriginationNumbersCommand extends ListOriginationNumbersCommand_base {
+  protected static __types: {
+    api: {
+      input: ListOriginationNumbersRequest;
+      output: ListOriginationNumbersResult;
+    };
+    sdk: {
+      input: ListOriginationNumbersCommandInput;
+      output: ListOriginationNumbersCommandOutput;
+    };
+  };
+}
