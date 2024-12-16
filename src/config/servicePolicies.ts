@@ -113,7 +113,7 @@ export const timeoutLambdaPolicy = JSON.stringify({
   Statement: [
     {
       Effect: "Allow",
-      Action: ["s3:GetObject", "s3:PutObject"],
+      Action: ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
       Resource: ["arn:aws:s3:::harrier*/runner-statuses/*"],
     },
     {
@@ -132,7 +132,11 @@ export const timeoutLambdaPolicy = JSON.stringify({
     },
     {
       Effect: "Allow",
-      Action: ["ec2:DescribeInstances", "ec2:StopInstances"],
+      Action: [
+        "ec2:DescribeInstances",
+        "ec2:StopInstances",
+        "ec2:TerminateInstances",
+      ],
       Resource: "*",
     },
   ],
