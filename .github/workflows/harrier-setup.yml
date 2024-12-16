@@ -28,12 +28,12 @@ jobs:
           role-to-assume: arn:aws:iam::536697269866:role/setup-harrier
 
       - name: Harrier Self-Hosted Runner Setup
-        uses: 2408-capstone-team5/harrier-runner-public@main
+        uses: 2408-capstone-team5/harrier-self-hosted-runner@main
         with:
           region: us-east-1
           ghOwnerName: ${{ github.repository_owner }}
           awsAccountId: 536697269866
-          instanceType: t2.micro
-          cacheTtlHours: 72
+          instanceType: m7a.large
+          cacheTtlHours: 168
           cidrBlockVPC: 10.0.0.0/16
           cidrBlockSubnet: 10.0.0.0/24
