@@ -5,9 +5,10 @@ import {
   DeleteObjectsCommand,
   DeleteBucketCommand,
 } from "@aws-sdk/client-s3";
+import { configHarrier } from "../../../config/configHarrier";
 
 // Create an S3 client
-const s3Client = new S3Client({ region: "us-east-1" }); // Change to your region
+const s3Client = new S3Client({ region: configHarrier.region }); // Change to your region
 
 // Function to find all S3 buckets whose name starts with "Harrier"
 const findBucketsWithPrefix = async (prefix: string) => {

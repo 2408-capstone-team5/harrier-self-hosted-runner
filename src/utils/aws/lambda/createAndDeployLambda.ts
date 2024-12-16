@@ -44,6 +44,7 @@ export async function createAndDeployLambda(
             configHarrier.maxWaiterTimeInSeconds
           ),
           TIMEOUT_LAMBDA_NAME: configHarrier.timeoutLambdaName,
+          TIMEOUT_LAMBDA_DELAY: configHarrier.timeoutLambdaDelayInMin,
         },
       },
       Runtime: "nodejs20.x",

@@ -3,8 +3,9 @@ import {
   GetRestApisCommand,
   DeleteRestApiCommand,
 } from "@aws-sdk/client-api-gateway";
+import { configHarrier } from "../../../config/configHarrier";
 
-const apiGatewayClient = new APIGatewayClient({ region: "us-east-1" });
+const apiGatewayClient = new APIGatewayClient({ region: configHarrier.region });
 
 // Function to delete API Gateway REST APIs with names starting with "Harrier"
 export const cleanupApi = async () => {

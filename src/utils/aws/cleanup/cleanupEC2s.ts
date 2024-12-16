@@ -4,8 +4,9 @@ import {
   TerminateInstancesCommand,
   DeleteSecurityGroupCommand,
 } from "@aws-sdk/client-ec2";
+import { configHarrier } from "../../../config/configHarrier";
 
-const ec2Client = new EC2Client({ region: "us-east-1" }); // specify your region
+const ec2Client = new EC2Client({ region: configHarrier.region }); // specify your region
 
 // Find EC2 instances by prefix
 const getInstancesByNamePrefix = async (prefix: string) => {
@@ -41,7 +42,9 @@ const getInstancesByNamePrefix = async (prefix: string) => {
             instance.SecurityGroups.forEach((group) => {
               if (group.GroupId) {
                 console.log("      Found security group: ", group.GroupId);
-                securityGroups.push(group.GroupId);
+                if (!securityGroups.includes(group.GroupId)) {
+                  securityGroups.push(group.GroupId);
+                }
               }
             });
           }

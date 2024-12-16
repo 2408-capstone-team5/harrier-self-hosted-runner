@@ -7,6 +7,9 @@ import {
   DescribeInstancesCommand,
   StartInstancesCommand,
   waitUntilInstanceRunning,
+  RunInstancesCommand,
+  waitUntilInstanceStatusOk,
+  StopInstancesCommand,
 } from "@aws-sdk/client-ec2";
 
 import {
@@ -32,6 +35,7 @@ const {
   SSM_SEND_COMMAND_TIMEOUT, // these are both strings
   MAX_WAITER_TIME_IN_SECONDS,
   TIMEOUT_LAMBDA_NAME,
+  TIMEOUT_LAMBDA_DELAY,
 } = process.env;
 
 const [secretClient, ssmClient, ec2Client, s3Client, lambdaClient] = [
@@ -279,7 +283,8 @@ async function getAllHarrierRunners(s3BucketName) {
 async function checkInstanceStatus(
   s3BucketName,
   instanceId,
-  searchedForStatus
+  searchedForStatus,
+  runDetails
 ) {
   try {
     const response = await s3Client.send(
@@ -292,7 +297,24 @@ async function checkInstanceStatus(
     const bodyString = await streamToString(response.Body);
     const instanceState = JSON.parse(bodyString);
 
-    return instanceState.status === searchedForStatus; // if the strings match, return true
+    const compareDetails = () => {
+      const { timeStamp: lastTimeStamp, ...lastRun } = instanceState.lastRun;
+      const { timeStamp: currentTimeStamp, ...currentRun } = runDetails;
+
+      for (const property of Object.keys(currentRun)) {
+        if (lastRun[property] !== currentRun[property]) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    if (searchedForStatus === "idle") {
+      return instanceState.status === searchedForStatus && compareDetails();
+    } else {
+      return instanceState.status === searchedForStatus; // if the strings match, return true
+    }
   } catch (error) {
     if (error.name === "NoSuchKey") {
       console.warn(`⚠️ Key not found for instanceId: ${instanceId}`);
@@ -303,17 +325,27 @@ async function checkInstanceStatus(
   }
 }
 
-async function findSuitableRunner(instanceIds, s3BucketName) {
+async function findSuitableRunner(instanceIds, s3BucketName, runDetails) {
   try {
     for (const id of instanceIds) {
-      const isIdle = await checkInstanceStatus(s3BucketName, id, "idle");
+      const isIdle = await checkInstanceStatus(
+        s3BucketName,
+        id,
+        "idle",
+        runDetails
+      );
       if (isIdle) {
         return { instanceId: id, currentStatus: "idle" };
       }
     }
 
     for (const id of instanceIds) {
-      const isOffline = await checkInstanceStatus(s3BucketName, id, "offline");
+      const isOffline = await checkInstanceStatus(
+        s3BucketName,
+        id,
+        "offline",
+        runDetails
+      );
       if (isOffline) {
         return { instanceId: id, currentStatus: "offline" };
       }
@@ -337,41 +369,20 @@ async function streamToString(stream) {
 async function updateInstanceStatus(
   s3BucketName,
   instanceId,
-  // currentStatus,
-  nextStatus
+  nextStatus,
+  lastRunDetails
 ) {
   try {
-    const response = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: s3BucketName,
-        // Key: `instance-states/${instanceId}.json`, // @Joel - shouldn't this path be runner-statuses?
-        Key: `runner-statuses/${instanceId}.json`,
-      })
-    );
-
-    const bodyString = await streamToString(response.Body);
-    const instanceState = JSON.parse(bodyString);
-
-    console.log(
-      // `actualStatus: ${instanceState.status}, currentStatus: ${currentStatus}, nextStatus:  ${nextStatus}`
-      `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
-    );
-
-    // Checking for currentStatus does not allow for this helper function to be re-used elsewhere
-
-    // if (instanceState.status !== currentStatus) {
-    //   throw new Error(
-    //     `❌ Current status does not match for instance ${instanceId}`
-    //   );
-    // }
-
-    instanceState.status = nextStatus;
+    const statusObject = {
+      status: nextStatus,
+      lastRun: lastRunDetails,
+    };
+    const statusString = JSON.stringify(statusObject);
     await s3Client.send(
       new PutObjectCommand({
         Bucket: s3BucketName,
-        // Key: `instance-states/${instanceId}.json`,
         Key: `runner-statuses/${instanceId}.json`,
-        Body: JSON.stringify(instanceState),
+        Body: statusString,
         ContentType: "application/json",
       })
     );
@@ -384,11 +395,306 @@ async function updateInstanceStatus(
   }
 }
 
+async function describeInstance(instanceId) {
+  try {
+    const params = { InstanceIds: [instanceId] };
+    const describeInstancesCommand = new DescribeInstancesCommand(params);
+
+    const instanceDetails = await ec2Client.send(describeInstancesCommand);
+
+    const amiId = instanceDetails.Reservations[0].Instances[0].ImageId;
+    const instanceType =
+      instanceDetails.Reservations[0].Instances[0].InstanceType;
+    const keyName = instanceDetails.Reservations[0].Instances[0].KeyName;
+    const securityGroupIds = [
+      instanceDetails.Reservations[0].Instances[0].SecurityGroups[0].GroupId,
+    ];
+    const subnetId =
+      instanceDetails.Reservations[0].Instances[0].NetworkInterfaces[0]
+        .SubnetId;
+    const iamInstanceProfile = {
+      Arn: instanceDetails.Reservations[0].Instances[0].IamInstanceProfile.Arn,
+    };
+    const harrierHash =
+      instanceDetails.Reservations[0].Instances[0].SecurityGroups[0].GroupName.split(
+        "-"
+      )[1];
+
+    return {
+      amiId,
+      instanceType,
+      keyName,
+      securityGroupIds,
+      subnetId,
+      iamInstanceProfile,
+      harrierHash,
+    };
+  } catch {
+    console.error(`Error describing EC2 instance: ${instanceId}:`, error);
+    throw error;
+  }
+}
+
+async function getNextEC2PoolId(s3BucketName) {
+  try {
+    const response = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: s3BucketName,
+        Key: "runner-statuses/nextId.json",
+      })
+    );
+
+    const bodyString = await streamToString(response.Body);
+    const nextId = JSON.parse(bodyString).nextId;
+
+    return nextId;
+  } catch (error) {
+    console.error(`Error fetching next EC2 pool ID: `, error);
+    throw error;
+  }
+}
+
+function makeScriptForNewEC2() {
+  return `#!/bin/bash
+  echo "Starting setup.sh script"
+
+  # Update the package list
+  sudo apt-get update -y
+
+  echo "cd /home/"
+  cd /home/
+  echo "cd ubuntu"
+  cd ubuntu
+
+  # Install jq
+  sudo apt install -y jq
+
+   # Install build-essentials
+  echo "%%%% before build-essentials install %%%%";
+  sudo apt install -y build-essential
+  echo "%%%% after build-essentials install %%%%";
+
+  # Install GitHub Actions Self-Hosted Runner
+  # Create a folder and switch to it.
+  echo "mkdir actions-runner"
+  mkdir actions-runner
+
+  #cd ..
+  sudo chown ubuntu:ubuntu ./actions-runner
+  cd actions-runner
+
+  # Download the latest runner package
+  echo "DOWNLOAD GITHUB ACTIONS RUNNER"
+  curl -o actions-runner-linux-x64-2.320.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.320.0/actions-runner-linux-x64-2.320.0.tar.gz
+  # Extract the installer
+  echo "*** EXTRACT GITHUB ACTIONS RUNNER ***"
+  tar xzf ./actions-runner-linux-x64-2.320.0.tar.gz
+
+  # Need to install this to get .config.sh to work
+  echo "*** INSTALL LIBICU ***"
+  sudo apt update && sudo apt install -y libicu-dev
+
+  # Install Git
+  echo "*** INSTALL GIT ***"
+  sudo apt install -y git
+
+  # Download Mountpoint
+  echo "**** DOWNLOAD MOUNTPOINT ***"
+  sudo wget https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.deb
+
+  # install Mountpoint
+  echo "**** INSTALL MOUNTPOINT ***"
+  sudo apt install -y ./mount-s3.deb
+
+  echo "**** MKDIR S3BUCKET ***"
+  mkdir s3bucket
+  sudo chown ubuntu:ubuntu ./s3bucket
+  echo "**** SUDO MKDIR S3BUCKET ***"
+  sudo mkdir s3bucket
+
+  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+  # Install Docker
+  echo "INSTALL DOCKER"
+  #sudo dnf install -y docker
+  sudo apt-get install -y docker.io
+  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+  # Give current user some permissions
+  echo "Give current user some permissions!!!!"
+  echo $USER
+  echo "*** CALL - sudo usermod -aG docker $USER ***"
+  sudo usermod -aG docker $USER
+  sudo usermod -aG docker ubuntu
+  echo "*** ALSO TRY - usermod -aG docker $USER ***"
+  usermod -aG docker $USER
+  usermod -aG docker ubuntu
+  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
+
+  # Start Docker deamon and set to start-up on reboots
+  echo "START DOCKER DAEMON AND SET TO START-UP AUTOMATICALLY ON REBOOTS"
+  sudo systemctl start docker
+  sudo systemctl enable docker
+  groups
+  getent group docker
+  echo "!!!!!!!!  END OF START SCRIPT !!!!!!"`;
+}
+
+async function createEC2(instanceProps, nextPoolId) {
+  const userDataScript = makeScriptForNewEC2();
+  const userData = Buffer.from(userDataScript).toString("base64");
+
+  const params = {
+    ImageId: instanceProps.amiId, // AMI ID for the instance
+    InstanceType: instanceProps.instanceType, // EC2 instance type
+    KeyName: instanceProps.keyName,
+    MinCount: 1, // Minimum instances to launch
+    MaxCount: 1, // Maximum instances to launch
+    BlockDeviceMappings: [
+      {
+        DeviceName: "/dev/sda1",
+        Ebs: {
+          VolumeSize: 16, // Size of the volume in GB
+          VolumeType: "gp3",
+        },
+      },
+    ],
+    SecurityGroupIds: instanceProps.securityGroupIds, // Security group IDs
+    SubnetId: instanceProps.subnetId, // Subnet ID (optional)
+    IamInstanceProfile: instanceProps.iamInstanceProfile, // IAM resource profile
+    TagSpecifications: [
+      {
+        ResourceType: "instance",
+        Tags: [
+          {
+            Key: "Name",
+            Value: `harrier-${instanceProps.harrierHash}-ec2-${nextPoolId}`,
+          },
+          { Key: "Agent", Value: "Harrier-Runner" },
+        ],
+      },
+    ], // Instance tags
+    UserData: userData, // UserData (must be base64 encoded)
+  };
+
+  const runInstancesCommand = new RunInstancesCommand(params);
+
+  try {
+    const instanceData = await ec2Client.send(runInstancesCommand);
+    const instanceId = instanceData.Instances[0].InstanceId;
+
+    console.log(`✅ Successfully created instance with ID: ${instanceId}\n`);
+    return instanceId;
+  } catch (error) {
+    throw new Error(`❌ Error creating EC2 instance: ${error}`);
+  }
+}
+
+async function waitEC2StatusOk(instanceIds) {
+  try {
+    console.log("Waiting until STATUS OK...");
+    const MAX_WAITER_TIME_IN_SECONDS = 60 * 3;
+    const startTime = new Date();
+    await waitUntilInstanceStatusOk(
+      {
+        client: ec2Client,
+        maxWaitTime: MAX_WAITER_TIME_IN_SECONDS,
+      },
+      { InstanceIds: instanceIds }
+    );
+    const endTime = new Date();
+    console.log(
+      "✅ STATUS OK Succeeded after time: ",
+      (endTime.getTime() - startTime.getTime()) / 1000
+    );
+  } catch (error) {
+    error.message = `${error.message}. Try increasing the maxWaitTime in the waiter.`;
+    console.error(error);
+  }
+}
+
+async function stopEC2s(instanceIds) {
+  try {
+    const command = new StopInstancesCommand({ InstanceIds: instanceIds });
+    const response = await ec2Client.send(command);
+    console.log("Stopping instance:", response.StoppingInstances);
+  } catch (error) {
+    console.error("❌ Error stopping instance:", error);
+  }
+}
+
+async function setupNextEC2(instanceProps, nextPoolId) {
+  try {
+    const instanceId = await createEC2(instanceProps, nextPoolId);
+    const instanceIds = [instanceId];
+    await waitEC2StatusOk(instanceIds);
+    await stopEC2s(instanceIds);
+    return instanceId;
+  } catch (error) {
+    console.error(`Error creating next EC2: `, error);
+    throw error;
+  }
+}
+
+async function updateNextPoolId(s3BucketName, nextPoolId) {
+  try {
+    const nextIDObject = {
+      nextId: nextPoolId,
+    };
+    const nextIDString = JSON.stringify(nextIDObject);
+    const idCommand = new PutObjectCommand({
+      Bucket: s3BucketName,
+      Key: `runner-statuses/nextId.json`,
+      Body: nextIDString,
+      ContentType: "application/json",
+    });
+    await s3Client.send(idCommand);
+  } catch (error) {
+    console.error("Error updating next EC2 pool ID: ", error);
+  }
+}
+
+// async function updateEC2PoolStatus(s3BucketName, nextPoolId, nextInstanceId) {
+//   try {
+//     const nextIDObject = {
+//       nextId: nextPoolId,
+//     };
+//     const nextIDString = JSON.stringify(nextIDObject);
+
+//     const idCommand = new PutObjectCommand({
+//       Bucket: s3BucketName,
+//       Key: `runner-statuses/nextId.json`,
+//       Body: nextIDString,
+//       ContentType: "application/json",
+//     });
+//     await s3Client.send(idCommand);
+
+//     const statusObject = {
+//       status: "offline",
+//     };
+//     const statusString = JSON.stringify(statusObject);
+
+//     const statusCommand = new PutObjectCommand({
+//       Bucket: s3BucketName,
+//       Key: `runner-statuses/${nextInstanceId}.json`,
+//       Body: statusString,
+//       ContentType: "application/json",
+//     });
+//     await s3Client.send(statusCommand);
+
+//     console.log("Successfully updated next EC2 pool status");
+//   } catch (error) {
+//     console.error("Error updating next EC2 pool status: ", error);
+//   }
+// }
+
 async function invokeTimeoutLambda(
   instanceId,
   delayInMinutes,
   s3BucketName,
-  timeoutFunctionName
+  timeoutFunctionName,
+  lastRunDetails
 ) {
   try {
     const invoke = new InvokeCommand({
@@ -397,6 +703,7 @@ async function invokeTimeoutLambda(
         instanceId,
         delayInMinutes,
         s3BucketName,
+        lastRunDetails,
       }),
     });
 
@@ -426,13 +733,24 @@ export const handler = async (event) => {
     const owner = event.repository.owner.login;
     const action = event.action;
 
+    const runDetails = {
+      timeStamp: new Date().toISOString(),
+      user: event.sender.login,
+      organization: event.organization.login,
+      repository: event.repository.name,
+      branch: event.workflow_job.head_branch,
+      workflow: event.workflow_job.workflow_name,
+      job: event.workflow_job.name,
+    };
+
     switch (action) {
       case "queued":
         const runnerIds = await getAllHarrierRunners(s3BucketName);
 
         const { instanceId, currentStatus } = await findSuitableRunner(
           runnerIds,
-          s3BucketName
+          s3BucketName,
+          runDetails
         );
 
         if (currentStatus === "busy") {
@@ -446,8 +764,8 @@ export const handler = async (event) => {
           await updateInstanceStatus(
             s3BucketName,
             instanceId,
-            // currentStatus,
-            "busy" // nextStatus
+            "busy", // nextStatus
+            runDetails
           );
 
           const startIdleEC2Script = makeScriptForIdleEC2(
@@ -467,8 +785,8 @@ export const handler = async (event) => {
           await updateInstanceStatus(
             s3BucketName,
             instanceId,
-            // currentStatus,
-            "busy" // nextStatus
+            "busy", // nextStatus
+            runDetails
           );
 
           await startStoppedInstance(instanceId);
@@ -491,6 +809,30 @@ export const handler = async (event) => {
             InstanceIds: [instanceId],
             Parameters: { commands: [startOfflineEC2Script] },
           });
+
+          const instanceProps = await describeInstance(instanceId);
+          console.log({ instanceProps });
+
+          const nextPoolId = await getNextEC2PoolId(s3BucketName);
+          console.log(nextPoolId);
+
+          await updateNextPoolId(s3BucketName, nextPoolId + 1);
+
+          const newInstanceId = await setupNextEC2(instanceProps, nextPoolId);
+          console.log("Set up new EC2 instance: ", newInstanceId);
+
+          // await updateEC2PoolStatus(
+          //   s3BucketName,
+          //   nextPoolId + 1,
+          //   newInstanceId
+          // );
+
+          await updateInstanceStatus(
+            s3BucketName,
+            newInstanceId,
+            "offline",
+            {}
+          );
         } else {
           // this should never be reached...
           console.log(`⚠️ this line should never be reached`);
@@ -498,20 +840,22 @@ export const handler = async (event) => {
         break;
       case "completed":
         const existingEC2RunnerInstanceId = event.workflow_job.runner_name; // @wook this value seems to be undefined
-        const delay = 1; // wait 1 minute
+        const delay = parseInt(TIMEOUT_LAMBDA_DELAY, 10); // wait time set by user, default 1 minute
 
         // Workflow completed should indicate that the EC2 is no longer running a job, thus need to toggle state to "idle"
         await updateInstanceStatus(
           s3BucketName,
           existingEC2RunnerInstanceId,
-          "idle" // nextStatus
+          "idle", // nextStatus
+          runDetails
         );
 
         await invokeTimeoutLambda(
           existingEC2RunnerInstanceId,
           delay,
           s3BucketName,
-          TIMEOUT_LAMBDA_NAME
+          TIMEOUT_LAMBDA_NAME,
+          runDetails
         );
 
         console.log(
