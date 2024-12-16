@@ -27,6 +27,9 @@ jobs:
           aws-region: us-east-1
           role-to-assume: arn:aws:iam::536697269866:role/setup-harrier
 
+      - name: Check working dir path
+        run: pwd
+
       - name: Harrier Self-Hosted Runner Setup
         uses: 2408-capstone-team5/harrier-self-hosted-runner@main
         with:
