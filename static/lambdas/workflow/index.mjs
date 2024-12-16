@@ -373,22 +373,6 @@ async function updateInstanceStatus(
   lastRunDetails
 ) {
   try {
-    // const response = await s3Client.send(
-    //   new GetObjectCommand({
-    //     Bucket: s3BucketName,
-    //     Key: `runner-statuses/${instanceId}.json`,
-    //   })
-    // );
-
-    // const bodyString = await streamToString(response.Body);
-    // const instanceState = JSON.parse(bodyString);
-
-    // console.log(
-    //   `currentStatus: ${instanceState.status}, nextStatus: ${nextStatus}`
-    // );
-
-    // instanceState.status = nextStatus;
-
     const statusObject = {
       status: nextStatus,
       lastRun: lastRunDetails,
@@ -653,13 +637,12 @@ async function setupNextEC2(instanceProps, nextPoolId) {
   }
 }
 
-async function updateEC2PoolStatus(s3BucketName, nextPoolId, nextInstanceId) {
+async function updateNextPoolId(s3BucketName, nextPoolId) {
   try {
     const nextIDObject = {
       nextId: nextPoolId,
     };
     const nextIDString = JSON.stringify(nextIDObject);
-
     const idCommand = new PutObjectCommand({
       Bucket: s3BucketName,
       Key: `runner-statuses/nextId.json`,
@@ -667,25 +650,44 @@ async function updateEC2PoolStatus(s3BucketName, nextPoolId, nextInstanceId) {
       ContentType: "application/json",
     });
     await s3Client.send(idCommand);
-
-    const statusObject = {
-      status: "offline",
-    };
-    const statusString = JSON.stringify(statusObject);
-
-    const statusCommand = new PutObjectCommand({
-      Bucket: s3BucketName,
-      Key: `runner-statuses/${nextInstanceId}.json`,
-      Body: statusString,
-      ContentType: "application/json",
-    });
-    await s3Client.send(statusCommand);
-
-    console.log("Successfully updated next EC2 pool status");
   } catch (error) {
-    console.error("Error updating next EC2 pool status: ", error);
+    console.error("Error updating next EC2 pool ID: ", error);
   }
 }
+
+// async function updateEC2PoolStatus(s3BucketName, nextPoolId, nextInstanceId) {
+//   try {
+//     const nextIDObject = {
+//       nextId: nextPoolId,
+//     };
+//     const nextIDString = JSON.stringify(nextIDObject);
+
+//     const idCommand = new PutObjectCommand({
+//       Bucket: s3BucketName,
+//       Key: `runner-statuses/nextId.json`,
+//       Body: nextIDString,
+//       ContentType: "application/json",
+//     });
+//     await s3Client.send(idCommand);
+
+//     const statusObject = {
+//       status: "offline",
+//     };
+//     const statusString = JSON.stringify(statusObject);
+
+//     const statusCommand = new PutObjectCommand({
+//       Bucket: s3BucketName,
+//       Key: `runner-statuses/${nextInstanceId}.json`,
+//       Body: statusString,
+//       ContentType: "application/json",
+//     });
+//     await s3Client.send(statusCommand);
+
+//     console.log("Successfully updated next EC2 pool status");
+//   } catch (error) {
+//     console.error("Error updating next EC2 pool status: ", error);
+//   }
+// }
 
 async function invokeTimeoutLambda(
   instanceId,
@@ -814,13 +816,22 @@ export const handler = async (event) => {
           const nextPoolId = await getNextEC2PoolId(s3BucketName);
           console.log(nextPoolId);
 
+          await updateNextPoolId(s3BucketName, nextPoolId + 1);
+
           const newInstanceId = await setupNextEC2(instanceProps, nextPoolId);
           console.log("Set up new EC2 instance: ", newInstanceId);
 
-          await updateEC2PoolStatus(
+          // await updateEC2PoolStatus(
+          //   s3BucketName,
+          //   nextPoolId + 1,
+          //   newInstanceId
+          // );
+
+          await updateInstanceStatus(
             s3BucketName,
-            nextPoolId + 1,
-            newInstanceId
+            newInstanceId,
+            "offline",
+            {}
           );
         } else {
           // this should never be reached...
