@@ -27,4 +27,6 @@ inputs:
 
 runs:
   using: "node20"
-  main: "dist/index.js"
+  steps:
+    - run: npm install
+    - run: node dist/index.js
