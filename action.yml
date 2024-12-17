@@ -24,7 +24,20 @@ inputs:
   cidrBlockSubnet:
     description: "CIDR block for the Subnet"
     required: true
+  cleanOnly:
+    description: "Flag for Harrier cleanup only"
+    required: false
+    default: "false"
 
 runs:
-  using: "node20"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - name: Run Harrier setup
+      shell: bash
+      run: |
+        if [[ "${{ inputs.cleanOnly }}" == "true" ]]; then
+          node dist/index.js -- --clean
+        else
+          node dist/index.js
+        fi
+  
