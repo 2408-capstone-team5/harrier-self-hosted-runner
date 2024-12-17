@@ -4,7 +4,7 @@ import { configHarrier } from "../../../config/configHarrier";
 
 export const createSecurityGroup = async () => {
   try {
-    const ec2Client = new EC2Client({ region: "us-east-1" });
+    const ec2Client = new EC2Client({ region: configHarrier.region });
     const securityGroupName = `harrier-${installationHash}-sg`;
     const params = {
       Description: "Security group for Harrier EC2 within Harrier VPC",
