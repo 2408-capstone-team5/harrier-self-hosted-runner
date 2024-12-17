@@ -17,13 +17,16 @@ inputs:
     required: true
   cacheTtlHours:
     description: "Cache TTL in hours"
-    required: true
+    required: false
+    default: "168"
   cidrBlockVPC:
     description: "CIDR block for the VPC"
-    required: true
+    required: false
+    default: "10.0.0.0/16"
   cidrBlockSubnet:
     description: "CIDR block for the Subnet"
-    required: true
+    required: false
+    default: "10.0.0.0/24"
   cleanOnly:
     description: "Flag for Harrier cleanup only"
     required: false
