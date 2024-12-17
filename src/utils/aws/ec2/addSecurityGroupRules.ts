@@ -6,7 +6,7 @@ import { configHarrier } from "../../../config/configHarrier";
 
 export const addSecurityGroupRules = async () => {
   try {
-    const ec2Client = new EC2Client({ region: "us-east-1" });
+    const ec2Client = new EC2Client({ region: configHarrier.region });
 
     const params = {
       GroupId: configHarrier.securityGroupIds[0], // Replace with your security group ID

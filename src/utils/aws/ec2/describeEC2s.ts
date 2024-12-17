@@ -1,7 +1,8 @@
 import { EC2Client, DescribeInstancesCommand } from "@aws-sdk/client-ec2";
+import { configHarrier } from "../../../config/configHarrier";
 
 export const describeEC2s = async (instanceId: string) => {
-  const ec2Client = new EC2Client({ region: "us-east-1" });
+  const ec2Client = new EC2Client({ region: configHarrier.region});
 
   const params = { InstanceIds: [instanceId] };
   const describeInstancesCommand = new DescribeInstancesCommand(params);

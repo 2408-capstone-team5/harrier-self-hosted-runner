@@ -242,8 +242,8 @@ export const eventBridgeSchedulerPolicy = JSON.stringify({
       Effect: "Allow",
       Action: ["lambda:InvokeFunction"],
       Resource: [
-        `arn:aws:lambda:us-east-1:${awsAccountId}:function:s3CacheCleanupLambda:*`,
-        `arn:aws:lambda:us-east-1:${awsAccountId}:function:s3CacheCleanupLambda`,
+        `arn:aws:lambda:*:${awsAccountId}:function:s3CacheCleanupLambda:*`,
+        `arn:aws:lambda:*:${awsAccountId}:function:s3CacheCleanupLambda`,
       ],
     },
   ],

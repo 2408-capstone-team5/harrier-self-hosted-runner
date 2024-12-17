@@ -14,7 +14,7 @@ export async function setupOrgWebhook(restApiId: string, stageName: string) {
       `https://api.github.com/orgs/${ghOwnerName}/hooks`,
       {
         config: {
-          url: `https://${restApiId}.execute-api.us-east-1.amazonaws.com/${stageName}/workflow`,
+          url: `https://${restApiId}.execute-api.${configHarrier.region}.amazonaws.com/${stageName}/workflow`,
           content_type: "json",
           insecure_ssl: "0",
         },

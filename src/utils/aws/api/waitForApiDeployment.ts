@@ -2,8 +2,9 @@ import {
   APIGatewayClient,
   GetDeploymentCommand,
 } from "@aws-sdk/client-api-gateway";
+import { configHarrier } from "../../../config/configHarrier";
 
-const apiGatewayClient = new APIGatewayClient({ region: "us-east-1" });
+const apiGatewayClient = new APIGatewayClient({ region: configHarrier.region });
 
 export const waitForApiDeployment = async (
   apiId: string,

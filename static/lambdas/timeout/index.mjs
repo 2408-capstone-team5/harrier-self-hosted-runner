@@ -134,7 +134,7 @@ export const handler = async ({
       // await stopInstance(instanceId);
       await deleteInstanceStatus(s3BucketName, instanceId);
       // await updateInstanceStatus(s3BucketName, instanceId, "offline");
-      console.log`✅ DELETED instance: ${instanceId} after: ~ ${delayInMinutes} minutes`();
+      console.log(`✅ DELETED instance: ${instanceId} after: ~ ${delayInMinutes} minutes`());
       // `✅ STOPPED instance: ${instanceId} after: ~ ${delayInMinutes} minutes`
     } else {
       console.log(
