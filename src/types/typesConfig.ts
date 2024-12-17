@@ -5,6 +5,7 @@ export interface configHarrierType {
   tagValue: string;
   cidrBlockVPC: string;
   cidrBlockSubnet: string;
+  cleanOnly: string;
   subnetIds: string[];
   vpcId: string | undefined;
   subnetId: string | undefined;

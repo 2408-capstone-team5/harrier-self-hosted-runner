@@ -21,12 +21,14 @@ console.log(`Using instanceType: ${instanceType}`);
 const cacheTtlHours = getInput("cacheTtlHours") || "72";
 const cidrBlockVPC = getInput("cidrBlockVPC") || "10.0.0.0/16";
 const cidrBlockSubnet = getInput("cidrBlockSubnet") || "10.0.0.0/24";
+const cleanOnly = getInput("cleanOnly") || "false";
 
 export const configHarrier: configHarrierType = {
   vpcId: "",
   tagValue: `harrier-${installationHash}`, // modified from capital H
   cidrBlockVPC: cidrBlockVPC,
   cidrBlockSubnet: cidrBlockSubnet,
+  cleanOnly: cleanOnly,
 
   subnetId: "",
   subnetIds: [],

@@ -5,29 +5,33 @@ import { setupEC2Runner } from "./services/setupEC2Runner";
 import { setupApiAndWebhook } from "./services/setupApiAndWebhook";
 import { setupRoles } from "./services/setupRoles";
 import { setupCacheEviction } from "./services/setupCacheEviction";
+import { configHarrier } from "./config/configHarrier";
 
 let deleteHarrier = false;
 
-const processCmdLineArgs = () => {
-  const args = process.argv.slice(2);
-  let clean = false;
+// FOR DEV, not needed in prod
+// const processCmdLineArgs = () => {
+//   const args = process.argv.slice(2);
+//   let clean = false;
 
-  const nameArgIndex = args.indexOf("--clean");
-  if (nameArgIndex !== -1) {
-    clean = true;
-    console.log(`*** Clean Only!***`);
-  }
+//   const nameArgIndex = args.indexOf("--clean");
+//   if (nameArgIndex !== -1) {
+//     clean = true;
+//     console.log(`*** Clean Only!***`);
+//   }
 
-  const options = {
-    clean,
-  };
-  return options;
-};
+//   const options = {
+//     clean,
+//   };
+//   return options;
+// };
 
 const main = async () => {
   try {
-    const cmdLineOptions = processCmdLineArgs();
-    deleteHarrier = cmdLineOptions.clean;
+    // const cmdLineOptions = processCmdLineArgs(); // dev env
+    // deleteHarrier = cmdLineOptions.clean; // dev
+
+    deleteHarrier = configHarrier.cleanOnly === "true";
 
     await cleanupPrevInstall();
 
