@@ -4,7 +4,7 @@ import { configHarrier } from "../config/configHarrier";
 import { createDailySchedule } from "../utils/aws/eventbridge/createDailySchedule";
 
 export async function setupCacheEviction() {
-  const lambdaName = configHarrier.cacheEvictionServiceName;
+  const lambdaName = configHarrier.evictionLambdaName;
   const scheduleName = configHarrier.schedulerServiceName;
 
   try {

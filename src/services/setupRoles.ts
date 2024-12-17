@@ -51,7 +51,7 @@ export const setupRoles = async () => {
   configHarrier.runnerInstanceServiceRoleArn = runnerInstanceServiceRoleArn;
   configHarrier.schedulerServiceRoleArn = schedulerServiceRoleArn;
 
-  createInstanceProfile(
+  await createInstanceProfile(
     configHarrier.runnerInstanceServiceName,
     configHarrier.runnerInstanceProfileName
   );

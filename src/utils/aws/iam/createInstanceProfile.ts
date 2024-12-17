@@ -24,8 +24,8 @@ export async function createInstanceProfile(
       })
     );
     console.log(`Instance profile (${instanceProfileName}) already exists.`);
-  } catch (error: any) {
-    if (error.name === "NoSuchEntityException") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "NoSuchEntityException") {
       // Create the instance profile, if it doesn't exist
       console.log(
         `Instance profile (${instanceProfileName}) does not exist. Creating it...`
@@ -62,8 +62,8 @@ export async function createInstanceProfile(
     console.log(
       `✅ Successfully added role ${roleName} to instance profile ${instanceProfileName} \n`
     );
-  } catch (error: any) {
-    if (error.name === "LimitExceededException") {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === "LimitExceededException") {
       console.log(
         `Role (${roleName}) is already associated with the instance profile (${instanceProfileName}).`
       );

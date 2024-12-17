@@ -11,12 +11,12 @@ const stageName = configHarrier.stageName;
 export async function setupApiAndWebhook() {
   try {
     await createAndDeployLambda(
-      configHarrier.timeoutServiceName,
+      configHarrier.timeoutLambdaName,
       configHarrier.timeoutServiceRoleArn
     );
 
     await createAndDeployLambda(
-      configHarrier.workflowServiceName,
+      configHarrier.workflowLambdaName,
       configHarrier.workflowServiceRoleArn
     );
 
@@ -25,7 +25,7 @@ export async function setupApiAndWebhook() {
     await integrateLambdaWithApi(
       restApiId,
       resourceId,
-      configHarrier.workflowServiceName
+      configHarrier.workflowLambdaName
     );
 
     await deployApi(restApiId, stageName);

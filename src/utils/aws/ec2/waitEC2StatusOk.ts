@@ -1,6 +1,6 @@
 import { EC2Client, waitUntilInstanceStatusOk } from "@aws-sdk/client-ec2";
 
-const MAX_WAITER_TIME_IN_SECONDS = 60 * 8;
+const MAX_WAITER_TIME_IN_SECONDS = 60 * 3;
 
 export const waitEC2StatusOk = async (instanceIds: string[]) => {
   const client = new EC2Client({ region: "us-east-1" });
