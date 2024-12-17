@@ -28,7 +28,7 @@ inputs:
     required: false
     default: "10.0.0.0/24"
   cleanOnly:
-    description: "Flag for Harrier cleanup only"
+    description: "Cleanup Harrier option (tear down only)"
     required: false
     default: "false"
 
