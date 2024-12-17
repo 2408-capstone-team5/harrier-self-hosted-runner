@@ -1,7 +1,8 @@
 import * as path from "path";
 import { readFileSync } from "fs";
 import { resolve } from "path";
-const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static");
+// const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static"); // dev path
+const projectRoot = path.resolve(__dirname, "..", "static"); // prod path
 
 export function getLambda(lambdaName: string) {
   const lambdaPath = path.join(

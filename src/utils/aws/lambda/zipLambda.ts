@@ -2,7 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as archiver from "archiver";
 
-const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static");
+// const projectRoot = path.resolve(__dirname, "..", "..", "..", "..", "static"); // dev path
+const projectRoot = path.resolve(__dirname, "..", "static"); // prod path
 
 export async function zipLambda(lambdaName: string) {
   try {

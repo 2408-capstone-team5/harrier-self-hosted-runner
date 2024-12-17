@@ -52,11 +52,11 @@ export const configHarrier: configHarrierType = {
   s3Name: `harrier-s3-${ghOwnerName}`,
   cacheTtlHours: cacheTtlHours,
 
-  workflowLambdaName: `harrier-${installationHash}-workflow`, // this duplication is a bit confusing
+  workflowLambdaName: `harrier-${installationHash}-workflow`, // these are LAMBDA names
   timeoutLambdaName: `harrier-${installationHash}-timeout`,
   evictionLambdaName: `harrier-${installationHash}-eviction`,
 
-  workflowServiceName: `harrier-${installationHash}-workflow-service-role`,
+  workflowServiceName: `harrier-${installationHash}-workflow-service-role`, // these are service ROLE names
   cacheEvictionServiceName: `harrier-${installationHash}-eviction-service-role`,
   timeoutServiceName: `harrier-${installationHash}-timeout-service-role`,
   runnerInstanceServiceName: `harrier-${installationHash}-runner-service-role`,
