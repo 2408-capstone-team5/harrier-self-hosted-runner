@@ -175,6 +175,8 @@ export const cleanupEC2s = async () => {
       await waitForInstanceTermination(harrierInstances.instanceIds);
     }
 
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // wait 2sec after EC2s terminated before securityGroup cleanup
+
     if (harrierInstances.securityGroups.length === 0) {
       console.log("   No security groups to delete.");
     } else {

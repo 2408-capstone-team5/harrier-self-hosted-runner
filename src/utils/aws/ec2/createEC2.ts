@@ -14,7 +14,7 @@ export const createEC2 = async (poolId: number) => {
 
   const amiId = configHarrier.imageId;
   const instanceType = configHarrier.instanceType;
-  const keyName = configHarrier.keyName;
+  // const keyName = configHarrier.keyName; // dev only, no keyName for prod
   const minCount = configHarrier.minInstanceCount;
   const maxCount = configHarrier.maxInstanceCount;
   const securityGroupIds = configHarrier.securityGroupIds;
@@ -40,7 +40,7 @@ export const createEC2 = async (poolId: number) => {
   const params: RunInstancesCommandInput = {
     ImageId: amiId, // AMI ID for the instance
     InstanceType: instanceType, // EC2 instance type
-    KeyName: keyName,
+    // KeyName: keyName, // dev only, no keyName for prod
     MinCount: minCount, // Minimum instances to launch
     MaxCount: maxCount, // Maximum instances to launch
     BlockDeviceMappings: [

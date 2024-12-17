@@ -43,7 +43,7 @@ export const configHarrier: configHarrierType = {
   imageId: "ami-005fc0f236362e99f", // AMI Ubuntu 22.04
   // imageId: "ami-0866a3c8686eaeeba", // AMI ID for the instance - THIS IS FOR UBUNTU
   instanceType: instanceType, // EC2 instance type used for initial EC2 cold-start
-  keyName: "test-1-ubuntu-64x86-241022", // For SSH access
+  // keyName: "test-1-ubuntu-64x86-241022", // dev only for SSH access
   minInstanceCount: 1, // Minimum instances to launch
   maxInstanceCount: 1, // Maximum instances to launch
   // IamInstanceProfile: {

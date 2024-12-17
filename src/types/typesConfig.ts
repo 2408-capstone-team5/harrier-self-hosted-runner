@@ -14,7 +14,7 @@ export interface configHarrierType {
   awsAccountId: string;
   imageId: string; // AMI ID for the instance
   instanceType: _InstanceType; // EC2 instance type
-  keyName: string;
+  // keyName: string; // dev only for SSH
   minInstanceCount: number; // Minimum instances to launch
   maxInstanceCount: number; // Maximum instances to launch
   securityGroupName: string;
