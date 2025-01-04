@@ -74,7 +74,7 @@ export const configHarrier: configHarrierType = {
 
   stageName: "dev",
 
-  warmPoolSize: 1,
+  warmPoolSize: 2,
   instanceIds: [],
 
   // all currently used by the workflow lambda:
