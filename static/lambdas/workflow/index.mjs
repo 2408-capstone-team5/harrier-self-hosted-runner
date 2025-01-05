@@ -64,10 +64,6 @@ function makeScriptForIdleEC2(secret, owner, instanceId) {
     cd actions-runner
     sudo chown ubuntu:ubuntu ./s3bucket
 
-    # removed s3 bucket mount 
-    # removed s3 bucket mount
-    # removed s3 bucket mount 
-
     for i in $(seq 1 $X); do
       echo "Iteration $i - $(date '+%Y-%m-%d %H:%M:%S-%3N')"
 
@@ -469,7 +465,7 @@ function makeScriptForNewEC2() {
   # Install jq
   sudo apt install -y jq
 
-   # Install build-essentials
+  # Install build-essentials
   echo "%%%% before build-essentials install %%%%";
   sudo apt install -y build-essential
   echo "%%%% after build-essentials install %%%%";
@@ -479,7 +475,6 @@ function makeScriptForNewEC2() {
   echo "mkdir actions-runner"
   mkdir actions-runner
 
-  #cd ..
   sudo chown ubuntu:ubuntu ./actions-runner
   cd actions-runner
 
@@ -512,13 +507,9 @@ function makeScriptForNewEC2() {
   echo "**** SUDO MKDIR S3BUCKET ***"
   sudo mkdir s3bucket
 
-  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
   # Install Docker
   echo "INSTALL DOCKER"
-  #sudo dnf install -y docker
   sudo apt-get install -y docker.io
-  echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
   # Give current user some permissions
   echo "Give current user some permissions!!!!"
@@ -529,8 +520,6 @@ function makeScriptForNewEC2() {
   echo "*** ALSO TRY - usermod -aG docker $USER ***"
   usermod -aG docker $USER
   usermod -aG docker ubuntu
-  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
-  echo "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^"
 
   # Start Docker deamon and set to start-up on reboots
   echo "START DOCKER DAEMON AND SET TO START-UP AUTOMATICALLY ON REBOOTS"
@@ -724,6 +713,15 @@ export const handler = async (event) => {
     return {
       statusCode: 200,
       body: JSON.stringify(`✅ Successful ping: ${event.zen}`),
+    };
+  }
+
+  const label = event.label;
+  console.log(label);
+  if (label !== "self-hosted") {
+    return {
+      statusCode: 202,
+      body: JSON.stringify(`Webhook not for self-hosted received: ${event.label}`),
     };
   }
 
