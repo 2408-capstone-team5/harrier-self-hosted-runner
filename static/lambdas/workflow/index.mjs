@@ -716,12 +716,14 @@ export const handler = async (event) => {
     };
   }
 
-  const label = event.label;
-  console.log(label);
-  if (label !== "self-hosted") {
+  const workflow_job = event.workflow_job;
+  console.log(workflow_job);
+  console.log("💯", workflow_job.label);
+  console.log("💯", workflow_job.lanel[0]);
+  if (!workflow_job || !workflow_job.label || workflow_job.label[0] !== "self-hosted") {
     return {
       statusCode: 202,
-      body: JSON.stringify(`Webhook not for self-hosted received: ${event.label}`),
+      body: JSON.stringify(`Webhook not for self-hosted received: ${workflow_job.label}`),
     };
   }
 
