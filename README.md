@@ -1,4 +1,147 @@
+# Harrier Deployment Guide
+
 ## Overview
+
+This repository contains the automated deployment process for **Harrier**, an open-source pipeline designed to simplify processing unstructured data and integrating it into modern knowledge bases.
+
+Learn more about Harrier:  
+- [Website](https://harrier-gha-runner.github.io/)  
+- [Case Study](https://harrier-gha-runner.github.io/case-study/)
+
+---
+
+## Infrastructure Overview
+
+Harrier deploys the following key components in your AWS account:
+
+<p align="center">
+  <img 
+    src="./static/diagrams/harrier-architecture-bg-white.png"
+    alt="Harrier architecture including GitHub and deployed AWS resources"
+  >
+</p>
+
+---
+
+## Deployment and Management
+
+### Key Features
+- **Secure AWS Integration**: Harrier securely integrates with your AWS and GitHub using OIDC and AWS Secrets Manager.
+- **Smart Configurations**: Generate setup workflows with smart defaults or customized preferences.
+- **Open-Source Transparency**: All code is publicly accessible, ensuring full transparency.
+
+### Workflow Overview
+1. Configure your AWS and GitHub accounts (detailed steps below).  
+2. Generate a `setup.yml` file using the `Try Harrier` feature.  
+3. Deploy `setup.yml` as a GitHub Actions workflow in your organization.  
+4. Use your self-hosted runners with a simple workflow change:  
+
+   🚫 `- ubuntu-latest`  
+   ✅ `+ self-hosted`
+
+---
+
+## Preflight Checklist
+
+Before starting, ensure you have:
+- An active **AWS account**
+- An active **GitHub account**
+- A **GitHub organization**
+
+---
+
+## Setup Steps
+
+### Step 1: AWS - Create an IAM Identity Provider
+
+1. **Login to your AWS account** and navigate to **Identity and Access Management (IAM)**.
+2. Select **Identity Providers** from the left-hand menu and click **Add provider**.
+3. Choose **OpenID Connect** as the provider type.
+4. Enter the following details:
+   - **Provider URL**: `https://token.actions.githubusercontent.com`
+   - **Audience**: `sts.amazonaws.com`
+5. Click **Add provider**.
+6. Assign a role to the new provider:
+   - Click on the provider name (`token.actions.githubusercontent.com`).
+   - Select **Assign role** > **Create a new role**.
+   - Configure the role with:
+     - **Trusted entity**: Web identity
+     - **Identity provider**: `token.actions.githubusercontent.com`
+     - **Audience**: `sts.amazonaws.com`
+     - **GitHub organization name** (e.g., `harrier-gha-runner`)
+   - Add the following permissions:
+     - `AmazonVPCFullAccess`
+     - `AmazonEC2FullAccess`
+     - `AmazonS3FullAccess`
+     - `AWSLambda_FullAccess`
+     - `IAMFullAccess`
+     - `AmazonAPIGatewayAdministrator`
+     - `AmazonEventBridgeFullAccess`
+     - `AWSWAFConsoleFullAccess`
+     - `SecretsManagerReadWrite`
+   - **Role Name**: `setup-harrier` (required).
+
+### Step 2: GitHub - Create a Personal Access Token
+
+Follow [GitHub's guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic) or:
+
+1. Login to GitHub and go to **Settings > Developer settings > Tokens (classic)**.
+2. Click **Generate new token (classic)** and configure:
+   - **Note**: Add a descriptive name.
+   - **Expiration**: Choose or set a custom date.
+   - **Scopes**: Select the following:
+     - `repo`
+     - `workflow`
+     - `admin:org`
+     - `admin:org_hook`
+3. Click **Generate token** and save it securely.
+
+### Step 3: AWS - Store GitHub Token in Secrets Manager
+
+1. Go to **Secrets Manager** in AWS and click **Store a new secret**.
+2. Select **Other type of secret** > **Plaintext**.
+3. Paste the GitHub token into the field.
+4. Set the **Secret name**: `github/pat/harrier` (required).
+5. Complete the wizard, leaving **Automatic rotation** off.
+
+### Step 4 (Optional): GitHub - Add DockerHub Secrets
+
+1. Navigate to your GitHub repository's **Settings > Security > Secrets and variables**.
+2. Add new secrets for DockerHub credentials (e.g., `DOCKER_USER` and `DOCKER_TOKEN`).
+
+---
+
+## Using Harrier
+
+### Deploying Harrier Infrastructure
+
+Run the **Harrier-setup** GitHub Action to deploy the necessary AWS resources.
+
+### Using Self-Hosted Runners
+
+Update workflows to use Harrier’s self-hosted runners by replacing `ubuntu-latest` with `self-hosted`.
+
+### Persistent Caching in Workflows
+
+Leverage Harrier’s caching features to optimize workflow execution by using predefined cache keys and locations.
+
+---
+
+## Teardown
+
+### Destroying Harrier Infrastructure
+
+To remove all Harrier-related resources, run the **Harrier-cleanup** action.
+
+**⚠ Warning**:  
+This action permanently deletes all resources and data. Use with caution. To start fresh, you can re-run the setup process.
+
+---
+
+This improved version is designed for clarity and ease of navigation while maintaining all the original content. Let me know if you'd like further tweaks!
+
+
+<!-- ## Overview
 
 This repository contains the automated deployment process for Harrier, an open-source pipeline designed to simplify the processing of unstructured data and its integration into modern knowledge bases.
 
@@ -62,15 +205,15 @@ Before starting with Harrier, make sure you have the following:
 13. Select the “sts.amazonaws.com” Audience from the drop down
 14. Enter your GitHub organization name (e.g. harrier-gha-runner), and push the “Next” button
 15. Add these permissions:
-- AmazonVPCFullAccess
-- AmazonEC2FullAccess
-- AmazonS3FullAccess
-- AWSLambda_FullAccess
-- IAMFullAccess
-- AmazonAPIGatewayAdministrator
-- AmazonEventBridgeFullAccess
-- AWSWAFConsoleFullAccess
-- SecretsManagerReadWrite
+- `AmazonVPCFullAccess`
+- `AmazonEC2FullAccess`
+- `AmazonS3FullAccess`
+- `AWSLambda_FullAccess`
+- `IAMFullAccess`
+- `AmazonAPIGatewayAdministrator`
+- `AmazonEventBridgeFullAccess`
+- `AWSWAFConsoleFullAccess`
+- `SecretsManagerReadWrite`
 16. Name the role `setup-harrier`. Harrier will not deploy if the role is named anything other than `setup-harrier`.
 17. Select the newly created role and push the “Create role” orange button. Now your Identity Provider and role are ready!
 
@@ -132,4 +275,4 @@ To tear down the Harrier infrastructure from your AWS, run the Harrier-cleanup a
 This action will delete all Harrier-related resources in your AWS account.
 
 **⚠ Important:**  
-Destroying the infrastructure will permanently delete all associated resources and data. This action is irreversible, so proceed with caution. If you wish, you can always set Harrier up again with a fresh start.
+Destroying the infrastructure will permanently delete all associated resources and data. This action is irreversible, so proceed with caution. If you wish, you can always set Harrier up again with a fresh start. -->
