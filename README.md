@@ -119,11 +119,20 @@ Run the **Harrier-setup** GitHub Action to deploy the necessary AWS resources.
 
 ### Using Self-Hosted Runners
 
-Update workflows to use Harrier’s self-hosted runners by replacing `ubuntu-latest` with `self-hosted`.
+Update workflows to use Harrier’s self-hosted runners by replacing `ubuntu-22.04` or `ubuntu-latest` with `self-hosted`.
+
+```yml
+name: CI
+on: push
+
+jobs:
+   build:
+     runs-on: self-hosted
+```
 
 ### Persistent Caching in Workflows
 
-Leverage Harrier’s caching features to optimize workflow execution by using predefined cache keys and locations.
+Use Harrier’s caching features to optimize workflow execution by using predefined cache keys and locations.
 
 ---
 
@@ -135,11 +144,6 @@ To remove all Harrier-related resources, run the **Harrier-cleanup** action.
 
 **⚠ Warning**:  
 This action permanently deletes all resources and data. Use with caution. To start fresh, you can re-run the setup process.
-
----
-
-This improved version is designed for clarity and ease of navigation while maintaining all the original content. Let me know if you'd like further tweaks!
-
 
 <!-- ## Overview
 
