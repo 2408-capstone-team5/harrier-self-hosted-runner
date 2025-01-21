@@ -26,8 +26,9 @@ Once these configurations are complete, you'll use the `Try Harrier` feature to 
 Your new action based on the setup.yml first automates preparatory tasks such as setting up Node.js and configuring AWS credentials with the user's designated IAM role. Once the groundwork is complete, the action executes the Harrier Setup Action from the GitHub public marketplace. Harrier Setup is a JavaScript packed action which deploys the required infrastructure using code from the action repository. The project is open-source which means that anyone can browse and check the code and functionality before executing.
 
 Using your new self-hosted runner is a simple one-line change in any workflow:
-<span style="background-color: red; color: white; padding: 2px;">- ubuntu-latest</span>  
-<span style="background-color: green; color: white; padding: 2px;">+ self-hosted</span>
+
+🚫 `- ubuntu-latest`  
+✅ `+ self-hosted`
 
 
 ### Preflight Check
