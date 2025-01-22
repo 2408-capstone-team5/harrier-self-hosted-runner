@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains the automated deployment process for **Harrier**, an open-source pipeline designed to simplify processing unstructured data and integrating it into modern knowledge bases.
+This repository contains the automated deployment process for **Harrier**, an open-source developer productivity tool to accelerate CI/CD build times of GitHub Actions workflows by automating deployment of AWS self-hosted runners and persistent cache storage.
 
 Learn more about Harrier:  
 - [Website](https://harrier-gha-runner.github.io/)  
@@ -127,7 +127,8 @@ on: push
 
 jobs:
    build:
-     runs-on: self-hosted
+   - runs-on: ubuntu-22.04
+   + runs-on: self-hosted
 ```
 
 ### Persistent Caching in Workflows
